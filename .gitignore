@@ -7,3 +7,7 @@
 *.toc
 *.bbl
 *.blg
+__pycache__/
+.pytest_cache/
+*.pyc
+codigo/descarga_bcra.log

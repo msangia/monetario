@@ -1,0 +1,13 @@
+[DATOS SINTÉTICOS DE DEMOSTRACIÓN, NO OFICIALES]
+Evaluación fuera de muestra, 1 día, n = 782
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    0.848    1.000  0.301      0.882
+regresion  0.662    0.780  0.071      0.885
+arimax     0.629    0.742  0.055      0.895
+ensamble   0.640    0.755  0.063      0.896
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = -11.31, p = 0.000 -> rechaza igualdad al 10 % (n >= 60: cumple)
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes        0.048    1.689
+inicio de mes    -0.030   -0.725
+resto             0.075    0.261
