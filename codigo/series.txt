@@ -5,13 +5,11 @@
 #   python descargar_bcra.py --buscar depositos --buscar call --buscar caucion --buscar tamar
 # Verificar la descripción de cada ID en datos/catalogo_monetarias.csv antes de usarlo.
 #
-# Ejemplo (ID del script de referencia del usuario; confirmar qué serie es en el catálogo):
-104
-# Completar con los IDs encontrados, por ejemplo:
-# <id>   # base monetaria (saldo diario)
-# <id>   # circulación monetaria / billetes y monedas
-# <id>   # depósitos del sector privado
-# <id>   # M2 privado (transaccional)
-# <id>   # tasa call interbancaria
-# <id>   # tasa de caución
-# <id>   # TAMAR
+# Series activas (IDs confirmados por el usuario; verificar descripción en el catálogo):
+15   # base monetaria (saldo diario)
+17   # Billetes y monedas en poder del publico
+104  # Depositos del sector privado no financiero
+197  # M2 transaccional del sector privado
+11   # Tasa de interés de préstamos entre entidades financiera privadas (BAIBAR)
+150  # Tasa de interés por operaciones de pases entre terceros a 1 día
+44   # Tasa de interes TAMAR de bancos privados 
