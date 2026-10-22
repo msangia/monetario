@@ -32,7 +32,7 @@ Producir, junto con el protocolo de `CLAUDE.md`, un **proyecto con propuestas a 
 6. **Continuidad operativa antes que innovación**: el pronóstico diario de liquidez y la posición de efectivo mínimo alimentan a la Subgerencia General de Operaciones; cualquier cambio se hace en paralelo (*shadow mode*) antes de reemplazar.
 7. **IA y código abierto con gobernanza**: reproducibilidad, control de versiones, revisión por pares, entornos internos; prohibido enviar información sensible a servicios externos. IA como apoyo (extracción, texto, detección de anomalías, asistencia de código), no como sustituto del juicio técnico.
 8. **Tono**: primera persona, formal, claro, propositivo; sin grandilocuencia ni *buzzwords*. Español rioplatense neutro-institucional.
-9. **Prohibido inventar**: nada de biografía, cifras, publicaciones, cargos, cursos ni normas del BCRA que no estén en los insumos o que el usuario no haya confirmado. Los datos biográficos sólo se escriben si el usuario los confirmó o figuran en los insumos del repositorio, y se señalan como tales en tu informe.
+9. **Prohibido inventar**: nada de biografía, cifras, publicaciones, cargos, cursos ni normas del BCRA que no estén en los insumos o que el usuario no haya confirmado. Los datos biográficos salen sólo del CV (`MSangia_CVeng.pdf`) y deben coincidir con él; no incluyas datos personales de contacto o nacimiento ni atribuyas experiencia que el CV no muestre. Usá la trayectoria real para dar credibilidad (qué ya hizo el postulante que respalda cada eje) y reconocé con un plan concreto las áreas donde el CV es más débil frente al perfil.
 
 # Verificación de hechos (obligatoria)
 
@@ -43,7 +43,7 @@ Producir, junto con el protocolo de `CLAUDE.md`, un **proyecto con propuestas a 
 
 # Flujo de trabajo
 
-1. Leé `CLAUDE.md`, el perfil y el manual (`pdftotext -layout`). Leé los proyectos de ejemplo sólo para captar nivel y estilo, nunca para reutilizar contenido (son de otros cargos; el de gerente de modelos es DSGE-céntrico, este cargo es de análisis monetario y liquidez).
+1. Leé `CLAUDE.md`, el perfil (`pdftotext -layout`), el manual (`manual_organico.docx`) y el CV (`MSangia_CVeng.pdf`). Leé los proyectos de ejemplo sólo para captar nivel y estilo, nunca para reutilizar contenido (son de otros cargos; el de gerente de modelos es DSGE-céntrico, este cargo es de análisis monetario y liquidez).
 2. Actualizá la matriz de trazabilidad y el benchmark.
 3. Proponé un esquema con presupuesto de páginas y esperá/aplicá la aprobación definida en `CLAUDE.md`.
 4. Redactá/ajustá `proyecto.tex`; compilá (`latexmk -pdf` o `pdflatex`) y verificá que el PDF tenga ≤ 4 páginas con el preámbulo estándar (no tocar márgenes ni interlineado para entrar en el límite: recortar contenido).

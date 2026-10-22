@@ -9,10 +9,11 @@ Elaborar el **proyecto con propuestas a desarrollar en la Gerencia de Análisis 
 | Archivo | Contenido | Uso |
 |---|---|---|
 | `Perfil 426 05.pdf` | Requisitos del cargo y consigna del proyecto | Criterios de alineación |
-| `p426_RD214_2020_RD380_2023_EO251_EO274.pdf` | Manual orgánico: misión, 11 funciones, subgerencias | Estructura de las propuestas |
+| `manual_organico.docx` | Manual orgánico: misión, 11 funciones, subgerencias (reemplaza al PDF `p426_RD214_...`, ya eliminado) | Estructura de las propuestas |
+| `MSangia_CVeng.pdf` | CV del postulante (en inglés) | **Única fuente** de datos biográficos; fundamenta la credibilidad del proyecto |
 | `Programa_Trabajo_gerente.pdf`, `Programa_Trabajo_subgerente.pdf` | Proyectos de **otros cargos** (Subgerente de Modelos Macroeconómicos / Macro-Financieros) | Sólo referencia de nivel y estilo. **No reutilizar contenido** |
 
-Lectura de PDF: `pdftotext -layout "<archivo>.pdf" -`.
+Lectura de PDF: `pdftotext -layout "<archivo>.pdf" -`. Lectura del `.docx`: `python3 -c "import zipfile,re;x=zipfile.ZipFile('manual_organico.docx').read('word/document.xml').decode();print(re.sub(r'<[^>]+>',' ',x.replace('</w:p>','\n')))"`.
 
 ## Agentes (`.claude/agents/`, ambos `claude-opus-5-5`)
 
@@ -24,9 +25,9 @@ Si el entorno no carga los agentes por nombre (se cargan al iniciar la sesión),
 ## Reglas inamovibles
 
 1. **Máximo 4 páginas** en PDF. Formato estándar: A4, márgenes 2,5 cm, cuerpo 11 pt, interlineado simple (1,0–1,15). Prohibido achicar márgenes, fuente o interlineado, o forzar el espaciado para entrar: se recorta contenido.
-2. **Nada inventado.** No se escriben cifras, publicaciones, cargos, cursos, normas ni prácticas de otros bancos centrales que no estén verificados. Los datos biográficos del postulante sólo se incluyen si están en los insumos o fueron confirmados por el usuario.
+2. **Nada inventado.** No se escriben cifras, publicaciones, cargos, cursos, normas ni prácticas de otros bancos centrales que no estén verificados. Los datos biográficos del postulante salen **únicamente** de `MSangia_CVeng.pdf` (o de lo que confirme el usuario) y deben coincidir con él (cargos, fechas, cursos, publicaciones). Nunca se incluyen datos personales de contacto o de nacimiento. No se atribuye experiencia que el CV no muestre (p. ej., operaciones de liquidez): se aprovecha la real y se ofrece un plan para cubrir el resto.
 3. **Confidencialidad.** No incluir datos internos ni información sensible del BCRA; usar sólo información pública. La propuesta de IA debe resguardar la información sensible (entornos internos).
-4. **Independencia del jurado.** Al invocarlo se le pasa **sólo** la ruta de `proyecto.tex`/`proyecto.pdf` y la consigna de evaluar. No se le pasa la justificación del autor, ni el contenido de `trabajo/`, ni versiones anteriores de su dictamen.
+4. **Independencia del jurado.** Al invocarlo se le pasa **sólo** la ruta de `proyecto.tex`/`proyecto.pdf` y la consigna de evaluar (el jurado ya sabe que puede consultar el CV para contrastar afirmaciones biográficas). No se le pasa la justificación del autor, ni el contenido de `trabajo/`, ni versiones anteriores de su dictamen.
 5. **Adaptar, no copiar.** Cada práctica internacional se presenta con qué se toma, qué se cambia y por qué sirve en Argentina.
 6. **Trazabilidad.** Toda propuesta se vincula a una función del manual o a un requisito del perfil.
 7. **Git.** Desarrollar en la rama asignada a la sesión; commits descriptivos; no crear PR salvo pedido expreso.
@@ -62,5 +63,5 @@ CLAUDE.md                     Este protocolo
 .claude/agents/               autor-proyecto.md, jurado-seleccion.md
 proyecto.tex / proyecto.pdf   Entregable (≤ 4 páginas)
 trabajo/                      Matriz, benchmark, revisiones (material de trabajo; no se entrega)
-*.pdf                         Insumos
+MSangia_CVeng.pdf, manual_organico.docx, *.pdf   Insumos
 ```
