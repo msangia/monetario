@@ -1,0 +1,30 @@
+{
+  "idVariable": 1189,
+  "catalogo": {
+    "idVariable": "1189",
+    "descripcion": "Tasa de interés de depósitos a plazo fijo en pesos",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Tasa de interés",
+    "periodicidad": "D",
+    "unidadExpresion": "En porcentaje nominal anual",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-20",
+    "ultValorInformado": "23.01"
+  },
+  "metodologia": [
+    {
+      "id": 1189,
+      "detalle": "Tasa de interés promedio ponderada por montos colocados por el total de depositantes en el total de entidades informantes en SISCEN-0002. Comprende el segmento de operaciones  de plazo fijo informados en las cuentas SISCEN 149 y 152 (plazos fijos transferibles e intransferibles con retribución fija)."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:14:56",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5835,
+    "count_informado": 5835,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/1189"
+}

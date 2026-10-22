@@ -1,0 +1,30 @@
+{
+  "idVariable": 16,
+  "catalogo": {
+    "idVariable": "16",
+    "descripcion": "Circulación monetaria ",
+    "categoria": "Principales Variables",
+    "tipoSerie": "Saldos",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "1996-01-02",
+    "ultFechaInformada": "2026-10-19",
+    "ultValorInformado": "28733153.0"
+  },
+  "metodologia": [
+    {
+      "id": 16,
+      "detalle": "Billetes y monedas emitidos por el BCRA y puestos en circulación y cheques cancelatorios en pesos. Se difunde diariamente mediante Comunicación C del BCRA."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:14:45",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5835,
+    "count_informado": 5835,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/16"
+}
