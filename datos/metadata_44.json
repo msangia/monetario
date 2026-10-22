@@ -1,0 +1,30 @@
+{
+  "idVariable": 44,
+  "catalogo": {
+    "idVariable": "44",
+    "descripcion": "Tasa de interes TAMAR de bancos privados ",
+    "categoria": "Principales Variables",
+    "tipoSerie": "Tasa de interés",
+    "periodicidad": "D",
+    "unidadExpresion": "En porcentaje nominal anual",
+    "moneda": "ML",
+    "primerFechaInformada": "2024-10-01",
+    "ultFechaInformada": "2026-10-20",
+    "ultValorInformado": "24.375"
+  },
+  "metodologia": [
+    {
+      "id": 44,
+      "detalle": "Tasa de interés promedio ponderada por montos operados, correspondiente a depósitos a plazo fijo mayoristas en pesos, de 30 a 35 días de plazo, constituidos en todas las entidades bancarias privadas del país. En 2025 abarcó las operaciones de 1.000 millones de pesos y más. A partir de 2026, una vez al año, se actualiza el estrato de monto de las operaciones incluidas, según la variación del Índice de Precios al Consumidor. Los detalles metodológicos se pueden consultar en el siguiente vínculo: https://www.bcra.gob.ar/archivos//Pdfs/PublicacionesEstadisticas/tasmet.pdf "
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:01:50",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 495,
+    "count_informado": 495,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/44"
+}

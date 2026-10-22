@@ -1,0 +1,30 @@
+{
+  "idVariable": 197,
+  "catalogo": {
+    "idVariable": "197",
+    "descripcion": "M2 transaccional del sector privado",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Saldos",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2021-01-04",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "63078916.151"
+  },
+  "metodologia": [
+    {
+      "id": 197,
+      "detalle": "Circulacion monetaria total - Efectivo en bancos en pesos-vista remunerada de personas jurídicas +Cuentas corrientes en pesos+ Cajas de ahorro en pesos"
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:01:47",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 1409,
+    "count_informado": 1409,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/197"
+}

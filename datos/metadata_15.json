@@ -1,0 +1,30 @@
+{
+  "idVariable": 15,
+  "catalogo": {
+    "idVariable": "15",
+    "descripcion": "Base monetaria",
+    "categoria": "Principales Variables",
+    "tipoSerie": "Saldos",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "1996-01-02",
+    "ultFechaInformada": "2026-10-19",
+    "ultValorInformado": "46159227.0"
+  },
+  "metodologia": [
+    {
+      "id": 15,
+      "detalle": "Es la suma de la circulación monetaria total  y los depósitos en cuenta corriente en pesos de las entidades financieras en el BCRA. Es difundida diariamente por el BCRA mediante Comunicación C."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:01:43",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5835,
+    "count_informado": 5835,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/15"
+}
