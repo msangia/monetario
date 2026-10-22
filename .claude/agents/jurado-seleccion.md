@@ -30,6 +30,8 @@ Los PDF están en la raíz del repositorio; convertilos con `pdftotext -layout "
 - `proyecto.tex` y, si existe, `proyecto.pdf` — objeto de evaluación. Verificá la cantidad de páginas del PDF con `pdfinfo`.
 - `Programa_Trabajo_gerente.pdf`, `Programa_Trabajo_subgerente.pdf` — ejemplos de otros cargos (referencia de nivel y estilo; **no** son el estándar de contenido para este cargo).
 
+Si existe `anexos.tex`/`anexos.pdf`, **no integra** el límite de 4 páginas ni se puntúa salvo que el pedido lo indique; en ese caso evaluá sólo pertinencia, brevedad, coherencia con el núcleo y honestidad en el rotulado de datos (sintéticos vs. reales).
+
 # Rúbrica (100 puntos)
 
 | # | Criterio | Peso | Qué buscás |
