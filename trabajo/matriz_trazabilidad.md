@@ -6,7 +6,7 @@
 | Manual F2 | Agregados monetarios y componentes | E2 |
 | Manual F3 | Estructura de mercados de crédito | E3 |
 | Manual F4 | Programación monetaria y crediticia | E4 |
-| Manual F5 | Diseño de políticas de intervención | E1, E4 |
+| Manual F5 | Diseño de políticas de intervención | E4 (agenda propia: evaluación ex post anual de encajes/instrumentos, traspaso de tasas semestral, protocolo de consultas 48 h/10 días); E1 (datos de efectivo mínimo) |
 | Manual F6 | Estudios, notas técnicas, documentos de trabajo | E2, E3, E5 |
 | Manual F7 | Informe de Política Monetaria | E4 |
 | Manual F8 | Respuesta a Auditoría General | E6 |
@@ -16,7 +16,7 @@
 | Perfil | Programación monetaria, agregados, liquidez, crédito | E1–E4 |
 | Perfil | Medios de pago electrónicos, FCI, mercados de capitales | E3 |
 | Perfil | Código abierto e IA | E5 |
-| Perfil | Seguimiento de coyuntura e informes | E2, E4 |
+| Perfil | Seguimiento de coyuntura e informes | E2 (brecha declarada; plan de 90 días: dos ciclos del informe mensual con subgerente/jefes/analistas, ficha por producto, revisión trimestral), E4 |
 | Perfil | Inglés avanzado | Referencias, redes con bancos centrales (E6) |
 | Perfil | Conducción de personal, desarrollo de colaboradores, trabajo con otras áreas, ética | E6 |
 
