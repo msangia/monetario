@@ -1,0 +1,4 @@
+# Dictamen 09 (jurado-seleccion, Opus) — **APROBADO, 82/100** (núcleo de 4 páginas, tras vuelta 08)
+C1 21/25 · C2 20/25 · C3 16/20 · C4 12/15 · C5 9/10 · C6 4/5. Sin cambios obligatorios ni banderas rojas.
+Opcionales: "qué se toma / qué se cambia / por qué" por práctica extranjera (Divisia con inflación alta, BLS vs. ECC); línea de diseño de instrumentos (F5); aclarar que la firma conjunta es aprendizaje y la responsabilidad es del gerente (quitar "y el de sus jefes"); riesgos de filtración y dependencia de insumos (Tesoro/Operaciones); comunicado del BCRA a Referencias con fecha exacta; reducir siglas y partir "Prioridades y responsables"; cómo se fija la línea de base de metas (iii) y (vii).
+Pendiente de respaldo documental: título de Maestría, certificado de inglés, constancia de personal a cargo.

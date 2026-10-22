@@ -1,0 +1,4 @@
+# Dictamen 06 (jurado-seleccion, Opus, con CV) — **APROBADO, 81/100**
+C1 21/25 · C2 20/25 · C3 16/20 · C4 12/15 · C5 8/10 · C6 4/5. Sin cambios obligatorios. Sin banderas rojas.
+Mejoras opcionales: dar cuerpo a la programación monetaria (demanda de dinero, consistencia con balance BCRA y programa financiero, reconciliación de desvíos); riesgos con mitigaciones específicas (accesos, cambio de régimen/autoridades, dependencia de Sistemas); canal de comunicación con autoridades y plazos diferenciados (urgente en horas); pregunta de política concreta para mercados de capitales; partir el párrafo "Prioridades y responsables"; línea huérfana "2020."; "Bancos de la Reserva Federal"; fundamentar o reemplazar la meta del 15 %.
+Pendientes del usuario: título de la Maestría en Finanzas, nivel de inglés, personal a cargo en jefaturas previas.

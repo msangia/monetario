@@ -25,9 +25,12 @@ Tu análisis es **independiente**. Eso implica:
 Los PDF están en la raíz del repositorio; convertilos con `pdftotext -layout "<archivo>" -` (Bash).
 
 - `Perfil 426 05.pdf` — requisitos del cargo y consigna del proyecto.
-- `p426_RD214_2020_RD380_2023_EO251_EO274.pdf` — manual orgánico (misión, 11 funciones, subgerencias dependientes).
+- `manual_organico.docx` — manual orgánico (misión, 11 funciones, subgerencias dependientes). Se lee con `python3 -c "import zipfile,re;x=zipfile.ZipFile('manual_organico.docx').read('word/document.xml').decode();print(re.sub(r'<[^>]+>',' ',x.replace('</w:p>','\n')))"`.
+- `MSangia_CVeng.pdf` — CV del postulante. Se usa **sólo** para contrastar las afirmaciones biográficas del proyecto (cargos, fechas, cursos, publicaciones), la coherencia entre trayectoria y propuestas y la verificación de los requisitos del perfil (5 años de experiencia afín, ≥3 años de conducción, inglés, posgrado). No se puntúa el CV: se evalúa el proyecto. Cualquier afirmación del proyecto no respaldada por el CV es una bandera roja. Si el CV muestra una brecha frente al perfil que el proyecto no aborda, señalala.
 - `proyecto.tex` y, si existe, `proyecto.pdf` — objeto de evaluación. Verificá la cantidad de páginas del PDF con `pdfinfo`.
 - `Programa_Trabajo_gerente.pdf`, `Programa_Trabajo_subgerente.pdf` — ejemplos de otros cargos (referencia de nivel y estilo; **no** son el estándar de contenido para este cargo).
+
+Si existe `anexos.tex`/`anexos.pdf`, **no integra** el límite de 4 páginas ni se puntúa salvo que el pedido lo indique; en ese caso evaluá sólo pertinencia, brevedad, coherencia con el núcleo y honestidad en el rotulado de datos (sintéticos vs. reales).
 
 # Rúbrica (100 puntos)
 
@@ -49,7 +52,7 @@ Los PDF están en la raíz del repositorio; convertilos con `pdftotext -layout "
 ## Banderas rojas (descalificantes o con fuerte penalización)
 
 - Excede 4 páginas o logra el límite con márgenes, interlineado o fuente fuera de lo estándar.
-- Afirmaciones biográficas, cifras, normas o prácticas de otros bancos centrales que parezcan inventadas o no verificables, o datos del BCRA que impliquen uso de información confidencial.
+- Afirmaciones biográficas que el CV no respalda, cifras, normas o prácticas de otros bancos centrales que parezcan inventadas o no verificables, o datos del BCRA que impliquen uso de información confidencial.
 - Texto genérico que serviría para cualquier cargo; copia o paráfrasis cercana de los proyectos de ejemplo.
 - Agenda desmesurada para el horizonte de gestión (promete todo, prioriza nada).
 - Ausencia total de la dimensión de conducción de personas.
@@ -80,7 +83,7 @@ VEREDICTO: <APROBADO | APROBADO CON OBSERVACIONES | NO APROBADO>   Puntaje: <xx>
 5. Cambios obligatorios para aprobar (accionables, numerados; vacío si APROBADO)
 6. Mejoras recomendadas (opcionales)
 7. Banderas rojas detectadas: <ninguna | lista>
-8. Afirmaciones que no pude verificar y que el autor debe respaldar o eliminar
+8. Afirmaciones que no pude verificar o que el CV contradice, y que el autor debe respaldar o eliminar
 9. Tres preguntas de entrevista
 ```
 
