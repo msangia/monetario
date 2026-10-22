@@ -16,10 +16,12 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 | `monetario_demo/evaluacion.py` | Ejes 1 y 4 | Diebold-Mariano (HLN), cobertura, tabla de errores |
 | `monetario_demo/datos.py` | – | Cargadores de CSV `fecha,valor` (BCRA) y de los mensuales de INDEC (`mes,...`: EMAE e IPC), y generadores sintéticos rotulados |
 | `descargar_bcra.py`, `series.txt` | Eje 5 | Descarga de series públicas de la API de Estadísticas Monetarias v4.0 del BCRA a `datos/` (11 IDs verificados contra el catálogo) |
+| `monetario_demo/calidad.py` | Eje 5 | Controles de calidad de las series diarias: duplicados, fines de semana, huecos, saltos anómalos (> 10 MAD), unidad según la metadata y concordancia con el último valor del catálogo |
+| `correr_reales.py` | – | Corre las rutinas A, B y C con los datos reales de `datos/` y escribe `salidas/real_*.txt` y `salidas/fan_chart_real.pdf`, con encabezado de fuente, último dato y fecha de ejecución |
 | `verificar_series.py` | Eje 5 | Tabla de IDs de `series.txt` contra `datos/catalogo_monetarias.csv` y control de las descargas (filas, primer y último dato) |
 | `referencia/estadisticas-monetarias-v4.json` | – | Esquema OpenAPI público de la API (referencia) |
 | `tests/` | – | Pruebas `pytest` (el descargador se prueba con respuestas simuladas) |
-| `salidas/` | – | Salidas demostrativas usadas en `anexos.tex` |
+| `salidas/` | – | `real_*.txt` y `fan_chart_real.pdf` (datos reales, usados en `anexos.tex`); `demo_*.txt` y `fan_chart_demo.pdf` (sintéticos) |
 
 ## Instalación y pruebas
 
@@ -27,7 +29,7 @@ Desde la carpeta `codigo/`:
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q          # 58 pruebas, ~35 s
+python -m pytest -q          # 68 pruebas, ~40 s
 ```
 
 ## Uso con datos sintéticos (`--demo`)
@@ -40,27 +42,32 @@ python -m monetario_demo.bandas --demo --figura salidas/fan_chart_demo.pdf
 
 ## Uso con datos reales
 
-> **Estado (2026-10).** En `datos/` ya están el catálogo, el EMAE y el IPC (INDEC). **Faltan las
-> series diarias del BCRA** (`bcra_<id>_daily.csv`: base, M2, tasas), que se bajan dentro del
-> BCRA con `descargar_bcra.py`. Hasta entonces, las rutinas A, B y C no corren con datos reales:
-> la B lee EMAE e IPC y se detiene con un mensaje claro al no encontrar `bcra_109_daily.csv`.
-> El *smoke test* de la B (`tests/test_demanda_dinero.py`) combina EMAE e IPC reales con M2 y
-> tasa diarias **sintéticas, sólo dentro del test**; no produce resultados para el anexo.
+> **Estado (2026-10-22).** En `datos/` están el catálogo, EMAE, IPC (`ipc_mensual.csv` e
+> `ipc_historico.csv`) y 7 de las 11 series diarias (15, 17, 104, 197, 11, 150, 44), todas `ok`
+> en `verificar_series.py`. **Faltan 16, 109, 1189 y 46.** `python correr_reales.py` corre:
+> A con base (15) y billetes (17); B en versión **provisoria** con base o billetes y BAIBAR (11),
+> **no M2**; C con M2 transaccional (197, deriva de 24 meses porque empieza en 2021) y base (15).
+> Cuando estén 109 y 1189, B se corre como está previsto (abajo).
 
 1. Bajar las series con `descargar_bcra.py` y dejar los CSV en `datos/`; el paso a paso está en
    [`../datos/LEEME.md`](../datos/LEEME.md).
 2. Correr las rutinas. `--csv` acepta una ruta o el número de serie: `104` equivale a `datos/bcra_104_daily.csv`.
 
 ```bash
-# A. Liquidez: serie diaria en niveles (base monetaria o la de liquidez que se pronostique)
-python -m monetario_demo.liquidez --csv <id_base_monetaria> --ultimos 60
+# Todo junto (salidas/real_*.txt)
+python correr_reales.py
+
+# A. Liquidez: serie diaria en niveles; --desde, --inicio-eval (fecha) y --ventana (móvil, días)
+python -m monetario_demo.liquidez --csv 17 --desde 2010-01-04 --inicio-eval 2022-01-03 [--ultimos 60]
 
 # B. Demanda de dinero: M2 (109), IPC, EMAE y plazo fijo en pesos (1189, % anual)
 python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
-    --precios datos/ipc_mensual.csv --actividad datos/emae_mensual.csv [--ventana 60]
+    --precios empalmado --actividad datos/emae_mensual.csv [--ventana 60] [--desde AAAA-MM]
+# --precios empalmado = cargar_ipc_historico(): INDEC desde 2016-12 y ipc_historico.csv antes
 
 # C. Banda de tolerancia: base (15) o M2 (109; 197 empieza en 2021) — diaria o mensual, se promedia por mes
 python -m monetario_demo.bandas --csv 109 --trimestres 4 --figura salidas/fan_chart.pdf
+python -m monetario_demo.bandas --csv 197 --ventana 24     # 197 empieza en 2021: deriva de 24 meses
 ```
 
 ### Formato de los CSV
@@ -83,9 +90,21 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
 
 ## Supuestos y limitaciones
 
-- **Calendario.** Usa días hábiles de lunes a viernes, sin feriados argentinos. En producción
-  conviene agregar el calendario de feriados y los vencimientos del Tesoro y del período de
-  cómputo del efectivo mínimo.
+- **IPC empalmado.** `ipc_historico.csv` coincide exactamente con `ipc_mensual.csv` desde
+  2016-12 (razón 1). Antes es un empalme externo, redondeado a 2 decimales, cuya fuente hay que
+  documentar (cubre 2007–2016, período de emergencia del IPC oficial). `cargar_ipc_historico`
+  usa INDEC desde 2016-12 y el histórico antes, y falla si la razón no es constante.
+- **Depósitos (104).** Incluyen moneda extranjera valuada en pesos (el catálogo los rotula
+  `ME`; saltan en las devaluaciones de 2015 y 2023). No usarlos como depósitos en pesos.
+- **Calendario con datos reales.** Las posiciones en el mes se calculan sobre los días con dato
+  (los feriados no aparecen); sólo el mes inicial y el final incompletos se completan con lunes
+  a viernes. Los meses parciales se descartan antes de promediar (`meses_completos`).
+- **Resultados reales (2026-10).** A: el ensamble mejora al ingenuo en billetes (17), no en la
+  base (15). B: sin cointegración con base o billetes (no es M2): no se interpreta. C: el programa
+  de deriva es ilustrativo y sus desvíos reflejan la desinflación. Ver `anexos.tex`.
+
+- **Calendario.** Con `--demo` usa lunes a viernes sin feriados. En producción conviene agregar
+  los vencimientos del Tesoro y del período de cómputo del efectivo mínimo.
 - **Ensamble.** Es un promedio simple de dos modelos, y sus límites son el promedio de los
   límites de cada modelo (una simplificación).
 - **Horizonte de la rutina A.** Pronostica a un día; los horizontes semanal y mensual del proyecto

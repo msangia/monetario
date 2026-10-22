@@ -58,3 +58,20 @@ def test_ultimos_60_e_informe(pronos):
 
 def test_cli_demo_rotulada():
     assert ROTULO_SINTETICO in main(["--demo", "--cada", "250"])
+
+
+def test_calendario_usa_dias_observados_con_feriados():
+    """Si el último día hábil del mes es feriado (sin dato), el fin de mes se corre."""
+    idx = pd.bdate_range("2024-03-01", "2024-04-30").drop(pd.Timestamp("2024-03-29"))
+    cal = variables_calendario(idx)
+    assert cal.loc["2024-03-27", "fin_mes"] == 1 and cal.loc["2024-03-28", "fin_mes"] == 1
+
+
+def test_inicio_por_fecha_ventana_movil_y_deriva(nivel):
+    p = pronostico_fuera_de_muestra(nivel, "2023-01-02", cada=120, ventana=250)
+    assert p["ensamble"].index[0] == pd.Timestamp("2023-01-02")
+    assert {"ingenuo", "deriva", "regresion", "arimax", "ensamble"} <= set(p)
+    ev = evaluar(p, desde="2024-01-01")
+    assert ev["periodo"][0] >= pd.Timestamp("2024-01-01") and ev["dm_deriva"] is not None
+    with pytest.raises(ValueError):
+        pronostico_fuera_de_muestra(nivel, "2030-01-01")

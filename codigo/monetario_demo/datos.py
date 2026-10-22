@@ -30,6 +30,8 @@ Series mensuales de INDEC (formatos tal como los dejó el usuario en ``datos/``)
   :func:`cargar_mensual`; la columna se elige con ``archivo.csv:columna``
   (p. ej. ``datos/emae_mensual.csv:emae_orig``). Sin columna, se usa la única
   disponible o la preferida de :data:`COLUMNAS_PREFERIDAS` (``emae_se``, ``ipc_ng``).
+* :func:`cargar_ipc_historico` empalma ``ipc_historico.csv`` (``fecha,ipc``, desde
+  1992-12) con el IPC oficial desde 2016-12, previo control de razón constante.
 
 Los generadores ``demo_*`` producen DATOS SINTÉTICOS DE DEMOSTRACIÓN, NO
 OFICIALES: sirven sólo para ejecutar y probar las rutinas.
@@ -192,6 +194,69 @@ def cargar_emae(ruta: str | Path = "emae_mensual.csv", columna: str = "emae_se")
 def cargar_ipc(ruta: str | Path = "ipc_mensual.csv", columna: str = "ipc_ng") -> pd.Series:
     """IPC nivel general mensual (INDEC, base dic-2016 = 100)."""
     return cargar_mensual(ruta, columna)
+
+
+INICIO_IPC_OFICIAL = pd.Timestamp("2016-12-31")
+
+
+def cargar_ipc_historico(ruta_historico: str | Path = "ipc_historico.csv",
+                         ruta_oficial: str | Path = "ipc_mensual.csv",
+                         tolerancia: float = 1e-3) -> pd.Series:
+    """IPC empalmado: el oficial (INDEC, base dic-2016) desde 2016-12 y el histórico antes.
+
+    ``ipc_historico.csv`` (columnas ``fecha,ipc``, fechas ``d/m/aaaa``) es un IPC ya
+    empalmado de origen externo. El empalme se hace **hacia atrás** en dic-2016: el
+    tramo previo del histórico se reescala por la razón oficial/histórico de ese mes,
+    de modo que desde 2016-12 la serie es exactamente la oficial. Antes se controla
+    que la razón sea constante en todo el tramo común (desvío relativo máximo menor
+    que ``tolerancia``); si no lo es, las dos series no tienen la misma base o
+    metodología y el empalme no es válido.
+
+    Returns:
+        ``pd.Series`` mensual (índice a fin de mes) con atributo ``attrs["empalme"]``
+        que describe el empalme (fecha, razón y desvío máximo en el tramo común).
+
+    Raises:
+        ValueError: si no hay tramo común, si el histórico tiene meses faltantes o si
+            la razón no es constante.
+    """
+    hist = cargar_mensual(ruta_historico, "ipc", nombre="ipc_historico")
+    ofic = cargar_ipc(ruta_oficial)
+    esperado = pd.date_range(hist.index[0], hist.index[-1], freq="ME")
+    if not hist.index.equals(esperado):
+        faltan = esperado.difference(hist.index)[:3].strftime("%Y-%m").tolist()
+        raise ValueError(f"ipc_historico: meses faltantes {faltan}.")
+    comun = ofic.index.intersection(hist.index)
+    if INICIO_IPC_OFICIAL not in comun:
+        raise ValueError("No hay tramo común en dic-2016 para empalmar.")
+    razon = ofic.loc[comun] / hist.loc[comun]
+    r0 = float(razon.loc[INICIO_IPC_OFICIAL])
+    desvio = float((razon / r0 - 1).abs().max())
+    if desvio > tolerancia:
+        raise ValueError(f"La razón oficial/histórico no es constante (desvío {desvio:.2%}).")
+    antes = hist.loc[hist.index < INICIO_IPC_OFICIAL] * r0
+    s = pd.concat([antes, ofic.loc[ofic.index >= INICIO_IPC_OFICIAL]]).rename("ipc_empalmado")
+    s.attrs["empalme"] = (f"IPC empalmado: {Path(ruta_historico).name} hasta 2016-11 "
+                          f"(x {r0:.6f}), {Path(ruta_oficial).name} (INDEC) desde 2016-12; "
+                          f"razón en el tramo común "
+                          f"{comun[0]:%Y-%m} a {comun[-1]:%Y-%m}: desvío máx. {desvio:.1e}")
+    return s
+
+
+def meses_completos(diaria: pd.Series, holgura: int = 4) -> pd.Series:
+    """Quita el último mes de una serie diaria si está incompleto.
+
+    El último mes se considera completo si su último dato cae a menos de ``holgura``
+    días hábiles del último día hábil (lunes a viernes) del mes. Evita promediar un
+    mes parcial (p. ej., datos hasta el 20 de octubre) como si fuera completo.
+    """
+    if diaria.empty:
+        return diaria
+    ultimo = diaria.index[-1]
+    fin_habil = pd.bdate_range(ultimo.replace(day=1), ultimo + pd.offsets.MonthEnd(0))[-1]
+    if len(pd.bdate_range(ultimo, fin_habil)) - 1 > holgura:
+        return diaria[diaria.index < ultimo.replace(day=1)]
+    return diaria
 
 
 # ---------------------------------------------------------------------------
