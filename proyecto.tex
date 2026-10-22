@@ -1,0 +1,94 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs,array}
+\usepackage[colorlinks=false,hidelinks]{hyperref}
+\setlist{itemsep=1pt,topsep=2pt,parsep=0pt,leftmargin=1.2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+
+% --- Datos del postulante (editar aquí) ---
+\newcommand{\autor}{Máximo Sangiácomo}
+\newcommand{\trayectoria}{Mi trayectoria de 15 años en el BCRA y mi formación en estadística, econometría y programación (Stata, Python, R) son la base sobre la que se apoya esta propuesta.}
+
+\title{\textbf{Proyecto de trabajo}\\[2pt]\large Gerente de Análisis Monetario (426 05)}
+\author{\autor}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{1. Introducción y enfoque}
+El proyecto propone consolidar la Gerencia como referencia para la decisión de política monetaria con tres resultados: (i) pronósticos de liquidez y de posición de efectivo mínimo \emph{evaluados y confiables} para la Subgerencia General de Operaciones; (ii) un diagnóstico de la coyuntura monetaria y crediticia oportuno, reproducible y fácil de comunicar a las autoridades; y (iii) un equipo con capacidades crecientes, procesos documentados y cobertura cruzada de tareas críticas. \trayectoria
+
+\textbf{Principios.} \emph{Continuidad antes que cambio}: ningún proceso diario se reemplaza sin correr antes en paralelo. \emph{Medir el error}: todo pronóstico se evalúa ex post. \emph{Robustez al régimen operativo}: las herramientas sirven cualquiera sea la combinación vigente de agregados, tasas y tipo de cambio. \emph{Adaptar, no copiar}: se toman prácticas del BCE, el Bank of England (BoE), la Reserva Federal de Nueva York y de St.~Louis y el Banco de Canadá, ajustadas a los datos, la frecuencia y la escala del equipo del BCRA.
+
+\textbf{Prioridades y responsables.} La agenda de los seis ejes cubre las funciones del Manual Orgánico y los requisitos del perfil y se ordena en dos niveles. \textbf{Núcleo comprometido (primeros 12 meses)}: pronóstico de liquidez, circulación de billetes y tablero de alerta (Eje 1); informe monetario con seguimiento mensual de FCI de mercado de dinero y billeteras, nota de coyuntura y explotación de la ECC (Ejes 2 y 3); programación monetaria, respuesta a consultas de intervención e IPOM (Eje 4); infraestructura y política de IA (Eje 5); gestión del equipo (Eje 6). \textbf{Condicionado}: demanda de dinero, agregados Divisia, \emph{vintages}, panel de microdatos, mapa del perímetro del dinero y piloto de IA generativa sobre normativa; se activa sólo cuando el ensamble de liquidez lleve tres meses en producción y el diagnóstico muestre dotación disponible (nuevos analistas o de Coyuntura), \emph{sin rotar personal de Liquidez durante la corrida en paralelo}. Responsables: el/la Subgerente de Liquidez, el Eje 1 y el módulo de liquidez y base de la programación; el/la de Coyuntura, los Ejes 2 y 3 y el módulo de agregados, crédito y resultado cuasifiscal; yo coordino el Eje 4 y conduzco el Eje 6; el Eje 5, transversal, con un referente por subgerencia. Los pedidos urgentes de la Gerencia Principal ingresan por mí a un tablero de prioridades y desplazan lo condicionado, no la tarea diaria.
+
+\textbf{Punto de partida.} Según sus publicaciones, el BCRA conduce un esquema que privilegia el control de agregados monetarios y publica un informe monetario mensual, el IPOM trimestral y la Encuesta de Condiciones Crediticias (ECC); según el manual, la Gerencia produce los pronósticos de liquidez, el seguimiento de agregados y crédito y los insumos monetarios del IPOM. Este documento se apoya sólo en información pública y evita datos internos; por eso los primeros 90 días se dedican a un diagnóstico formal que cuantifica las líneas de base de las metas y ajusta las prioridades.
+
+\section*{2. Ejes de trabajo}
+
+\subsection*{Eje 1. Liquidez del mercado monetario y efectivo mínimo (funciones 1 y 5)}
+\textbf{Qué}: un sistema de pronóstico de liquidez y de posición de efectivo mínimo con horizontes diario, semanal y mensual, que descomponga la variación de liquidez en factores autónomos (sector público, sector externo, circulación de billetes) y se entregue a Operaciones en formato y horario acordados.
+\textbf{Cómo}: ensamble de modelos para la posición de efectivo mínimo (exigencia e integración por entidad y período de cómputo) y para la liquidez (regresión con efectos de calendario---pagos, aguinaldo, vencimientos---, modelos de espacio de estado y ARIMAX) contra un benchmark ingenuo, con intervalos de pronóstico, y un modelo específico de circulación de billetes (factor autónomo de mayor peso y entrada de la programación). De la literatura sobre el mercado overnight (Hamilton, 1996) y de la práctica de bancos centrales que proyectan reservas se toma la importancia del calendario y de la distribución intramensual de la demanda de reservas. Un tablero de alerta sigue la tensión de liquidez, las tasas de corto plazo y las operaciones de corto plazo en mercados de capitales (caución, títulos cortos): spreads, volúmenes y concentración de excedentes.
+\textbf{Cómo se mide}: error absoluto medio relativo al benchmark, sesgo por día del mes y cobertura de los intervalos; tres meses de funcionamiento en paralelo antes de pasar a producción.
+
+\subsection*{Eje 2. Agregados monetarios y coyuntura (funciones 2 y 6)}
+El BCRA ya publica un informe monetario mensual; el objetivo es \emph{evolucionarlo}, no crearlo. Propongo: (a) \emph{núcleo}: descomposición de la base monetaria y del M2 por componentes y fuentes de creación, con desestacionalización y ajuste por calendario con software abierto (X-13/JDemetra+); (b) \emph{condicionado}: agregados ponderados tipo Divisia (Barnett, 1980), línea de trabajo con antecedentes en la Fed de St.~Louis, para captar los servicios monetarios cuando aparecen sustitutos cercanos del dinero (cuentas remuneradas, fondos de mercado de dinero), con costo de uso calculado con rendimientos propios y una tasa de corto plazo de referencia, y sensibilidad a esa elección por la inflación alta y variable; (c) \emph{condicionado}: estimación de la demanda de dinero con modelos de corrección de errores y ventanas móviles, que admita quiebres de régimen; y (d) \emph{condicionado}: bases de datos con \emph{vintages}, al estilo de ALFRED, para medir revisiones. \textbf{Entregables}: nota de coyuntura semanal de dos páginas (armada con lo ya producido para el informe mensual), informe mensual y tablero interno.
+
+\subsection*{Eje 3. Crédito, medios de pago y mercado de capitales (función 3 y perfil)}
+\textbf{Crédito}: se propone aprovechar mejor lo existente. La ECC se integra (\emph{núcleo}) de forma sistemática al informe monetario y al IPOM (índices de difusión, relación con tasas y volúmenes, poder predictivo sobre el crédito), a la manera del BCE; con el área que la conduce se evalúa un módulo sobre medios de pago y fondos. \emph{Condicionado}: sobre la Central de Deudores, un panel de microdatos, inspirado en el Consumer Credit Panel de la Fed de Nueva York (flujos, transiciones de situación crediticia, concentración y traspaso de tasas), \emph{sujeto a un acuerdo de acceso y de resguardo de la información con Estadísticas y Superintendencia}. \textbf{Perímetro del dinero} (\emph{condicionado}): mapa de sustitución entre depósitos, billeteras y medios de pago electrónicos, fondos comunes de inversión de mercado de dinero y títulos de corto plazo, con datos públicos de transferencias, QR y patrimonio de FCI, para evaluar su efecto sobre la demanda de dinero y la transmisión. Cada insumo se coordina con el área que lo produce (Sistemas de Pago, Estadísticas, Superintendencia).
+
+\subsection*{Eje 4. Programación monetaria y diseño de intervención (funciones 4, 5 y 7)}
+Un ejercicio trimestral de programación monetaria y crediticia, consistente con el balance del BCRA (fuentes y usos de la base), el sector público, el sector externo y el crédito, con escenarios y bandas de incertidumbre en formato \emph{fan chart}, práctica difundida del BoE. Incluye la proyección del resultado cuasifiscal. \textbf{Diseño de intervención (función 5)}: ante una consulta de las autoridades sobre encajes, tasas o instrumentos de absorción, la Gerencia responde con una nota que indica el canal de transmisión y la magnitud sobre liquidez, agregados y costo cuasifiscal (según el balance proyectado y las elasticidades estimadas), escenarios alternativos y riesgos, con una primera respuesta en 48 horas y el análisis completo en 10 días; al año se dispone de una biblioteca de simulaciones reutilizable. Se preparan también presentaciones e insumos de discursos (función 6). La contribución al Informe de Política Monetaria (función 7) se organiza en módulos y recuadros con responsables y cronograma regresivo acordado con la Gerencia Principal (borrador a $T-15$ días, revisión cruzada entre subgerencias, cierre a $T-5$).
+
+\subsection*{Eje 5. Datos, código abierto e inteligencia artificial (perfil y función 10)}
+\textbf{Infraestructura}: repositorio de código con control de versiones en entorno interno, Python y R, informes generados desde el código, pruebas de calidad de datos y revisión por pares de todo modelo que llegue a producción. \textbf{Aprendizaje automático}: regularización, \emph{boosting} y bosques aleatorios como complemento de los modelos de liquidez y crédito, siempre contra benchmarks lineales y con interpretabilidad (SHAP), como en el BoE (Chakraborty y Joseph, 2017). \textbf{IA generativa}: asistencia de código y borradores en entornos internos, siempre con revisión humana; piloto \emph{condicionado} para clasificar normativa que afecta la liquidez, con revisión de un analista. \textbf{Gobernanza}: política de la Gerencia que fije qué datos pueden usarse con qué herramientas; no sale información sensible a servicios externos, y todo modelo que pase a producción se valida con Sistemas y Seguridad de la Información antes de su uso.
+
+\subsection*{Eje 6. Conducción, equipo y articulación institucional (funciones 8 a 11)}
+\begin{itemize}
+\item \textbf{Planificación}: plan anual con objetivos medibles por subgerencia (Coyuntura Monetaria; Análisis y Gestión de la Liquidez) y por persona, seguimiento trimestral e informe de cumplimiento; reunión semanal de coyuntura, reunión mensual de calidad de pronósticos y seminario interno quincenal de métodos.
+\item \textbf{Recursos y delegación (función 11)}: diagnóstico de dotación y de competencias en los primeros 90 días; asignación de personas y horas entre las dos subgerencias según el núcleo comprometido; cada subgerente tiene objetivos, presupuesto de horas y autoridad de decisión sobre su eje, con reuniones individuales mensuales de seguimiento y evaluación de desempeño con retroalimentación; plan de sucesión y doble cobertura de la tarea diaria de liquidez, con manuales de procedimiento.
+\item \textbf{Desarrollo de colaboradores}: mentoría de analistas y asistentes, plan de capacitación individual (cursos del CCBS del BoE, del Instituto de Desarrollo de Capacidades del FMI y del CEMLA; formación en programación y estadística) con transferencia obligatoria al equipo, retroalimentación periódica y delegación explícita; para retener y motivar: reconocimiento de logros, rotación entre subgerencias y oportunidades de exponer y publicar.
+\item \textbf{Articulación}: acuerdo de nivel de servicio con Operaciones (horarios, formatos, devolución de errores), calendario conjunto con Estadísticas, Sistema Financiero y la Gerencia Principal y notas de una página para las autoridades (mensaje, incertidumbre y decisión sugerida); ante un error grande de pronóstico o un cambio de escenario, aviso inmediato a Operaciones y a las autoridades, análisis de causas en 48 horas y corrección documentada sin buscar culpables.
+\item \textbf{Auditoría (función 8)}: tablero de recomendaciones de la Auditoría General con responsable y plazo, revisión trimestral y cierre documentado. \textbf{Ética}: confidencialidad de la información de mercado, accesos mínimos necesarios y declaración de conflictos de interés.
+\end{itemize}
+
+\section*{3. Qué se toma de la experiencia internacional y cómo se adapta}
+\small
+\begin{tabular}{@{}p{2.5cm}p{5.0cm}p{7.2cm}@{}}
+\toprule
+\textbf{Banco} & \textbf{Práctica de referencia} & \textbf{Adaptación al caso argentino}\\
+\midrule
+BCE y B.~de Canadá & \emph{Bank Lending Survey}; encuestas de condiciones & Se integra la ECC existente al informe monetario y al IPOM; no se crea otra encuesta.\\
+BoE, Fed Nueva York y St.~Louis & \emph{Fan charts}; ML; proyección de reservas; panel de crédito; \emph{vintages}; Divisia & Fan charts de agregados; ML sólo si supera al lineal; calendario local; panel con la Central de Deudores; Divisia con sustitutos locales (billeteras, FCI).\\
+\bottomrule
+\end{tabular}
+\normalsize
+
+\section*{4. Hoja de ruta e indicadores}
+\small
+\begin{tabular}{@{}p{2.4cm}p{12.4cm}@{}}
+\toprule
+\textbf{0--3 meses} & Inventario de procesos, modelos y datos; línea de base de errores; plan anual y acuerdo de servicio con Operaciones; repositorio y estándares de código.\\
+\textbf{3--12 meses} & \emph{Núcleo}: ensamble de liquidez y modelo de billetes en paralelo y luego en producción; informe monetario con agregados desestacionalizados y nota semanal; explotación de la ECC; primer ejercicio de programación con escenarios y protocolo de consultas de intervención; política de uso de IA; seminario interno.\\
+\textbf{12--24 meses} & Informe anual de calidad de pronósticos; \emph{condicionado} (si se cumplen las condiciones): Divisia, demanda de dinero, \emph{vintages}, panel de crédito, perímetro del dinero, piloto de normativa; dos documentos de trabajo; revisión de la gestión.\\
+\bottomrule
+\end{tabular}
+
+\normalsize\textbf{Indicadores y metas}: (i) reducción de 15\,\% (meta provisoria) del error de pronóstico de liquidez frente a la línea de base a los 12 meses; (ii) procesos críticos con manual y doble cobertura: 50\,\% a los 6 meses y 100\,\% a los 9; (iii) al menos 95\,\% de los informes periódicos entregados en fecha; (iv) dos documentos de trabajo y cuatro notas técnicas en 24 meses; (v) 40 horas anuales de capacitación por persona, con transferencia al equipo; (vi) informe trimestral de desvíos entre lo programado y lo observado en base monetaria y M2, con mejora frente a la línea de base, y módulos del IPOM entregados en fecha; (vii) valoración anual de Operaciones y autoridades sobre utilidad y oportunidad, mínimo 4 sobre 5. Las metas se recalibran tras el diagnóstico.
+
+\normalsize
+\section*{5. Riesgos y mitigación}
+\textbf{Datos} (señal: demoras o inconsistencias; responsable: Gerente): pruebas de calidad y convenios; sin acceso, se usan agregados públicos. \textbf{Cambio de régimen} (quiebre en errores; Subgerentes): reestimación periódica y escenarios. \textbf{Sobrecarga operativa} (horas diarias en aumento; Gerente): cobertura cruzada y se posterga lo condicionado. \textbf{Persona clave} (ausencia de quien opera liquidez; Subgerente): doble cobertura y manuales, y vuelta atrás al modelo previo si el nuevo falla en producción. \textbf{Resistencia al cambio y seguridad} (baja asistencia, accesos injustificados; Gerente): diseño participativo y accesos mínimos.
+\normalsize
+
+\small
+\section*{Referencias}
+Barnett (1980), \emph{J.\ of Econometrics} 14(1). Chakraborty y Joseph (2017), \emph{Machine learning at central banks}, BoE Staff WP 674. Hamilton (1996), \emph{J.\ of Political Economy} 104(1).
+\end{document}
