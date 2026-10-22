@@ -24,9 +24,17 @@ muestra completa, que capta inestabilidad de corto plazo.
 Uso::
 
     python -m monetario_demo.demanda_dinero --demo
-    python -m monetario_demo.demanda_dinero --dinero datos/m2_privado_mensual.csv \
-        --precios datos/ipc_mensual.csv --actividad datos/emae_mensual.csv \
-        --tasa datos/tasa_plazo_fijo_mensual.csv
+    python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
+        --precios datos/ipc_mensual.csv --actividad datos/emae_mensual.csv
+
+``--dinero 109`` y ``--tasa 1189`` leen ``datos/bcra_<id>_daily.csv`` (M2 y tasa de
+plazo fijo en pesos, diarias; se promedian por mes). EMAE e IPC se leen en el
+formato de INDEC (``mes,...``); ``datos/emae_mensual.csv:emae_orig`` elige la
+serie original en lugar de la desestacionalizada (``emae_se``, por defecto).
+
+Muestra: el panel arranca con la serie más corta. Con el IPC base dic-2016 hay
+≈117 meses (2016-12 a 2026-08), es decir ≈46 ventanas de 72 meses (58 de 60);
+la primera ventana, que fija la referencia de estabilidad, abarca 2016-2022.
 """
 
 from __future__ import annotations
@@ -142,14 +150,15 @@ def analizar(df: pd.DataFrame, ventana: int = 72, B: int = 200) -> dict[str, obj
             "ventana": ventana}
 
 
-def informe(res: dict[str, object], rotulo: str) -> str:
-    """Resumen breve para consola y anexo."""
+def informe(res: dict[str, object], rotulo: str, muestra: str | None = None) -> str:
+    """Resumen breve para consola y anexo (``muestra``: línea opcional sobre el panel)."""
     c, rol, al = res["completa"], res["rolling"], res["alertas"]
     fmt = lambda f: f.strftime("%Y-%m") if f is not None else "sin alerta"
     ini = rol.iloc[0]
     fin = rol.iloc[-1]
     return "\n".join([
         f"[{rotulo}]",
+        *([muestra] if muestra else []),
         f"Muestra completa: b_y = {c['b_y']:.2f}, b_i = {c['b_i']:.2f}, "
         f"p Engle-Granger = {c['p_coint']:.3f}, ajuste g = {c['g']:.3f} (t = {c['t_g']:.1f})",
         f"CUSUM del MCE: p = {res['p_cusum']:.3f}",
@@ -173,9 +182,25 @@ def armar_panel(dinero: pd.Series, precios: pd.Series, actividad: pd.Series,
     ``tasa_pct`` en porcentaje anual (p. ej., 35.0); se pasa a tanto por uno.
     """
     m = [a_mensual(s) for s in (dinero, precios, actividad, tasa_pct)]
-    df = pd.concat(m, axis=1, keys=["dinero", "precios", "actividad", "tasa"]).dropna()
+    df = pd.concat(m, axis=1, keys=["dinero", "precios", "actividad", "tasa"],
+                   sort=True).dropna()
     return pd.DataFrame({"m_real": np.log(df["dinero"] / df["precios"]),
                          "y": np.log(df["actividad"]), "i": df["tasa"] / 100})
+
+
+def verificar_muestra(df: pd.DataFrame, ventana: int, minimo_ventanas: int = 24) -> str:
+    """Controla que el panel alcance para las ventanas móviles y lo describe.
+
+    Raises:
+        ValueError: si hay menos de ``minimo_ventanas`` ventanas de ``ventana`` meses.
+    """
+    n_v = len(df) - ventana + 1
+    texto = (f"Panel {df.index[0]:%Y-%m} a {df.index[-1]:%Y-%m}: {len(df)} meses, "
+             f"{max(n_v, 0)} ventanas de {ventana} meses")
+    if n_v < minimo_ventanas:
+        raise ValueError(f"{texto}; se necesitan al menos {minimo_ventanas}. "
+                         "Probar --ventana 60 o un IPC empalmado más largo.")
+    return texto
 
 
 def main(argv: list[str] | None = None) -> str:
@@ -189,11 +214,23 @@ def main(argv: list[str] | None = None) -> str:
     if a.demo:
         df, rotulo = demo_demanda_dinero(), ROTULO_SINTETICO + " (quiebre en b_i en 2016-01)"
     elif all([a.dinero, a.precios, a.actividad, a.tasa]):
-        df = armar_panel(*(cargar_csv(p) for p in (a.dinero, a.precios, a.actividad, a.tasa)))
+        series = {}
+        # Primero los insumos mensuales de INDEC; después las diarias del BCRA.
+        for clave in ("precios", "actividad", "dinero", "tasa"):
+            try:
+                series[clave] = cargar_csv(getattr(a, clave))
+            except (FileNotFoundError, ValueError) as e:
+                ap.error(f"--{clave}: {e}")
+        df = armar_panel(series["dinero"], series["precios"], series["actividad"],
+                         series["tasa"])
         rotulo = "Datos: " + ", ".join([a.dinero, a.precios, a.actividad, a.tasa])
     else:
         ap.error("usar --demo o indicar --dinero, --precios, --actividad y --tasa")
-    texto = informe(analizar(df, ventana=a.ventana), rotulo)
+    try:
+        muestra = verificar_muestra(df, a.ventana)
+    except ValueError as e:
+        ap.error(str(e))
+    texto = informe(analizar(df, ventana=a.ventana), rotulo, None if a.demo else muestra)
     print(texto)
     return texto
 

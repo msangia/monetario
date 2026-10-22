@@ -1,0 +1,30 @@
+{
+  "idVariable": 104,
+  "catalogo": {
+    "idVariable": "104",
+    "descripcion": "Depósitos del sector privado no financiero",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Saldos",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ME",
+    "primerFechaInformada": "2002-12-31",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "64287247.213"
+  },
+  "metodologia": [
+    {
+      "id": 104,
+      "detalle": "Cta. Cte+Caja de Ahorro+Plazo Fijo+Inv. A plazo constante+Inv. con opción de canc. ant.+Inv. a plazo determinado+Saldo inmobilizado+Cuenta a la vista+Ordenes de Pago+Dep. en garantia+Dep. vinc. Con op. Cambiarias+Otros depositos"
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:01:47",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5833,
+    "count_informado": 5833,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/104"
+}

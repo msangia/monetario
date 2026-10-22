@@ -1,15 +1,25 @@
-# Series a descargar con:  python descargar_bcra.py --series series.txt
+# Series a descargar con:  python descargar_bcra.py --series series.txt --desde 2003-01-01
 # Un idVariable por línea; lo que sigue a '#' es comentario.
 # Los IDs se buscan en el catálogo con:
 #   python descargar_bcra.py --buscar "base monetaria" --buscar M2 --buscar circulante
 #   python descargar_bcra.py --buscar depositos --buscar call --buscar caucion --buscar tamar
-# Verificar la descripción de cada ID en datos/catalogo_monetarias.csv antes de usarlo.
+# Verificar contra el catálogo:  python verificar_series.py --series series.txt
 #
-# Series activas (IDs confirmados por el usuario; verificar descripción en el catálogo):
-15   # base monetaria (saldo diario)
-17   # Billetes y monedas en poder del publico
-104  # Depositos del sector privado no financiero
-197  # M2 transaccional del sector privado
-11   # Tasa de interés de préstamos entre entidades financiera privadas (BAIBAR)
-150  # Tasa de interés por operaciones de pases entre terceros a 1 día
-44   # Tasa de interes TAMAR de bancos privados 
+# Series activas (descripción verificada en datos/catalogo_monetarias.csv, 2026-10):
+#  id    descripción del catálogo                                    per.  desde
+15    # Base monetaria                                              D     1996 (Ejes 1 y 4; rutinas A y C)
+16    # Circulación monetaria                                       D     1996 (Eje 1)
+17    # Billetes y monedas en poder del público                     D     1996 (Eje 1; rutina A)
+104   # Depósitos del sector privado no financiero                  D     2002 (Eje 2)
+109   # M2                                                          D     2002 (rutina B: demanda de dinero de largo plazo)
+197   # M2 transaccional del sector privado                         D     2021 (rutina C; corta para la rutina B)
+46    # Total de factores de explicación de la base monetaria       D     2003 (Eje 1: factores de la base)
+11    # Tasa de préstamos entre entidades financieras privadas (BAIBAR) D   1999 (call interbancario de bancos privados)
+150   # Tasa de pases entre terceros a 1 día                         D     2008 (Eje 1)
+1189  # Tasa de interés de depósitos a plazo fijo en pesos          D     2003 (rutina B: costo de oportunidad)
+44    # Tasa TAMAR de bancos privados                               D     2024 (Eje 1; corta para la rutina B)
+#
+# Nota: el catálogo de la API v4.0 no tiene tasa de caución ni una tasa 'call'
+# propiamente dicha (ninguna descripción contiene "caución" ni "call"). Como tasa
+# interbancaria se usa BAIBAR (id 11), el call entre bancos privados. La caución
+# bursátil (BYMA) habría que tomarla de otra fuente pública.
