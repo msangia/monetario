@@ -1,0 +1,30 @@
+{
+  "idVariable": 11,
+  "catalogo": {
+    "idVariable": "11",
+    "descripcion": "Tasa de interés de préstamos entre entidades financiera privadas (BAIBAR)  ",
+    "categoria": "Principales Variables",
+    "tipoSerie": "Tasa de interés",
+    "periodicidad": "D",
+    "unidadExpresion": "En porcentaje nominal anual",
+    "moneda": "ML",
+    "primerFechaInformada": "1999-01-05",
+    "ultFechaInformada": "2026-10-20",
+    "ultValorInformado": "20.96"
+  },
+  "metodologia": [
+    {
+      "id": 11,
+      "detalle": "Es la tasa de interés promedio ponderada por monto correspondiente a préstamos entre entidades bancarias privadas por operaciones de préstamos de efectivo hasta 15 días de plazo, a tasa de interés fija distinta de cero"
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:01:49",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5835,
+    "count_informado": 5835,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/11"
+}

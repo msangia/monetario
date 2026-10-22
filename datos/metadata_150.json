@@ -1,0 +1,30 @@
+{
+  "idVariable": 150,
+  "catalogo": {
+    "idVariable": "150",
+    "descripcion": "Tasa de interés por operaciones de pases entre terceros a 1 día",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Tasa de interés",
+    "periodicidad": "D",
+    "unidadExpresion": "En porcentaje nominal anual",
+    "moneda": "ML",
+    "primerFechaInformada": "2008-01-02",
+    "ultFechaInformada": "2026-10-20",
+    "ultValorInformado": "20.85"
+  },
+  "metodologia": [
+    {
+      "id": 150,
+      "detalle": "Corresponde a la tasa de interés denominada “RIX”. Se calcula como la tasa de interés promedio ponderada por monto de las operaciones en la rueda REPO entre agentes del Mercado Abierto Electrónico (MAE), de 1 día hábil, excluyendo aquellas en las que el BCRA es contraparte y las concertadas a tasa cero"
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:01:50",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 4575,
+    "count_informado": 4575,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/150"
+}
