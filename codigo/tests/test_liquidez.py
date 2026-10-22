@@ -1,0 +1,60 @@
+"""Tests de la rutina A (Eje 1): pronóstico diario de liquidez."""
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from monetario_demo.datos import ROTULO_SINTETICO, demo_liquidez_diaria
+from monetario_demo.liquidez import (evaluar, informe, main, pronostico_fuera_de_muestra,
+                                     variables_calendario)
+
+
+@pytest.fixture(scope="module")
+def nivel():
+    return demo_liquidez_diaria("2021-01-01", "2024-12-31")
+
+
+@pytest.fixture(scope="module")
+def pronos(nivel):
+    return pronostico_fuera_de_muestra(nivel, cada=120)
+
+
+def test_calendario_fin_de_mes_y_mes_incompleto():
+    idx = pd.bdate_range("2024-01-01", "2024-02-14")
+    cal = variables_calendario(idx)
+    assert cal.loc["2024-01-30", "fin_mes"] == 1 and cal.loc["2024-01-31", "fin_mes"] == 1
+    assert cal.loc["2024-01-01", "ini_mes"] == 1 and cal.loc["2024-01-03", "ini_mes"] == 0
+    # La muestra termina a mitad de febrero: no debe marcarse fin de mes.
+    assert cal.loc["2024-02-13":, "fin_mes"].sum() == 0
+    jun = variables_calendario(pd.bdate_range("2024-06-03", "2024-06-28"))
+    assert jun.loc["2024-06-17", "aguinaldo"] == 1 and jun.loc["2024-06-10", "aguinaldo"] == 0
+
+
+def test_sin_look_ahead(nivel, pronos):
+    """Alterar los últimos datos no cambia los pronósticos de bloques anteriores."""
+    alterado = nivel.copy()
+    alterado.iloc[-30:] *= 1.5
+    p2 = pronostico_fuera_de_muestra(alterado, cada=120)
+    corte = p2["ensamble"].index[-121]
+    for m in ("ingenuo", "regresion", "arimax", "ensamble"):
+        pd.testing.assert_series_equal(pronos[m]["pron"].loc[:corte], p2[m]["pron"].loc[:corte])
+
+
+def test_ensamble_supera_al_ingenuo_y_cobertura(pronos):
+    ev = evaluar(pronos)
+    assert ev["tabla"].loc["ensamble", "MAE_rel"] < 1
+    assert ev["dm"].rechaza(0.10)
+    assert 0.80 <= ev["tabla"].loc["ensamble", "cobertura"] <= 0.97
+    # El ingenuo tiene sesgo positivo a fin de mes; el ensamble lo corrige.
+    sp = ev["sesgo_posicion"]
+    assert abs(sp.loc["fin de mes", "ensamble"]) < abs(sp.loc["fin de mes", "ingenuo"])
+
+
+def test_ultimos_60_e_informe(pronos):
+    ev = evaluar(pronos, ultimos=60)
+    assert ev["n"] == 60
+    assert "n >= 60: cumple" in informe(ev, ROTULO_SINTETICO)
+
+
+def test_cli_demo_rotulada():
+    assert ROTULO_SINTETICO in main(["--demo", "--cada", "250"])

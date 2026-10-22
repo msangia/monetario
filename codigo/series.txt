@@ -1,0 +1,17 @@
+# Series a descargar con:  python descargar_bcra.py --series series.txt
+# Un idVariable por línea; lo que sigue a '#' es comentario.
+# Los IDs se buscan en el catálogo con:
+#   python descargar_bcra.py --buscar "base monetaria" --buscar M2 --buscar circulante
+#   python descargar_bcra.py --buscar depositos --buscar call --buscar caucion --buscar tamar
+# Verificar la descripción de cada ID en datos/catalogo_monetarias.csv antes de usarlo.
+#
+# Ejemplo (ID del script de referencia del usuario; confirmar qué serie es en el catálogo):
+104
+# Completar con los IDs encontrados, por ejemplo:
+# <id>   # base monetaria (saldo diario)
+# <id>   # circulación monetaria / billetes y monedas
+# <id>   # depósitos del sector privado
+# <id>   # M2 privado (transaccional)
+# <id>   # tasa call interbancaria
+# <id>   # tasa de caución
+# <id>   # TAMAR
