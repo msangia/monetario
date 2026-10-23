@@ -1,0 +1,30 @@
+{
+  "idVariable": 46,
+  "catalogo": {
+    "idVariable": "46",
+    "descripcion": "Total de factores de explicación de la base monetaria",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "-1722324.0"
+  },
+  "metodologia": [
+    {
+      "id": 46,
+      "detalle": "Corresponde a la suma de los efectos monetarios correspondientes a compras netas de divisas al sector privado y otros , compras netas de divisas al tesoro nacional, e los adelantos transitorios al tesoro nacional , adelantos transitorios al tesoro nacional, transferencia de utilidades al tesoro nacional, del resto de operaciones con el tesoro nacional, de las operaciones de pases , de las LELIQ y NOTALQ, de los redescuentos y adelantos, de los intereses, primas y remuneración de cuentas corrientes asociados a op. de pases, LELIQ, NOTALQ, redescuentos y adelantos, de las operaciones con letras fiscales de liquidez y de otros operaciones."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:14:52",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/46"
+}

@@ -1,0 +1,30 @@
+{
+  "idVariable": 109,
+  "catalogo": {
+    "idVariable": "109",
+    "descripcion": "M2 ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Saldos",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2002-12-31",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "90646009.0"
+  },
+  "metodologia": [
+    {
+      "id": 109,
+      "detalle": "Circulacion monetaria total - Efectivo en bancos en pesos+Cuentas corrientes en pesos de los sectores privado y público+ Cajas de ahorro en pesos de los sectores privado y público."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-22T20:14:50",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5833,
+    "count_informado": 5833,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/109"
+}
