@@ -270,7 +270,8 @@ def main(argv: list[str] | None = None) -> str:
                          pron_log=pron["mce"] - (np.log(1e6) if not a.demo else 0),
                          etiqueta="programa (demanda MCE, condicional)")
     if a.figura_chequeo:
-        unidad = "nivel (unidades sintéticas)" if a.demo else "billones de ARS"
+        unidad = ("nivel (unidades sintéticas)" if a.demo
+                  else "billones de pesos")
         bandas.grafico_chequeo(nivel / (1e6 if not a.demo else 1),
                                pron["mce"] - (np.log(1e6) if not a.demo else 0),
                                a.figura_chequeo, a.trimestres,

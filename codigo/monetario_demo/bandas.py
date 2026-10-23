@@ -254,7 +254,7 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
     mes_x = lambda idx: pd.DatetimeIndex(idx).to_period("M").to_timestamp()
     meses = pd.PeriodIndex(chk["mes"], freq="M")
     primero = serie.index.get_loc(serie.index[serie.index.to_period("M") == meses[0]][0])
-    fig, ax = plt.subplots(figsize=(5.0, 2.5), dpi=150)
+    fig, ax = plt.subplots(figsize=(5.4, 2.6), dpi=150)
     for k in range(0, len(chk), H):
         tramo = chk.iloc[k:k + H]
         t = primero + k - 1                      # origen: cierre del trimestre previo
@@ -279,7 +279,8 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
                     xytext=(8, -26), textcoords="offset points", fontsize=9.5,
                     color="#d03b3b", bbox=dict(fc="white", ec="none", alpha=0.85, pad=1))
     ax.set_ylabel(unidad, fontsize=9.5, color="#52514e")
-    ax.set_xlabel("mes (promedio mensual)", fontsize=9.5, color="#52514e")
+    ax.set_xlabel("mes (promedio de días hábiles)",
+                  fontsize=9.5, color="#52514e")
     if rotulo:
         ax.set_title(rotulo, fontsize=9.5, color="#52514e", loc="left")
     ax.xaxis.set_major_locator(matplotlib.dates.MonthLocator(bymonth=(1, 7)))
@@ -289,7 +290,7 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     ax.grid(axis="y", color="#e6e5e1", lw=0.6)
-    ax.legend(fontsize=9.5, frameon=False, loc="upper center", bbox_to_anchor=(0.45, -0.36),
+    ax.legend(fontsize=9.5, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.47),
               ncol=4, columnspacing=0.8, handlelength=1.4, handletextpad=0.4, borderaxespad=0)
     fig.tight_layout()
     ruta = Path(ruta)
