@@ -1,0 +1,30 @@
+{
+  "idVariable": 19,
+  "catalogo": {
+    "idVariable": "19",
+    "descripcion": "Depósitos de las entidades financieras en cuenta corriente en el BCRA",
+    "categoria": "Principales Variables",
+    "tipoSerie": "Saldos",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2001-06-01",
+    "ultFechaInformada": "2026-10-19",
+    "ultValorInformado": "17426074.0"
+  },
+  "metodologia": [
+    {
+      "id": 19,
+      "detalle": "Depósitos en cuenta corriente en pesos en el BCRA que forman parte de la base monetaria, difundido diariamente mediante Comunicación “C”."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:41",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5835,
+    "count_informado": 5835,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/19"
+}

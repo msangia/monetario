@@ -1,0 +1,30 @@
+{
+  "idVariable": 52,
+  "catalogo": {
+    "idVariable": "52",
+    "descripcion": "Efecto monetario de las operaciones de pases ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "0.0"
+  },
+  "metodologia": [
+    {
+      "id": 52,
+      "detalle": "Efecto monetario de las operaciones de pases que realizó el BCRA hasta el 14 de julio de 2025. Se muestra con signo negativo el efecto contractivo por el aumento del saldo de pases pasivos para el BCRA y la caída del saldo de pases activos para esta institución."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:51",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/52"
+}

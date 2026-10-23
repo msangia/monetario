@@ -1,0 +1,30 @@
+{
+  "idVariable": 59,
+  "catalogo": {
+    "idVariable": "59",
+    "descripcion": "Efecto monetario de otras operaciones que explican la variación de la base monetaria ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "-70277.7351"
+  },
+  "metodologia": [
+    {
+      "id": 59,
+      "detalle": "Variación de la base monetaria asociada a cualquier otro factor no incluido en otros rubros. Entre ellos, se incluyen las operaciones de compra y venta de títulos públicos, las operaciones del Sistema de pago en Monedas Locales, efecto monetario de las operaciones de BOPREAL, los gastos generales y el efecto monetario de las operaciones de futuros de divisas, operaciones simultáneas y otras operaciones de corto plazo realizadas por el BCRA a partir del 15 de julio de 2025."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:09:00",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/59"
+}

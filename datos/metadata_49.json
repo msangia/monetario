@@ -1,0 +1,30 @@
+{
+  "idVariable": 49,
+  "catalogo": {
+    "idVariable": "49",
+    "descripcion": "Efecto monetario de los adelantos transitorios al tesoro nacional",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "0.0"
+  },
+  "metodologia": [
+    {
+      "id": 49,
+      "detalle": "Variación del stock de adelantos transitorios otorgados por el BCRA al Gobierno Nacional según lo contemplado en el artículo 20 de la Carta Orgánica del BCRA"
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:46",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/49"
+}

@@ -1,0 +1,30 @@
+{
+  "idVariable": 47,
+  "catalogo": {
+    "idVariable": "47",
+    "descripcion": "Efecto monetario de las compras netas de divisas al sector privado y otros ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "102862.0"
+  },
+  "metodologia": [
+    {
+      "id": 47,
+      "detalle": "Efecto monetario de las compras y ventas de divisas del BCRA en el mercado de cambios, con excepción de las realizadas directamente al Tesoro Nacional."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:43",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/47"
+}

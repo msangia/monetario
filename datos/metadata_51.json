@@ -1,0 +1,30 @@
+{
+  "idVariable": 51,
+  "catalogo": {
+    "idVariable": "51",
+    "descripcion": "Efecto monetario del resto de operaciones con el tesoro nacional",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "-1754908.2649"
+  },
+  "metodologia": [
+    {
+      "id": 51,
+      "detalle": "Variación de la cuenta en moneda nacional del Gobierno Nacional en el BCRA y aportes del BCRA al Tesoro Nacional. También incluye movimientos de la cuenta ANSES Obligaciones de Pago Previsional y el efecto monetario de los cobros de servicios de títulos públicos en cartera del BCRA."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:49",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/51"
+}
