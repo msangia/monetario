@@ -101,6 +101,7 @@ def verificar_identidades(df: pd.DataFrame, tol: float = 1.0) -> dict[str, float
     c = pd.concat([(df[15] - df[16]).rename("cc"), df[19]], axis=1, sort=True).dropna()
     rc = c["cc"] - c[19]
     ra19 = ra.loc["2019":]
+    rb19 = rb.loc["2019":]
     malos = ra[ra.abs() > tol]
     return {
         "a_n": len(ra), "a_ok": float((ra.abs() <= tol).mean()),
@@ -108,6 +109,8 @@ def verificar_identidades(df: pd.DataFrame, tol: float = 1.0) -> dict[str, float
         "a_max_desde_2019": float(ra19.abs().max()), "a_max": float(ra.abs().max()),
         "a_ultimo_desvio": malos.index.max() if len(malos) else None,
         "b_n": len(rb), "b_ok": float((rb.abs() <= tol).mean()), "b_max": float(rb.abs().max()),
+        "b_ok_desde_2019": float((rb19.abs() <= tol).mean()),
+        "b_max_desde_2019": float(rb19.abs().max()),
         "c_n": len(rc), "c_ok": float((rc.abs() <= tol).mean()), "c_max": float(rc.abs().max()),
     }
 
@@ -124,7 +127,8 @@ def texto_identidades(v: dict[str, float]) -> str:
         "    (hipótesis, a verificar bajando 56 y 57: el residuo previo a 2019 serían los "
         "factores no descargados 56 LEBAC y NOBAC y 57 rescate de cuasimonedas)",
         f"(b) 46 = variación diaria de 15: {v['b_n']} días; |dif| <= 1 millón en "
-        f"{v['b_ok']:.1%}; máx. |dif| = {v['b_max']:.2f} millones",
+        f"{v['b_ok']:.1%}; máx. |dif| = {v['b_max']:.2f} millones (desde 2019: "
+        f"{v['b_ok_desde_2019']:.1%}, máx. {v['b_max_desde_2019']:.2f} millones)",
         f"(c) 19 = 15 - 16: {v['c_n']} días; |dif| <= 1 millón en {v['c_ok']:.1%}; "
         f"máx. |dif| = {v['c_max']:.2f} millones"])
 
@@ -405,6 +409,17 @@ def sesgos(pronos: dict[str, pd.DataFrame], desde: str | None = None) -> str:
     return "\n".join(lineas)
 
 
+def sesgo_fin_con_mes_incompleto(d: pd.DataFrame, desde: str | None = None) -> float:
+    """Sesgo medio de fin de mes tomando como fin los dos últimos días *observados*.
+
+    Sensibilidad de :func:`sesgos`: allí el mes en curso (incompleto) no aporta días
+    de fin; aquí sus dos últimos días observados cuentan como fin de mes.
+    """
+    e = (d["obs"] - d["pron"]).loc[desde:].dropna()
+    _, pos_fin = posicion_en_mes(e.index)
+    return float(e[pos_fin <= 2].mean())
+
+
 def correr_variantes(df: pd.DataFrame, inicio_eval: str = "2022-01-03",
                      desde: str = "2010-01-04", excluir: tuple[str, ...] = (),
                      con_ensamble: bool = True, cada_ensamble: int = 60,
@@ -550,7 +565,11 @@ def informe(df: pd.DataFrame, rotulo: str, inicio_eval: str = "2022-01-03",
               "el ensamble sólo se excluye de la evaluación]",
               _tabla(evaluar(pr_sin, inicio_eval, excluir=(FECHA_LEFI,)))]
     L += ["   Sesgo medio (obs - pron, pp de la base) por posición y por día del mes:",
-          sesgos(pr, inicio_eval)]
+          sesgos(pr, inicio_eval),
+          "   (fin de mes: dos últimos días hábiles de cada mes completo; el mes en curso, "
+          "incompleto, no tiene días de fin)",
+          "   Sensibilidad: ingenuo, fin de mes contando los dos últimos días observados del "
+          f"mes incompleto: {sesgo_fin_con_mes_incompleto(pr['ingenuo'], inicio_eval):+.2f}"]
     return "\n".join(L)
 
 

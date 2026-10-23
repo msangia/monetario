@@ -273,8 +273,10 @@ def main(argv: list[str] | None = None) -> str:
         unidad = "nivel (unidades sintéticas)" if a.demo else "billones de ARS"
         bandas.grafico_chequeo(nivel / (1e6 if not a.demo else 1),
                                pron["mce"] - (np.log(1e6) if not a.demo else 0),
-                               a.figura_chequeo, a.trimestres, rotulo=rotulo, unidad=unidad,
-                               etiqueta="programa MCE (condicional)")
+                               a.figura_chequeo, a.trimestres,
+                               rotulo=rotulo if a.demo else
+                               f"{nombre} (BCRA id {a.dinero}); datos reales; cálculo propio, no oficial",
+                               unidad=unidad, etiqueta="programa (d) MCE")
     return texto
 
 

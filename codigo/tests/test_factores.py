@@ -46,6 +46,7 @@ def test_reales_identidades():
     v = fa.verificar_identidades(fa.cargar_factores())
     assert v["a_ok_desde_2019"] >= 0.999          # sin 56 y 57 la identidad es exacta desde 2019
     assert v["b_ok"] >= 0.98 and v["b_max"] < 5   # 46 = variación de 15 (redondeo)
+    assert v["b_ok_desde_2019"] == 1              # dentro de 1 millón desde 2019
     assert v["c_ok"] >= 0.999                     # 19 = 15 - 16
 
 
@@ -126,3 +127,14 @@ def test_variantes_en_demo(demo):
 def test_main_demo_rotulado(capsys):
     texto = fa.main(["--demo"])
     assert datos.ROTULO_SINTETICO in texto and "NO FACTIBLE" in texto
+
+
+def test_sesgo_fin_mes_incompleto():
+    """El mes en curso no aporta días de fin en sesgos(); la sensibilidad sí los cuenta."""
+    idx = pd.bdate_range("2024-01-01", "2024-02-14")
+    obs = pd.Series(0.0, index=idx)
+    obs.loc[["2024-01-30", "2024-01-31"]] = 2.0     # fin de enero (mes completo)
+    obs.loc[["2024-02-13", "2024-02-14"]] = 6.0     # últimos observados de febrero (incompleto)
+    d = pd.DataFrame({"obs": obs, "pron": 0.0})
+    assert "fin +2.00" in fa.sesgos({"m": d})
+    assert fa.sesgo_fin_con_mes_incompleto(d) == pytest.approx(4.0)

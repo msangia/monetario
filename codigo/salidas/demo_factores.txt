@@ -1,10 +1,10 @@
 [DATOS SINTÉTICOS DE DEMOSTRACIÓN, NO OFICIALES]
-Ejecución: 2026-10-23 16:57. Último dato de factores: 2022-06-14; de la base: 2022-06-14.
+Ejecución: 2026-10-23 18:34. Último dato de factores: 2022-06-14; de la base: 2022-06-14.
 
 1. Identidades contables (millones de ARS)
 (a) 46 = suma de 47-55, 58, 59: 899 días; |residuo| <= 1 millón en 100.0% (desde 2019: 100.0%, máx. 0.0 millones); máx. histórico 0 millones; último día con residuo > 1 millón: ninguno
     (hipótesis, a verificar bajando 56 y 57: el residuo previo a 2019 serían los factores no descargados 56 LEBAC y NOBAC y 57 rescate de cuasimonedas)
-(b) 46 = variación diaria de 15: 899 días; |dif| <= 1 millón en 100.0%; máx. |dif| = 0.00 millones
+(b) 46 = variación diaria de 15: 899 días; |dif| <= 1 millón en 100.0%; máx. |dif| = 0.00 millones (desde 2019: 100.0%, máx. 0.00 millones)
 (c) 19 = 15 - 16: 900 días; |dif| <= 1 millón en 100.0%; máx. |dif| = 0.00 millones
 
 2. Descomposición de la varianza diaria de CC = 15 - 16 (pp de la base del día previo)
@@ -51,3 +51,5 @@ O59_NF       183 1.270    0.780     0.000       NaN -0.012      0.896
   O51_55_NF  inicio +0.30, fin -0.72, resto +0.14; días con mayor |sesgo|: 17: +1.86, 11: +1.48, 31: -1.24
   OTes_NF    inicio +0.30, fin -0.72, resto +0.14; días con mayor |sesgo|: 17: +1.86, 11: +1.48, 31: -1.24
   O59_NF     inicio +0.84, fin -0.10, resto -0.11; días con mayor |sesgo|: 16: -2.34, 19: -1.74, 24: -1.43
+   (fin de mes: dos últimos días hábiles de cada mes completo; el mes en curso, incompleto, no tiene días de fin)
+   Sensibilidad: ingenuo, fin de mes contando los dos últimos días observados del mes incompleto: -0.40
