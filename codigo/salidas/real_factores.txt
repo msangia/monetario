@@ -1,10 +1,10 @@
 [Datos: BCRA, API de Estadísticas Monetarias v4.0 (descarga 2026-10-22 a 2026-10-23); cálculo propio, NO OFICIAL.]
-Ejecución: 2026-10-23 16:55. Último dato de factores: 2026-10-19; de la base: 2026-10-20.
+Ejecución: 2026-10-23 18:32. Último dato de factores: 2026-10-19; de la base: 2026-10-20.
 
 1. Identidades contables (millones de ARS)
 (a) 46 = suma de 47-55, 58, 59: 5834 días; |residuo| <= 1 millón en 61.9% (desde 2019: 100.0%, máx. 0.0 millones); máx. histórico 336,792 millones; último día con residuo > 1 millón: 2018-12-19
     (hipótesis, a verificar bajando 56 y 57: el residuo previo a 2019 serían los factores no descargados 56 LEBAC y NOBAC y 57 rescate de cuasimonedas)
-(b) 46 = variación diaria de 15: 5832 días; |dif| <= 1 millón en 98.9%; máx. |dif| = 1.46 millones
+(b) 46 = variación diaria de 15: 5832 días; |dif| <= 1 millón en 98.9%; máx. |dif| = 1.46 millones (desde 2019: 100.0%, máx. 0.90 millones)
 (c) 19 = 15 - 16: 5835 días; |dif| <= 1 millón en 100.0%; máx. |dif| = 1.00 millones
 
 2. Descomposición de la varianza diaria de CC = 15 - 16 (pp de la base del día previo)
@@ -110,3 +110,5 @@ ensamble     1164 1.618    1.009     0.835       NaN  0.038      0.896
   O51_55_NF  inicio +0.12, fin +1.43, resto -0.27; días con mayor |sesgo|: 31: +3.40, 1: +2.45, 20: +2.36
   OTes_NF    inicio +0.17, fin +1.49, resto -0.28; días con mayor |sesgo|: 31: +3.52, 1: +2.47, 20: +2.46
   O59_NF     inicio +0.72, fin +0.97, resto -0.17; días con mayor |sesgo|: 1: +2.32, 31: +2.14, 21: -0.96
+   (fin de mes: dos últimos días hábiles de cada mes completo; el mes en curso, incompleto, no tiene días de fin)
+   Sensibilidad: ingenuo, fin de mes contando los dos últimos días observados del mes incompleto: +1.33
