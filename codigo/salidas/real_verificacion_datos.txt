@@ -10,7 +10,7 @@
 #   id 150 (pases entre terceros a 1 día): 2008-01-02 a 2026-10-21 (último dato)
 #   id 1189 (plazo fijo en pesos): 2003-01-02 a 2026-10-21 (último dato)
 #   id 44 (TAMAR): 2024-10-01 a 2026-10-20 (último dato)
-# Ejecución: 2026-10-23 01:55
+# Ejecución: 2026-10-23 02:17
 
 ## verificar_series.py --desde 2003-01-01
 id    descripcion                                                             per  cat_primero  cat_ultimo  filas  csv_primero  csv_ultimo  estado
@@ -45,6 +45,6 @@ id 44 (En porcentaje nominal anual): 495 filas 2024-10-01 a 2026-10-20; duplicad
 109 >= 197: se cumple en 100.0% de 1409 días
 109 > 17: se cumple en 100.0% de 5833 días
 
-## IPC
+## IPC (DESCARTADO para B y C: el tramo previo a 2016-12 de ipc_historico.csv es de fuente no documentada; sólo se controla que coincida con INDEC después)
 IPC empalmado: ipc_historico.csv hasta 2016-11 (x 1.000000), ipc_mensual.csv (INDEC) desde 2016-12; razón en el tramo común 2016-12 a 2026-09: desvío máx. 0.0e+00
 Serie empalmada: 1992-12 a 2026-09, 406 meses.

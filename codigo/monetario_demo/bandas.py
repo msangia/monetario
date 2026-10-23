@@ -119,9 +119,12 @@ def chequear_desvios(serie: pd.Series, trimestres: int = 4, ventana: int = 36,
 
 
 def cobertura_banda(errores: pd.DataFrame, nivel: float = 0.9,
-                    minimo: int = 24) -> pd.DataFrame:
+                    minimo: int = 24, desde: str | pd.Timestamp | None = None) -> pd.DataFrame:
     """Calibración fuera de muestra de la banda: para cada origen con historia suficiente,
     ¿el error cayó dentro de la banda armada sólo con errores anteriores?
+
+    Si se indica ``desde``, sólo se evalúan los orígenes desde esa fecha (la banda
+    puede usar errores anteriores, que ya eran conocidos).
 
     Returns:
         DataFrame (índice = h) con ``n`` (orígenes evaluados), ``cobertura`` (proporción
@@ -133,7 +136,7 @@ def cobertura_banda(errores: pd.DataFrame, nivel: float = 0.9,
         e = errores[h]
         dentro, anchos = [], []
         for p in range(len(e)):
-            if np.isnan(e.iloc[p]):
+            if np.isnan(e.iloc[p]) or (desde is not None and e.index[p] < pd.Timestamp(desde)):
                 continue
             previos = e.iloc[: max(p - int(h) + 1, 0)].dropna()   # conocidos en t
             if len(previos) < minimo:

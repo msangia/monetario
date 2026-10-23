@@ -126,3 +126,12 @@ def test_forma_tasa_log():
     assert df["i"].iloc[0] == pytest.approx(np.log(0.40))
     with pytest.raises(ValueError):
         armar_panel(uno, uno, uno, uno, forma_tasa="raiz")
+
+
+def test_analizar_completa_muestra_corta():
+    """Submuestra de 36 meses: sólo muestra completa (sin ventanas móviles)."""
+    from monetario_demo.demanda_dinero import analizar_completa
+    df = demo_demanda_dinero(mes_quiebre=None).iloc[:36]
+    r = analizar_completa(df)
+    assert r["n"] == 36 and 0 <= r["p_cusum"] <= 1
+    assert set(r["completa"]) >= {"b_y", "b_i", "p_coint", "g"}

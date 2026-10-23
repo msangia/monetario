@@ -65,3 +65,21 @@ def test_cobertura_banda_sin_look_ahead():
 def test_cli_demo_rotulada(tmp_path):
     texto = main(["--demo", "--figura", str(tmp_path / "f.png")])
     assert "SINTÉTICOS" in texto and (tmp_path / "f.png").exists()
+
+
+def test_cobertura_desde_evalua_solo_origenes_posteriores():
+    rng = np.random.default_rng(1)
+    idx = pd.period_range("2000-01", periods=120, freq="M").to_timestamp("M")
+    err = pd.DataFrame({1: rng.normal(size=120)}, index=idx)
+    c = bandas.cobertura_banda(err, 0.9, minimo=24, desde=idx[60])
+    assert c.loc[1, "n"] == 60                    # orígenes 60..119; la banda usa los previos
+
+
+def test_derivas_con_historia_larga_y_panel_corto(panel):
+    """Las derivas usan toda la historia del dinero; el MCE, sólo el panel (IPC corto)."""
+    corto = panel.iloc[60:]
+    pron = programas(corto, ventana_mce=48, log_m_largo=panel["log_m"])
+    assert pron["deriva"].index[0] < corto.index[0] <= pron["mce"].index[0]
+    t = comparar(corto, pron, str(corto.index[60].date()), log_obs=panel["log_m"])
+    assert t.groupby("programa")["n"].nunique().eq(1).all()   # mismos orígenes
+    assert (t.loc[t["programa"] == "deriva", "n_cob"] == t.loc[t["programa"] == "deriva", "n"]).all()

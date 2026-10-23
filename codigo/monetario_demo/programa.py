@@ -27,6 +27,10 @@ Uso::
 
     python -m monetario_demo.programa --demo
     python -m monetario_demo.programa --dinero 109 --tasa 1189 --figura salidas/fan_chart_m2.pdf
+
+Con datos reales usa por defecto sólo el IPC oficial de INDEC (desde dic-2016): el MCE
+se estima en ventanas de 48 meses y se evalúa desde 2021-01. Las derivas usan toda la
+historia del agregado (no dependen del IPC).
 """
 
 from __future__ import annotations
@@ -37,7 +41,7 @@ import numpy as np
 import pandas as pd
 
 from . import bandas
-from .datos import (ROTULO_SINTETICO, a_mensual, cargar_csv, cargar_emae,
+from .datos import (ROTULO_SINTETICO, a_mensual, cargar_csv, cargar_emae, cargar_ipc,
                     cargar_ipc_historico, demo_demanda_dinero, meses_completos)
 from .evaluacion import diebold_mariano
 
@@ -129,12 +133,17 @@ def pronostico_mce(panel: pd.DataFrame, ventana: int = 72, h_max: int = H,
     return pd.DataFrame(filas).T
 
 
-def programas(panel: pd.DataFrame, ventana_deriva: int = 36,
-              ventana_mce: int = 72) -> dict[str, pd.DataFrame]:
-    """Los tres programas (log de M por origen y horizonte)."""
-    nivel = np.exp(panel["log_m"])
-    return {"deriva": bandas.pronostico_deriva(nivel, ventana_deriva),
-            "deriva_estacional": pronostico_deriva_estacional(panel["log_m"], ventana_deriva),
+def programas(panel: pd.DataFrame, ventana_deriva: int = 36, ventana_mce: int = 72,
+              log_m_largo: pd.Series | None = None) -> dict[str, pd.DataFrame]:
+    """Los cinco programas (log de M por origen y horizonte).
+
+    ``log_m_largo``: log del agregado en una muestra más larga que el panel (las derivas
+    no usan precios ni actividad, así que pueden estimarse con toda la historia del
+    dinero aunque el IPC empiece después).
+    """
+    lm = panel["log_m"] if log_m_largo is None else log_m_largo
+    return {"deriva": bandas.pronostico_deriva(np.exp(lm), ventana_deriva),
+            "deriva_estacional": pronostico_deriva_estacional(lm, ventana_deriva),
             "velocidad": pronostico_velocidad(panel),
             "mce": pronostico_mce(panel, ventana_mce),
             # Control de atribución: el mismo MCE sin dummies mensuales.
@@ -142,13 +151,17 @@ def programas(panel: pd.DataFrame, ventana_deriva: int = 36,
 
 
 def comparar(panel: pd.DataFrame, pron: dict[str, pd.DataFrame], desde: str | None = None,
-             nivel: float = 0.9) -> pd.DataFrame:
+             nivel: float = 0.9, log_obs: pd.Series | None = None) -> pd.DataFrame:
     """MAE (%), DM-HLN contra la deriva (y contra la deriva estacional) y calibración de la banda, por programa y horizonte.
 
     Todos los programas se evalúan en los mismos orígenes (los comunes, desde ``desde``).
-    La cobertura es fuera de muestra: banda armada sólo con errores anteriores a t.
+    La cobertura es fuera de muestra (banda armada sólo con errores anteriores a t) y se
+    evalúa en los orígenes comunes que tengan al menos 24 errores previos.
+    ``log_obs``: serie observada contra la que se miden los errores (por defecto, la
+    del panel; puede ser más larga, ver :func:`programas`).
     """
-    err = {k: bandas.errores_de_pronostico(panel["log_m"], v) for k, v in pron.items()}
+    obs = panel["log_m"] if log_obs is None else log_obs
+    err = {k: bandas.errores_de_pronostico(obs, v) for k, v in pron.items()}
     comunes = err["deriva"].index
     for e in err.values():
         comunes = comunes.intersection(e.dropna().index)
@@ -156,7 +169,7 @@ def comparar(panel: pd.DataFrame, pron: dict[str, pd.DataFrame], desde: str | No
         comunes = comunes[comunes >= pd.Timestamp(desde)]
     filas = []
     for k, e in err.items():
-        cob = bandas.cobertura_banda(e.loc[: comunes[-1]], nivel)
+        cob = bandas.cobertura_banda(e.loc[: comunes[-1]], nivel, desde=comunes[0])
         for h in e.columns:
             ec, ed = e.loc[comunes, h], err["deriva"].loc[comunes, h]
             dm = None if k == "deriva" else diebold_mariano(ec, ed, h=int(h), perdida="abs")
@@ -169,6 +182,7 @@ def comparar(panel: pd.DataFrame, pron: dict[str, pd.DataFrame], desde: str | No
                           "MAE_rel_deriva": float(ec.abs().mean() / ed.abs().mean()),
                           "p_DM_vs_deriva": np.nan if dm is None else dm.p_valor,
                           "p_DM_vs_estac": np.nan if dm_e is None else dm_e.p_valor,
+                          "n_cob": int(cob.loc[h, "n"]),
                           "cobertura_90": float(cob.loc[h, "cobertura"]),
                           "ancho_90_pp": float(cob.loc[h, "ancho"])})
     return pd.DataFrame(filas)
@@ -190,25 +204,36 @@ def main(argv: list[str] | None = None) -> str:
     g.add_argument("--demo", action="store_true", help="datos sintéticos de demostración")
     g.add_argument("--dinero", help="id o CSV diario del agregado (109 = M2, 15 = base)")
     ap.add_argument("--tasa", default="1189", help="id o CSV de la tasa (%% anual)")
-    ap.add_argument("--desde", default="2012-01", help="primer origen evaluado (AAAA-MM)")
+    ap.add_argument("--desde", default="2021-01", help="primer origen evaluado (AAAA-MM)")
+    ap.add_argument("--ventana-mce", type=int, default=48, help="meses de la ventana del MCE")
+    ap.add_argument("--precios", choices=("oficial", "empalmado"), default="oficial",
+                    help="oficial = IPC INDEC desde dic-2016 (defecto); empalmado = con "
+                         "ipc_historico.csv antes (fuente no documentada; descartado)")
     ap.add_argument("--trimestres", type=int, default=4)
     ap.add_argument("--figura", default=None, help="fan chart del programa MCE (PDF o PNG)")
     a = ap.parse_args(argv)
     if a.demo:
         panel, rotulo = demo_panel(), ROTULO_SINTETICO
+        lm_largo = panel["log_m"]
+        desde = "2012-01" if a.desde == "2021-01" else a.desde
+        ventana_mce = 72 if a.ventana_mce == 48 else a.ventana_mce
     else:
-        panel = armar_panel_programa(cargar_csv(a.dinero), cargar_ipc_historico(),
-                                     cargar_emae(), cargar_csv(a.tasa))
+        dinero = cargar_csv(a.dinero)
+        precios = cargar_ipc_historico() if a.precios == "empalmado" else cargar_ipc()
+        panel = armar_panel_programa(dinero, precios, cargar_emae(), cargar_csv(a.tasa))
+        lm_largo = np.log(a_mensual(meses_completos(dinero))).loc[:panel.index[-1]]
+        desde, ventana_mce = a.desde, a.ventana_mce
         nombre = {"109": "M2", "15": "base monetaria"}.get(a.dinero, "agregado")
         rotulo = (f"{nombre} (BCRA id {a.dinero}), promedio mensual; tasa id {a.tasa}; "
-                  "IPC y EMAE (INDEC).\nDatos reales; cálculo propio, no oficial")
-    pron = programas(panel)
-    tabla = comparar(panel, pron, a.desde)
-    nivel = np.exp(panel["log_m"])
+                  f"IPC {a.precios} y EMAE (INDEC).\nDatos reales; cálculo propio, no oficial")
+    pron = programas(panel, ventana_mce=ventana_mce, log_m_largo=lm_largo)
+    tabla = comparar(panel, pron, desde, log_obs=lm_largo)
+    nivel = np.exp(lm_largo)
     chequeos = {k: bandas.chequear_programa(nivel, v, a.trimestres) for k, v in pron.items()}
     partes = [f"[{rotulo.replace(chr(10), ' ')}]",
               f"Panel {panel.index[0]:%Y-%m} a {panel.index[-1]:%Y-%m} ({len(panel)} meses)",
-              f"Error fuera de muestra a h meses (%), orígenes desde {a.desde}; DM-HLN "
+              f"Error fuera de muestra a h meses (%), orígenes desde {desde}; MCE en ventanas de "
+              f"{ventana_mce} meses; DM-HLN "
               "unilateral contra la deriva y contra la deriva estacional; cobertura y ancho "
               "de la banda del 90 % armada sin look-ahead",
               tabla.round(3).to_string(index=False)]

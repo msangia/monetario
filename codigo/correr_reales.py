@@ -6,8 +6,10 @@ Escribe en ``codigo/salidas/``:
   calidad (:mod:`monetario_demo.calidad`), controles cruzados y empalme del IPC;
 * ``real_liquidez.txt`` (rutina A: base, billetes, circulación, cuentas corrientes en
   el BCRA y pronóstico de la base por componentes);
-* ``real_demanda_dinero.txt`` (rutina B: M2 (109) real con IPC empalmado, EMAE s.e.
-  y plazo fijo (1189) o BAIBAR (11), tasa en nivel y en log, y submuestras);
+* ``real_demanda_dinero.txt`` (rutina B: M2 (109) y base (15) reales con el IPC
+  oficial de INDEC, desde dic-2016, EMAE s.e. y plazo fijo (1189) o BAIBAR (11), tasa
+  en nivel y en log, y la submuestra 2017-2019; el IPC empalmado previo a 2016-12, de
+  fuente no documentada, se descarta);
 * ``real_bandas.txt`` (rutina C: programas de deriva, deriva estacional, velocidad y
   demanda MCE para M2 (109) y base (15), banda del 90 % y chequeo de desvíos) y
   ``fan_chart_real.pdf`` (M2, programa MCE).
@@ -32,7 +34,7 @@ import pandas as pd
 
 from monetario_demo import bandas, calidad, demanda_dinero, liquidez, programa
 from monetario_demo.datos import (CARPETA_DATOS, cargar_csv, cargar_emae,
-                                  cargar_ipc_historico)
+                                  cargar_ipc, cargar_ipc_historico)
 import verificar_series
 
 SALIDAS = Path(__file__).resolve().parent / "salidas"
@@ -76,12 +78,30 @@ def verificacion() -> str:
         salida.getvalue(), "## Calidad (monetario_demo.calidad)",
         calidad.informe_calidad(list(DESCRIPCION)), "",
         "## Controles cruzados", calidad.controles_cruzados(), "",
-        "## IPC", ipc.attrs["empalme"],
+        "## IPC (DESCARTADO para B y C: el tramo previo a 2016-12 de ipc_historico.csv "
+        "es de fuente no documentada; sólo se controla que coincida con INDEC después)",
+        ipc.attrs["empalme"],
         f"Serie empalmada: {ipc.index[0]:%Y-%m} a {ipc.index[-1]:%Y-%m}, {len(ipc)} meses."])
 
 
 PERIODOS_A = (("2022-01 a 2026-10", {}), ("desde 2025-07-11", {"desde": "2025-07-11"}),
               ("últimos 60 días", {"ultimos": 60}))
+
+
+def ahorro_pp_base(modelo: pd.DataFrame, ingenuo: pd.DataFrame, peso: pd.Series,
+                   desde: str | None = None, ultimos: int | None = None) -> float:
+    """Significancia económica: reducción del MAE expresada en puntos porcentuales de la base.
+
+    Los errores están en % del nivel previo de cada serie; se ponderan por el peso de la
+    serie en la base el día anterior (``peso`` = serie / base), de modo que las mejoras
+    de distintas series se comparan con la misma vara (el MAE ingenuo de la base).
+    """
+    m, g = modelo.loc[desde:], ingenuo.loc[desde:]
+    if ultimos:
+        m, g = m.iloc[-ultimos:], g.iloc[-ultimos:]
+    w = peso.shift(1).reindex(m.index)
+    return float(((g["obs"] - g["pron"]).abs() * w).mean()
+                 - ((m["obs"] - m["pron"]).abs() * w).mean())
 
 
 def rutina_a() -> str:
@@ -99,6 +119,9 @@ def rutina_a() -> str:
     base, circ = cargar_csv("15").loc["2010-01-04":], cargar_csv("16").loc["2010-01-04":]
     cc = (base - circ).rename("cuentas_corrientes_bcra")
     resumen = []
+    pesos = {"base (15)": base / base, "base (15), móvil 500": base / base,
+             "billetes (17)": cargar_csv("17").loc["2010-01-04":] / base,
+             "circulación (16)": circ / base, "cuentas corrientes en el BCRA (15 - 16)": cc / base}
     for nombre, nivel, ventana in (("base (15)", base, None), ("base (15), móvil 500", base, 500),
                                    ("billetes (17)", cargar_csv("17").loc["2010-01-04":], None),
                                    ("circulación (16)", circ, None),
@@ -115,6 +138,9 @@ def rutina_a() -> str:
                             "MAE_rel": ev["tabla"].loc["ensamble", "MAE_rel"],
                             "p_DM": ev["dm"].p_valor,
                             "cob90": ev["tabla"].loc["ensamble", "cobertura"],
+                            "ahorro_pp_base": ahorro_pp_base(pronos["ensamble"],
+                                                             pronos["ingenuo"], pesos[nombre],
+                                                             **kw),
                             "sesgo_fin_ens": sp.loc["fin de mes", "ensamble"],
                             "sesgo_fin_ing": sp.loc["fin de mes", "ingenuo"],
                             "sesgo_ini_ens": sp.loc["inicio de mes", "ensamble"],
@@ -126,13 +152,16 @@ def rutina_a() -> str:
             r = liquidez.evaluar_contra_ingenuo(comp, ingenuo_base, **kw)
             resumen.append({"serie": f"base por componentes (circ. ensamble + ctas. "
                                      f"{cc_modelo})", "periodo": etiqueta, "n": r["n"],
-                            "MAE_rel": r["MAE_rel"], "p_DM": r["p_DM"], "cob90": r["cobertura"]})
+                            "MAE_rel": r["MAE_rel"], "p_DM": r["p_DM"], "cob90": r["cobertura"],
+                            "ahorro_pp_base": ahorro_pp_base(comp, ingenuo_base, base / base,
+                                                             **kw)})
     descomp = {per: liquidez.descomponer_varianza(cargar_csv("15").loc[per[0]:per[1]],
                                                   cargar_csv("16").loc[per[0]:per[1]])
                for per in (("2010-01-04", "2021-12-31"), ("2022-01-01", "2026-12-31"),
                            ("2025-07-11", "2026-12-31"))}
     partes.insert(3, "## Resumen (ensamble vs. ingenuo; DM-HLN unilateral; cobertura del 90 %; "
-                  "sesgo = observado - pronóstico, pp)\n"
+                  "sesgo = observado - pronóstico, pp; ahorro_pp_base = MAE ingenuo - MAE ensamble, "
+                  "en pp de la base, errores ponderados por el peso de la serie en la base)\n"
                   + pd.DataFrame(resumen).round(3).to_string(index=False)
                   + "\n\n## Varianza de la variación diaria de la base (en % de la base previa)\n"
                   + "\n".join(f"{a} a {b}: circulación {d['circulacion']:.1%}, cuentas "
@@ -143,47 +172,59 @@ def rutina_a() -> str:
 
 
 ESPECIFICACIONES_B = (
-    # (etiqueta, dinero, tasa, forma de la tasa, desde, hasta, ventana)
-    ("M2, plazo fijo, semielasticidad (principal)", "109", "1189", "nivel", None, None, 72),
-    ("M2, plazo fijo, elasticidad (log i)", "109", "1189", "log", None, None, 72),
-    ("M2, BAIBAR, semielasticidad", "109", "11", "nivel", None, None, 72),
-    ("M2, BAIBAR, elasticidad (log i)", "109", "11", "log", None, None, 72),
-    ("M2, plazo fijo, sólo IPC oficial (2017-01 en adelante)", "109", "1189", "nivel",
-     "2017-01", None, 60),
-    ("M2, plazo fijo, 2004-01 a 2019-12", "109", "1189", "nivel", None, "2019-12", 60),
-    ("Base (15), plazo fijo, semielasticidad (comparación)", "15", "1189", "nivel",
-     None, None, 72),
+    # (etiqueta, dinero, tasa, forma de la tasa, desde, hasta, ventana; None = sin ventanas)
+    # Todas con el IPC oficial de INDEC (desde 2016-12); muestras fijadas de antemano.
+    ("M2, plazo fijo, semielasticidad (principal)", "109", "1189", "nivel", "2017-01", None, 60),
+    ("M2, plazo fijo, elasticidad (log i)", "109", "1189", "log", "2017-01", None, 60),
+    ("M2, BAIBAR, semielasticidad", "109", "11", "nivel", "2017-01", None, 60),
+    ("M2, BAIBAR, elasticidad (log i)", "109", "11", "log", "2017-01", None, 60),
+    ("Base (15), plazo fijo, semielasticidad", "15", "1189", "nivel", "2017-01", None, 60),
+    ("M2, plazo fijo, 2017-01 a 2019-12 (36 meses, sin ventanas)", "109", "1189", "nivel",
+     "2017-01", "2019-12", None),
 )
 
 
 def rutina_b() -> str:
-    """Rutina B: demanda de M2 (109) real con IPC empalmado, EMAE s.e. y plazo fijo/BAIBAR."""
-    ipc = cargar_ipc_historico()
+    """Rutina B: demanda de M2 (109) y base (15) reales con el IPC oficial de INDEC."""
+    ipc = cargar_ipc()
     emae = cargar_emae()
     partes = [encabezado([109, 15, 1189, 11], [
         f"EMAE desestacionalizado (INDEC): {emae.index[0]:%Y-%m} a {emae.index[-1]:%Y-%m}",
-        ipc.attrs["empalme"]]),
-        "M2 (109) = billetes y monedas en poder del público + cuentas corrientes y cajas de "
-        "ahorro en pesos de los sectores privado y público (no es el M2 privado; el M2 "
-        "transaccional privado, 197, empieza en 2021). Especificaciones fijadas de antemano; "
+        f"IPC oficial (INDEC, ipc_mensual.csv, dic-2016 = 100): {ipc.index[0]:%Y-%m} a "
+        f"{ipc.index[-1]:%Y-%m}. No se usa el IPC empalmado previo (fuente no documentada)."]),
+        "M2 (109) = M2 total (billetes y monedas en poder del público + cuentas a la vista en "
+        "pesos de los sectores privado y público); el M2 transaccional privado (197) empieza "
+        "en 2021. IPC observado (no inflación esperada). Especificaciones fijadas de antemano; "
         "se informan todas."]
     filas = []
     for etiqueta, d, tasa, forma, desde, hasta, ventana in ESPECIFICACIONES_B:
         df = demanda_dinero.armar_panel(cargar_csv(d), ipc, emae, cargar_csv(tasa), forma)
         df = df.loc[desde:hasta]
-        res = demanda_dinero.analizar(df, ventana=ventana)
-        c, rol, al = res["completa"], res["rolling"], res["alertas"]
+        if ventana is None:
+            res = demanda_dinero.analizar_completa(df)
+        else:
+            res = demanda_dinero.analizar(df, ventana=ventana)
+        c, rol, al = res["completa"], res.get("rolling"), res.get("alertas", {})
+        fmt = lambda f: f.strftime("%Y-%m") if f is not None else "-"
         filas.append({
             "especificación": etiqueta, "muestra": f"{df.index[0]:%Y-%m} a {df.index[-1]:%Y-%m}",
-            "b_y": c["b_y"], "b_i": c["b_i"], "p_EG": c["p_coint"], "g": c["g"], "t_g": c["t_g"],
-            "p_CUSUM": res["p_cusum"], "ventana": ventana,
-            "sin_coint_%": 100 * float((rol["p_coint"] > 0.10).mean()),
+            "n": len(df), "b_y": c["b_y"], "b_i": c["b_i"], "p_EG": c["p_coint"], "g": c["g"],
+            "t_g": c["t_g"], "p_CUSUM": res["p_cusum"], "ventana": ventana or "-",
+            "sin_coint_%": (100 * float((rol["p_coint"] > 0.10).mean())
+                            if rol is not None else float("nan")),
             "ADF_niv_m/y/i": "/".join(f"{v:.2f}" for v in res["adf"]["p_niveles"]),
-            "alerta_b_y": al["b_y"].strftime("%Y-%m") if al["b_y"] is not None else "-",
-            "alerta_b_i": al["b_i"].strftime("%Y-%m") if al["b_i"] is not None else "-"})
-        partes.append(demanda_dinero.informe(res, f"{etiqueta}; dinero {d}, tasa {tasa} "
-                                             f"({forma})", demanda_dinero.verificar_muestra(
-                                                 df, ventana)))
+            "alerta_b_y": fmt(al.get("b_y")), "alerta_b_i": fmt(al.get("b_i"))})
+        if ventana is None:
+            partes.append(f"[{etiqueta}; dinero {d}, tasa {tasa} ({forma})]\n"
+                          f"Panel {df.index[0]:%Y-%m} a {df.index[-1]:%Y-%m}: {len(df)} meses "
+                          "(sin ventanas móviles; poder bajo)\n"
+                          f"Muestra completa: b_y = {c['b_y']:.2f}, b_i = {c['b_i']:.2f}, "
+                          f"p Engle-Granger = {c['p_coint']:.3f}, ajuste g = {c['g']:.3f} "
+                          f"(t = {c['t_g']:.1f}); CUSUM p = {res['p_cusum']:.3f}")
+        else:
+            partes.append(demanda_dinero.informe(res, f"{etiqueta}; dinero {d}, tasa {tasa} "
+                                                 f"({forma})", demanda_dinero.verificar_muestra(
+                                                     df, ventana)))
     partes.insert(2, "## Resumen\n" + pd.DataFrame(filas).round(3).to_string(index=False))
     return "\n\n".join(partes) + "\n"
 
@@ -192,11 +233,13 @@ def rutina_c() -> str:
     """Rutina C: programas y banda para M2 (109) y base (15); deriva para 197 (referencia)."""
     partes = [encabezado([109, 15, 1189, 197], [
         f"EMAE desestacionalizado (INDEC) hasta {cargar_emae().index[-1]:%Y-%m}; "
-        "IPC empalmado (ver real_demanda_dinero.txt)"]),
+        "IPC oficial de INDEC desde 2016-12 (sin empalme previo)"]),
         "Promedios mensuales de meses completos (se descarta 2026-10, parcial). Programas: "
-        "deriva (36 meses), deriva estacional, velocidad constante y demanda MCE (ventana "
-        "de 72 meses, plazo fijo 1189, dummies mensuales). Velocidad y MCE son condicionales "
-        "al IPC, EMAE y tasa observados. Ninguno es el programa del BCRA."]
+        "deriva (36 meses) y deriva estacional (efectos de 72 meses), con toda la historia "
+        "del agregado; velocidad constante y demanda MCE (ventana de 48 meses desde 2016-12, "
+        "plazo fijo 1189, dummies mensuales), que necesitan el IPC oficial. Orígenes "
+        "evaluados desde 2021-01. Velocidad y MCE son condicionales al IPC, EMAE y tasa "
+        "observados. Ninguno es el programa del BCRA."]
     partes.append("## M2 (109)\n" + _capturar(programa.main, [
         "--dinero", "109", "--tasa", "1189", "--figura", str(SALIDAS / "fan_chart_real.pdf")]))
     partes.append("## Base monetaria (15)\n" + _capturar(programa.main, [

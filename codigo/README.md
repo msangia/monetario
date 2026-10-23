@@ -47,8 +47,10 @@ python -m monetario_demo.programa --demo
 > **Estado (2026-10-23).** Las 11 series diarias, EMAE e IPC están en `datos/` y todas dan `ok`
 > en `verificar_series.py`. `python correr_reales.py` (~2,5 min) corre: A con base (15), billetes
 > (17), circulación (16), cuentas corrientes en el BCRA (15 − 16) y la base por componentes;
-> B con M2 (109) real, IPC empalmado, EMAE s.e. y plazo fijo (1189) o BAIBAR (11), tasa en nivel
-> y en log, y dos submuestras; C con M2 (109) y base (15) y cinco programas (`programa.py`).
+> B con M2 (109) y base (15) reales, **sólo IPC oficial de INDEC (desde 2016-12)**, EMAE s.e. y
+> plazo fijo (1189) o BAIBAR (11), tasa en nivel y en log, y la submuestra 2017–2019; C con M2
+> (109) y base (15) y cinco programas (`programa.py`; MCE en ventanas de 48 meses, orígenes desde
+> 2021-01). La significancia económica de A se informa como ahorro de error en pp de la base.
 
 1. Bajar las series con `descargar_bcra.py` y dejar los CSV en `datos/`; el paso a paso está en
    [`../datos/LEEME.md`](../datos/LEEME.md).
@@ -63,9 +65,10 @@ python -m monetario_demo.liquidez --csv 17 --desde 2010-01-04 --inicio-eval 2022
 
 # B. Demanda de dinero: M2 (109), IPC, EMAE y plazo fijo en pesos (1189, % anual)
 python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
-    --precios empalmado --actividad datos/emae_mensual.csv [--ventana 60] [--desde AAAA-MM] \
-    [--hasta AAAA-MM] [--forma-tasa nivel|log]
-# --precios empalmado = cargar_ipc_historico(): INDEC desde 2016-12 y ipc_historico.csv antes
+    --precios datos/ipc_mensual.csv --actividad datos/emae_mensual.csv [--ventana 60] \
+    [--desde AAAA-MM] [--hasta AAAA-MM] [--forma-tasa nivel|log]
+# --precios empalmado (ipc_historico.csv antes de 2016-12) existe, pero se DESCARTA en los anexos:
+# su tramo previo es de fuente no documentada.
 
 # C. Banda de tolerancia: base (15) o M2 (109; 197 empieza en 2021) — diaria o mensual, se promedia por mes
 python -m monetario_demo.bandas --csv 109 --trimestres 4 --figura salidas/fan_chart.pdf
@@ -94,10 +97,10 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
 
 ## Supuestos y limitaciones
 
-- **IPC empalmado.** `ipc_historico.csv` coincide exactamente con `ipc_mensual.csv` desde
-  2016-12 (razón 1). Antes es un empalme externo, redondeado a 2 decimales, cuya fuente hay que
-  documentar (cubre 2007–2016, período de emergencia del IPC oficial). `cargar_ipc_historico`
-  usa INDEC desde 2016-12 y el histórico antes, y falla si la razón no es constante.
+- **IPC.** B y C usan sólo el IPC oficial de INDEC (`ipc_mensual.csv`, desde 2016-12).
+  `ipc_historico.csv` coincide con él desde 2016-12, pero su tramo previo es un empalme externo de
+  fuente no documentada (cubre 2007–2016, período de emergencia del IPC oficial): se descarta.
+  `cargar_ipc_historico` queda sólo para control.
 - **Depósitos (104).** Incluyen moneda extranjera valuada en pesos (el catálogo los rotula
   `ME`; saltan en las devaluaciones de 2015 y 2023). No usarlos como depósitos en pesos.
 - **Calendario con datos reales.** Las posiciones en el mes se calculan sobre los días con dato
@@ -107,9 +110,9 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
   circulación (16) y billetes (17), no en la base (15) ni en las cuentas corrientes en el BCRA
   (15 − 16), que explican el 98 % de la varianza diaria de la base; la base por componentes mejora
   sólo 1 %. El total de factores (46) es idéntico a Δ15: no se puede usar como regresor sin
-  *look-ahead*. B: M2 (109) sin cointegración en ninguna especificación; CUSUM rechaza estabilidad.
-  C: el MCE condicional le gana a la deriva sólo por la estacionalidad (empata con la deriva
-  estacional) y todas las bandas cubren menos que el 90 % nominal (68–86 %). Ver `anexos.tex`.
+  *look-ahead*. B (IPC oficial, 2017–2026): sin cointegración en ninguna especificación (p EG ≥ 0,70).
+  C (orígenes 2021–2026): el MCE condicional no supera a la deriva ni a la deriva estacional al 10 %
+  en h = 1 y 3; su banda cubre 74–81 % (nominal 90 %): hay que recalibrar. Ver `anexos.tex`.
 - **M2 (109).** Es el M2 total: efectivo en poder del público + cuentas corrientes y cajas de
   ahorro en pesos de los sectores privado **y público** (metodología de la API). No es el M2
   privado del proyecto; el M2 transaccional privado (197) empieza en 2021.

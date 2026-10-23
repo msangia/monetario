@@ -157,15 +157,27 @@ def detectar_inestabilidad(rol: pd.DataFrame,
     return out
 
 
-def analizar(df: pd.DataFrame, ventana: int = 72, B: int = 200) -> dict[str, object]:
-    """Muestra completa, ventanas móviles, alertas de inestabilidad y CUSUM."""
+def analizar_completa(df: pd.DataFrame) -> dict[str, object]:
+    """Sólo la muestra completa: Engle-Granger, MCE, CUSUM y ADF (sin ventanas móviles).
+
+    Sirve para submuestras cortas (p. ej., 36 meses) en las que no hay ventanas
+    suficientes; el resultado se interpreta con cautela por el bajo poder del test.
+    """
     completa = engle_granger(df)
     mce = completa.pop("_mce")
     _, p_cusum, _ = breaks_cusumolsresid(np.asarray(mce.resid), ddof=int(mce.df_model) + 1)
+    return {"completa": completa, "p_cusum": float(p_cusum), "adf": raices_unitarias(df),
+            "n": len(df)}
+
+
+def analizar(df: pd.DataFrame, ventana: int = 72, B: int = 200) -> dict[str, object]:
+    """Muestra completa, ventanas móviles, alertas de inestabilidad y CUSUM."""
+    base = analizar_completa(df)
+    completa, p_cusum = base["completa"], base["p_cusum"]
     rol = ventanas_moviles(df, ventana)
     umbral = umbral_simulado(df, ventana, B)
     return {"completa": completa, "rolling": rol, "umbral": umbral,
-            "adf": raices_unitarias(df),
+            "adf": base["adf"],
             "alertas": detectar_inestabilidad(rol, umbral), "p_cusum": float(p_cusum),
             "ventana": ventana}
 
