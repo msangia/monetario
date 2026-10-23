@@ -5,7 +5,6 @@
 \usepackage[spanish,es-noquoting]{babel}
 \usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{enumitem}
-\usepackage{booktabs,array}
 \usepackage[colorlinks=false,hidelinks]{hyperref}
 \setlist{itemsep=1pt,topsep=2pt,parsep=0pt,leftmargin=1.2em}
 \setlength{\parindent}{0pt}
@@ -20,89 +19,84 @@
 \date{}
 
 \begin{document}
-\maketitle
+\begin{center}{\Large\textbf{Proyecto de trabajo}}\\[2pt]{\large Gerente de Análisis Monetario (426 05)}\\[4pt]{\large \autor}\end{center}
 
-\section*{1. Introducción y enfoque}
-\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\textbf{Síntesis.} Propongo tres resultados: (1) pronósticos de liquidez y de efectivo mínimo evaluados ex post para la Subgerencia General de Operaciones; (2) un informe monetario y crediticio reproducible que responda cada mes preguntas de política; (3) un equipo con dos ejecutantes por proceso crítico y tiempo propio para innovar. Indicadores clave: error de cada pronóstico frente al \emph{ingenuo} (repetir el último valor), en un tablero; entregas en fecha; analistas que respaldan procesos críticos. Ningún proceso diario se reemplaza sin antes correr en paralelo.}}
-
-\textbf{Trayectoria.} \trayectoria{}
-
-\textbf{Principios.} \emph{Medir el error}: todo pronóstico se evalúa ex post. \emph{Robustez al régimen operativo}: las herramientas sirven cualquiera sea la combinación vigente de agregados, tasas y tipo de cambio.
-
-\textbf{Prioridades y responsables.} El \textbf{núcleo de los primeros 12 meses} tiene cuatro partes: (1) pronóstico de liquidez, efectivo mínimo y billetes, a cargo de la Subgerencia de Análisis y Gestión de la Liquidez (Liquidez; Eje 1); (2) evolución del informe monetario con agregados, fondos comunes de inversión (FCI), billeteras y la Encuesta de Condiciones Crediticias (ECC), a cargo de la Subgerencia de Análisis de Coyuntura Monetaria (Coyuntura; Ejes 2 y 3); (3) programación trimestral y módulos del Informe de Política Monetaria (IPOM), que coordino, y (4) agenda de instrumentos, compartida (Eje 4). La \emph{segunda etapa} se activa sólo si el diagnóstico libera horas y el pronóstico de liquidez lleva tres meses en producción. Los pedidos urgentes pasan por mí a un tablero de prioridades: postergan la segunda etapa, nunca la tarea diaria.
-
-\textbf{Punto de partida.} Según su comunicado del 15-12-2025, el BCRA sigue un esquema de agregados monetarios con banda cambiaria; publica el informe monetario, el IPOM y la ECC.
-
-\section*{2. Ejes de trabajo}
-
-\subsection*{Eje 1. Liquidez del mercado monetario y efectivo mínimo (funciones 1 y 5)}
-\textbf{Qué}: pronóstico de liquidez y de la posición de efectivo mínimo a un día, una semana y un mes, entregado a Operaciones en formato y horario acordados.
-En efectivo mínimo, anticipo cuánto le falta a cada grupo de entidades para cumplir el encaje del mes: con datos internos se pronostica la integración diaria necesaria para cerrar el período. Extiendo lo que Liquidez y Operaciones ya producen, no lo reemplazo: el diagnóstico de 90 días mide el pronóstico vigente y su error.
-\textbf{Cómo}: dos modelos. Para la circulación y los billetes uso un \emph{ensamble}: el promedio de una regresión con efectos de calendario, un modelo de espacio de estado y un ARIMA con variables de calendario, con intervalos (Anexo A.1). El calendario incluye inicio y fin de mes, quincena, aguinaldo, diciembre y día de la semana. Las cuentas corrientes de las entidades explican cerca del 98\,\% de la varianza diaria de la base, y allí ningún modelo con datos públicos mejora al ingenuo (Anexo A.2). Por eso el modelo por factores usará datos internos: la programación de las operaciones del BCRA y la posición de efectivo mínimo. De Hamilton (1996) tomo el peso del calendario en la demanda diaria de reservas. Del Eurosistema tomo pronosticar por separado cada factor autónomo (billetes, depósitos del gobierno, activos externos netos), pronóstico que el BCE empezó a publicar en 2000. Aquí será interno y sumará el efectivo mínimo, para ver qué factor explica cada error.
-\textbf{Cómo se mide}: indicador (i), tras tres meses en paralelo; si no se reúnen las observaciones de la prueba, se extiende el paralelo y, mientras tanto, no pasa a producción. Si a los nueve meses no alcanza la meta, sigue el proceso vigente: informo el error a Operaciones, reviso plazo y umbral y postergo la segunda etapa.
-\textbf{Tasas de corto plazo}: los diferenciales entre call, pases, caución, plazo fijo minorista y mayorista (TAMAR), leídos contra el excedente proyectado y la posición de efectivo mínimo, como señal de tensión de fin de mes; lectura semanal en el \emph{briefing}.
-\textbf{Aporte y brecha}: traigo el diseño de \emph{pipelines} de pronóstico; no he operado el pronóstico diario: en 90 días sigo su ciclo con Liquidez y Operaciones. En los primeros seis meses decido lo técnico de liquidez con el/la Subgerente de Liquidez. Ante dudas rige el proceso vigente; ante desacuerdo, documento, decido y respondo.
-
-\subsection*{Eje 2. Agregados monetarios y coyuntura (funciones 2 y 6)}
-\emph{Núcleo} (evolución del informe mensual, no uno nuevo): descomposición de la base monetaria y del M2 por componentes y fuentes de creación, con desestacionalización y ajuste por calendario con software abierto (X-13/JDemetra+). Cada mes el informe responde tres preguntas de política: cómo avanza la remonetización, cuánto se sustituye hacia billeteras y FCI y cómo se transmiten las tasas a depósitos y préstamos. \emph{Segunda etapa}: nota quincenal de dos páginas; agregados Divisia (Barnett, 1980), como los que publicó la Fed de St.~Louis, porque cuentas remuneradas, billeteras y FCI rinden distinto y el M2 simple los suma igual; y \emph{vintages} al estilo de ALFRED, para evaluar pronósticos con el dato de cada fecha.
-\textbf{Brecha}: no he elaborado el informe de coyuntura: en 90 días acompaño dos ciclos con el/la Subgerente de Coyuntura y, con una ficha por producto, acordamos qué se mantiene, simplifica o cambia.
-\textbf{Presentaciones y discursos (función 6)}: láminas y mensajes con cifras trazables, en 72 h.
-
-\subsection*{Eje 3. Crédito, medios de pago y mercado de capitales (función 3 y perfil)}
-\textbf{Crédito} (\emph{núcleo}): integro la ECC al informe y al IPOM, con índices de difusión y su poder para anticipar el crédito, como hace el BCE con el \emph{Bank Lending Survey}; no creo otra encuesta. Sumo un índice trimestral de concentración del crédito (Herfindahl--Hirschman) por segmento y grupo de entidades. \emph{Segunda etapa}: un panel de microdatos de la Central de Deudores, inspirado en el Consumer Credit Panel de la Fed de Nueva York, para medir la concentración por tipo de deudor, con acuerdo de acceso y resguardo con Estadísticas y Superintendencia. \textbf{Medios de pago y mercado de capitales} (\emph{núcleo}): seguimiento mensual de FCI de mercado de dinero, transferencias, QR, curva corta de letras y tasas de pases y caución. La pregunta guía: cuánto de la demanda transaccional migra a billeteras y FCI y cómo cambia la velocidad del M2. \emph{Segunda etapa}: un cuadro mensual del \emph{perímetro del dinero}: qué parte de esos activos opera como reserva de liquidez. \textbf{Aporte y brecha}: en crédito traigo catorce años de análisis en el BCRA y trabajos en \emph{IMF Economic Review} y BIS \emph{Working Papers} (2020); en medios de pago, FCI y mercado de capitales no tengo trabajo directo: en 90 días armo un cuadro de FCI frente a depósitos.
-
-\subsection*{Eje 4. Programación monetaria e instrumentos (funciones 4, 5 y 7)}
-\textbf{Programación (función 4)}: un ejercicio trimestral en tres bloques. \emph{Ancla}: la consistencia de fuentes. El ejercicio proyecta los factores de la base que descompone el Informe Monetario Mensual de agosto de 2026 (Gráfico 3.1.2: fiscal, compra neta de divisas al sector privado, REPO y OMAs, otros) según el balance del BCRA, incluido el resultado cuasifiscal, y las concilia con el programa financiero del Tesoro y el balance cambiario. Agrega préstamos y depósitos privados por segmento, moneda y grupo de entidades. Los escenarios llevan bandas en formato \emph{fan chart}, como en el Bank of England, con el error del programa y del escenario de IPC y actividad. \emph{Contraste}: la demanda de base y de M2 según actividad, inflación esperada y costo de oportunidad, con un modelo de corrección de errores (MCE: relación de largo plazo y ajuste hacia ella) en ventanas móviles. El IPOM de junio de 2026 (Gráficos III.2.9 y III.3.1) ya muestra el M2 privado transaccional, en \% del PIB, frente al escenario base de un VECM con bandas de uno y dos desvíos estándar. El Anexo B prueba otra especificación (M2 total, IPC observado); contrastaré el VECM vigente con datos internos antes de proponer cambios en su uso. El MCE sirve de contraste y de señal de cambio estructural, no de ancla. \emph{Seguimiento de desvíos}: sin duplicar la banda del VECM, sumo la del programa para la base y el M2 a 1--3 meses, calculada con sus errores pasados. Antes de usarla compruebo que cubra cerca del 90\,\% de los casos fuera de muestra sin ser demasiado ancha (ver Anexo C). Si al mes 12 no lo logra, informo los desvíos con rangos históricos rotulados como no validados y fijo una fecha de revisión; validada la banda, cada desvío fuera de ella se explica en una nota que separa demanda de fuentes.
-\textbf{Instrumentos (función 5)}: toda propuesta de cambio en encajes o instrumentos se eleva con una simulación de su efecto sobre liquidez y agregados. Cada año, una nota técnica evalúa ex post esas medidas con estudios de eventos sobre caución y curva corta, y compara entidades según su posición previa de efectivo mínimo. Traspaso semestral de tasas cortas a pasivas y activas.
-\textbf{IPOM (función 7)}: módulos y recuadros con responsables y cronograma acordado con la Gerencia Principal. \textbf{Aporte}: acuerdo los escenarios con el área de modelos, cuyos DSGE y semiestructurales conozco.
-
-\subsection*{Eje 5. Datos, código abierto e inteligencia artificial (perfil y función 10)}
-\textbf{Infraestructura}: repositorio versionado en entorno interno, informes generados desde el código, pruebas de datos y revisión por pares. \textbf{Tablero de pronósticos}: desde el mes 6 compara todos los modelos con el ingenuo y los de referencia; se actualiza desde el repositorio y lo ven las autoridades. \textbf{Aprendizaje automático}: complemento interpretable de benchmarks lineales (Chakraborty y Joseph, 2017, Bank of England). \textbf{IA generativa}: primer uso, en entorno interno, como asistencia en el borrador del informe y en la revisión de código. Hipótesis a medir: 20\,\% menos horas de producción del informe frente a la línea de base de 90 días, sin más defectos en revisión. \textbf{Gobernanza}: la política de IA (mes 6) fija que sólo salen del entorno interno agregados ya publicados, registra cada uso, exige revisión humana y valida con Seguridad de la Información. \textbf{Aporte}: programo en Stata, R y Python; dicté el curso interno de R.
-
-\subsection*{Eje 6. Conducción, equipo y articulación institucional (funciones 8 a 11)}
-\begin{itemize}
-\item \textbf{Planificación y delegación (funciones 9 y 11)}: plan anual con objetivos medibles por subgerencia y persona. Los recursos van primero a la operación diaria y a los compromisos con Operaciones y el IPOM, luego al núcleo y después a la segunda etapa; el diagnóstico de 90 días fija cuántas personas y horas van a cada frente (los porcentajes de capacidad son supuestos a validar); reviso la asignación cada trimestre. Cada subgerente tiene presupuesto de horas y autoridad sobre sus frentes, reunión individual mensual, evaluación de desempeño y plan anual de desarrollo; reunión semanal de coyuntura. Ante resistencia o bajo desempeño: conversación individual, plan de mejora y acompañamiento; sólo si persiste, escalo a la Gerencia Principal.
-\item \textbf{Desarrollo del equipo (función 10)}: matriz de habilidades por proceso crítico (quién ejecuta, quién respalda, quién aprende); cada semestre un analista pasa un trimestre en la otra subgerencia, con el permiso de datos que corresponda. Seminario de métodos quincenal a cargo de los analistas. Laboratorio de datos, que sólo cede ante la tarea diaria: se financia con las horas que libere la IA si la hipótesis se confirma y, mientras tanto, con la prioridad que fije el diagnóstico (techo de 10\,\% de las horas). Manuales de liquidez y del informe, revisados cada año; capacitación externa (BoE, FMI, CEMLA) devuelta en el seminario.
-\item \textbf{Articulación y ética}: \emph{briefing} semanal a las autoridades vía la Gerencia Principal y presentación trimestral del programa; acceso según necesidad y registrado; declaración de conflictos.
-\item \textbf{Auditoría (función 8)}: registro de recomendaciones priorizadas por riesgo; respuesta en 30 días con plan y responsable; informe trimestral a la Gerencia Principal.
-\end{itemize}
-
-\section*{3. Hoja de ruta e indicadores}
-\small
-\begin{tabular}{@{}p{2.4cm}p{12.4cm}@{}}
-\toprule
-\textbf{0--3 meses} & Diagnóstico (ciclo de liquidez, dos ciclos del informe, línea de base de errores); plan anual; matriz de habilidades; seminario; acuerdo con Operaciones; repositorio.\\
-\textbf{3--12 meses} & \emph{Núcleo}: (1) liquidez y billetes, en paralelo y luego en producción; (2) informe con agregados desestacionalizados, FCI, billeteras y ECC; (3) primera programación, con banda validada o rangos rotulados; (4) protocolo de instrumentos y evaluación ex post. Habilitantes (mes 6): tablero y política de IA.\\
-\textbf{12--24 meses} & Informe de calidad de pronósticos, 2.ª evaluación ex post; 2.ª etapa (laboratorio): nota quincenal, Divisia, \emph{vintages}, panel, perímetro.\\
-\bottomrule
-\end{tabular}
-
-\normalsize
-\textbf{Indicadores y metas} (líneas de base a 90 días: errores, horas, defectos y usuarios):
-\begin{enumerate}[label=(\roman*),itemsep=0pt,topsep=1pt]
-\item \emph{Liquidez} (pronóstico a un día; meta al mes 12). Circulación y billetes: mejora significativa frente al ingenuo, fuera de muestra (Anexo A). El modelo por factores reduce al menos 5\,\% el error de las cuentas corrientes (umbral provisorio). \emph{Efectivo mínimo}: error de la posición al menos 5\,\% menor que el del ingenuo, validado con un \emph{backtest} sobre datos internos históricos (p.\ ej.\ 24 períodos de cómputo) más la prueba en paralelo; umbral a fijar con la línea de base.
-\item Procesos críticos con manual y dos ejecutantes en la matriz: 50\,\% a 6 meses, todos a 9; al menos 95\,\% de los informes y módulos del IPOM entregados en fecha.
-\item En 24 meses, dos documentos de trabajo y cuatro notas técnicas firmadas (dos, ex post).
-\item Cada analista respalda al menos un proceso crítico nuevo y lidera o coescribe un prototipo o nota por año; satisfacción de usuarios $\geq$ 4/5.
-\item Con la banda validada, cada desvío de base y M2 fuera de ella explicado en nota en diez días hábiles; cobertura revisada cada año y recalibrada si se aleja del 90\,\%.
+\section*{1. Introducción}
+La Gerencia de Análisis Monetario le entrega al Banco dos productos: el pronóstico diario de la liquidez del mercado monetario, del que depende la Subgerencia General de Operaciones, y la lectura de la coyuntura monetaria y crediticia que usan las autoridades y el Informe de Política Monetaria (IPOM). Propongo mejorarlos sin arriesgar la operación diaria, con tres objetivos:
+\begin{enumerate}
+\item \textbf{Pronosticar mejor la liquidez y el efectivo mínimo}, porque cada error se traduce en operaciones de absorción o provisión mal calibradas.
+\item \textbf{Producir un informe reproducible de agregados, crédito y medios de pago que responda preguntas de política}, porque con la remonetización y el avance de billeteras y fondos comunes de inversión (FCI) importa cuánto dinero hay, pero también dónde está.
+\item \textbf{Formar un equipo con dos personas capaces de ejecutar cada proceso crítico y tiempo para innovar}, porque la continuidad depende de las personas.
 \end{enumerate}
 
-\normalsize
-\section*{4. Riesgos y mitigación}
-\small
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.9cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{5.7cm}>{\raggedright\arraybackslash}p{2.2cm}@{}}
-\toprule
-\textbf{Riesgo} & \textbf{Señal} & \textbf{Mitigación} & \textbf{Responsable}\\
-\midrule
-Régimen o autoridades & Quiebre de errores & Reestimar; plan nuevo en 30 días & Gerente\\
-Liquidez: falla o insumos & Errores; demoras & Doble cobertura; causas en 48 h & Subg.\ Liq.\\
-Sobrecarga o resistencia & Horas; adopción & Posterga 2.ª etapa; analistas líderes & Gerente\\
-Confidencialidad o IA & Uso sin registro & Entorno interno; registro; revisión & Gerente\\
-\bottomrule
-\end{tabular}
-\normalsize
+El proyecto se sustenta en mi trayectoria. \trayectoria{} No he operado el pronóstico diario de liquidez ni elaborado el informe de coyuntura, ni trabajado en medios de pago y FCI: por eso dedico los primeros 90 días a un diagnóstico junto a quienes hoy los producen.
+
+Dos principios ordenan el resto. \emph{Medir el error}: todo pronóstico se compara ex post con uno \emph{ingenuo}, que repite el último valor, una vara simple y, en datos diarios, exigente. \emph{Robustez al régimen}: según su comunicado del 15-12-2025, el BCRA sigue un esquema de agregados monetarios con banda cambiaria, pero las herramientas deben servir con cualquier combinación de agregados, tasas y tipo de cambio. Y un compromiso: \textbf{ningún proceso diario se reemplaza sin antes correr en paralelo} con el vigente.\footnote{Anexos (aparte), con datos públicos y Python: liquidez diaria (A), demanda de dinero (B), banda (C).}
+
+\section*{2. Liquidez y efectivo mínimo (funciones 1 y 5)}
+Empiezo por la tarea más sensible: cada día Operaciones decide cuánta liquidez absorber o proveer según lo que espera de la base monetaria. Propongo mejorar ese pronóstico paso a paso, partiendo de lo que ya produce la Subgerencia de Análisis y Gestión de la Liquidez.
+
+\textbf{Por qué hacen falta dos modelos.} La base monetaria tiene dos partes que se comportan de manera muy distinta. La \emph{circulación} sigue al calendario: sube a inicio de mes con los sueldos, con el aguinaldo y en diciembre. Las \emph{cuentas corrientes} de las entidades en el BCRA se mueven con hechos que se deciden en el día: un pase, una operación de mercado abierto, una compra de divisas o el modo en que cada banco reparte su encaje en el mes. Con datos públicos esos hechos se ven cuando ya ocurrieron, y el mejor pronóstico posible es repetir el dato de ayer. El Anexo A lo muestra: las cuentas corrientes explican cerca del 98\,\% de la varianza diaria de la base y allí ningún modelo con datos públicos mejora al ingenuo (A.2); en la circulación, el calendario sí ayuda (A.1). La mejora no vendrá de un modelo más sofisticado, sino de la información que Operaciones tiene \emph{antes} de que el hecho ocurra. Propongo:
+\begin{itemize}
+\item Supervisar un \emph{ensamble} (promedio de tres modelos con calendario) para circulación y billetes.\footnote{Regresión con calendario, espacio de estado y ARIMA con variables de calendario (inicio y fin de mes, quincena, aguinaldo, diciembre, día de la semana). De Hamilton (1996) tomo el peso del calendario en la demanda de reservas.}
+\item Acordar con Operaciones un \emph{modelo por factores} para las cuentas corrientes, alimentado con datos internos: la programación de las operaciones del BCRA y la posición de efectivo mínimo. Del Eurosistema tomo la práctica de pronosticar por separado cada factor autónomo de liquidez (billetes, depósitos del gobierno, activos externos netos); aquí el uso es interno y se suma el efectivo mínimo, para saber qué factor explica cada error.
+\item Entregar el pronóstico a un día, una semana y un mes, en el formato y horario acordados, tras al menos tres meses en paralelo. Si faltan observaciones, el paralelo se extiende; si no alcanza la meta, sigue el proceso vigente y lo informo.\footnote{Regla de validación (mejora significativa frente al ingenuo, fuera de muestra): Anexo A.3.}
+\end{itemize}
+
+\textbf{Efectivo mínimo y tasas.} El encaje se cumple en promedio en el mes: a Operaciones le importa saber con tiempo cuánto le falta a cada grupo de entidades. Propongo estimar con datos internos esa posición (exigencia frente a integración acumulada) y pronosticar la integración diaria necesaria para cerrar el período, validada con un \emph{backtest} y luego en paralelo. Las tasas cortas son el termómetro de esa liquidez: leeré cada semana los diferenciales entre call, pases, caución y plazo fijo minorista y mayorista (TAMAR) contra el excedente proyectado; si al cierre de mes el call se separa de pases y caución, hay una tensión que el pronóstico debió anticipar.
+
+En los primeros seis meses decido lo técnico de liquidez junto con el/la Subgerente del área; ante dudas rige el proceso vigente y, ante desacuerdo, documento, decido y respondo. Lo aprendido en la liquidez diaria alimenta la lectura mensual de los agregados.
+
+\section*{3. Agregados, crédito y medios de pago (funciones 2, 3 y 6)}
+Con el informe mensual la Gerencia explica qué pasa con el dinero. Propongo evolucionarlo, no reemplazarlo, para que cada mes responda tres preguntas: cómo avanza la remonetización, cuánto se sustituye hacia billeteras y FCI y cómo se transmiten las tasas a depósitos y préstamos. Antes acompaño dos ciclos con el/la Subgerente de Análisis de Coyuntura Monetaria y acordamos qué se mantiene, qué se simplifica y qué cambia.
+
+\textbf{Agregados.} Descomponer la base y el M2 por componentes y fuentes de creación, desestacionalizados con software abierto (X-13 o JDemetra+), para que un salto de diciembre no se lea como cambio de tendencia. En una segunda etapa, agregados \emph{Divisia} (Barnett, 1980), como los que publicó la Fed de St.~Louis, que ponderan cada componente por su costo de uso: sirven aquí porque efectivo, cuentas remuneradas, billeteras y FCI rinden distinto y el M2 simple los suma igual; y un cuadro del \emph{perímetro del dinero}: qué parte de esos activos opera como reserva de liquidez. Presentaciones y discursos usarán las mismas series, trazables, en 72 horas.
+
+\textbf{Crédito.} Aquí mi trayectoria más aporta: catorce años de análisis del crédito en el BCRA y trabajos en \emph{IMF Economic Review} y BIS \emph{Working Papers} (2020). Propongo integrar la Encuesta de Condiciones Crediticias (ECC) al informe y al IPOM con índices de difusión (bancos que endurecen menos los que flexibilizan) y medir cuánto anticipan el crédito, como hace el BCE con su \emph{Bank Lending Survey}, sin crear otra encuesta; y cada trimestre, un índice de concentración (Herfindahl--Hirschman) por segmento y grupo de entidades. En la segunda etapa, un panel de microdatos de la Central de Deudores, inspirado en el \emph{Consumer Credit Panel} de la Fed de Nueva York, con acuerdo de acceso y resguardo con Estadísticas y Superintendencia.
+
+\textbf{Medios de pago, FCI y mercado de capitales.} La pregunta guía es cuánto de la demanda transaccional de dinero migra a billeteras y FCI y cómo cambia con eso la velocidad del M2. Propongo seguir cada mes FCI de mercado de dinero, transferencias, pagos con QR, curva corta de letras y tasas de pases y caución; el primer producto, un cuadro de FCI frente a depósitos. Estas lecturas alimentan la programación monetaria.
+
+\section*{4. Programación, instrumentos e IPOM (funciones 4, 5 y 7)}
+La programación responde una pregunta concreta: si se cumplen los supuestos fiscales, cambiarios y de actividad, ¿cuánta base y cuánto M2 habrá en los próximos meses? Propongo un ejercicio trimestral cuya \textbf{ancla es la consistencia de fuentes}, no un modelo de demanda: las fuentes son contables y verificables; la demanda de dinero en Argentina ha sido inestable. Tres partes:
+\begin{itemize}
+\item \emph{Consistencia de fuentes}: proyectar los factores de la base que descompone el Informe Monetario Mensual de agosto de 2026 (Gráfico 3.1.2: fiscal, compra neta de divisas al sector privado, REPO y OMAs, otros) según el balance del BCRA, con el resultado cuasifiscal, conciliados con el programa financiero del Tesoro y el balance cambiario, más préstamos y depósitos por segmento, moneda y grupo de entidades. Escenarios en \emph{fan chart}, como en el Bank of England, con el error del programa y del escenario de IPC y actividad.
+\item \emph{Contraste con la demanda}: demanda de base y de M2 según actividad, inflación esperada y costo de oportunidad, con un modelo de corrección de errores (MCE: relación de largo plazo y ajuste hacia ella) en ventanas móviles. El IPOM de junio de 2026 (Gráficos III.2.9 y III.3.1) ya muestra el M2 privado transaccional frente al escenario base de un VECM con bandas de uno y dos desvíos estándar; el Anexo B prueba otra especificación (M2 total, IPC observado). El MCE sirve de contraste y de señal de cambio estructural; contrastaré el VECM vigente con datos internos antes de proponer cambios en su uso.
+\item \emph{Seguimiento de desvíos}: sin duplicar la del VECM, una banda del programa para la base y el M2 a 1--3 meses, hecha con sus errores pasados, que sólo se usa \textbf{validada}: debe cubrir cerca del 90\,\% de los casos fuera de muestra sin ser demasiado ancha (Anexo C). Entonces cada desvío fuera de ella se explica en una nota que separa demanda de fuentes; antes, se informan rangos históricos rotulados como no validados.
+\end{itemize}
+\textbf{Instrumentos e IPOM.} Toda propuesta de cambio en encajes o instrumentos se elevará con una simulación de su efecto sobre liquidez y agregados; cada año, una nota técnica evaluará ex post las medidas.\footnote{Con estudios de eventos sobre caución y curva corta, comparando entidades según su posición previa de efectivo mínimo; cada semestre, además, se mide el traspaso de las tasas cortas a las pasivas y activas.} En el IPOM coordino los módulos de la Gerencia con la Gerencia Principal y acuerdo los escenarios con el área de modelos, cuyos DSGE y semiestructurales conozco.
+
+\section*{5. Datos, código abierto e inteligencia artificial}
+Un pronóstico que no puede reproducirse no puede auditarse ni mejorarse. Propongo un \textbf{repositorio versionado en entorno interno}, con informes generados desde el código, pruebas automáticas de datos y revisión por pares (otra persona revisa cada cambio). Sobre esa base, un \textbf{tablero de pronósticos} comparará todos los modelos con el ingenuo y los de referencia, a la vista de las autoridades; las \emph{vintages} (el dato tal como se publicó en cada fecha, como en ALFRED de la Fed de St.~Louis) permitirán evaluarlos con la información que realmente había. El aprendizaje automático entra como complemento interpretable de los modelos lineales (Chakraborty y Joseph, 2017). La \textbf{IA generativa} se probará en entorno interno para el borrador del informe y la revisión de código, como hipótesis a medir: menos horas sin más errores. Una política de IA fijará que sólo salen del entorno agregados ya publicados, registrará cada uso, exigirá revisión humana y se validará con Seguridad de la Información. Programo en Stata, R y Python y dicté el curso interno de R: puedo acompañar esta transición desde el código.
+
+\section*{6. Conducción, equipo y articulación (funciones 8 a 11)}
+Nada de lo anterior funciona si el equipo no lo hace propio. Mi enfoque es simple: objetivos claros, autoridad delegada en los subgerentes y tiempo protegido para aprender.
+\begin{itemize}
+\item \textbf{Planificar y delegar}: plan anual con objetivos medibles por subgerencia y persona; los recursos van primero a la operación diaria y a los compromisos con Operaciones y el IPOM, luego al núcleo y después a la segunda etapa. Cada subgerente tiene autoridad sobre sus frentes, reunión individual mensual, evaluación y plan de desarrollo. Los pedidos urgentes pasan por mí: pueden postergar la segunda etapa, nunca la tarea diaria. Ante bajo desempeño, conversación, plan de mejora y acompañamiento.
+\item \textbf{Desarrollar al equipo}: una \emph{matriz de habilidades} por proceso crítico (quién ejecuta, quién respalda, quién aprende), para que ninguno dependa de una sola persona; rotación de un analista por semestre en la otra subgerencia; seminario quincenal a cargo de los analistas; laboratorio de datos con hasta el 10\,\% de las horas; notas técnicas firmadas por sus autores; manuales revisados cada año; capacitación externa (BoE, FMI, CEMLA) devuelta en el seminario, y una trayectoria técnica de especialista reconocida en la evaluación.
+\item \textbf{Articular y resguardar}: \emph{briefing} semanal a las autoridades vía la Gerencia Principal y presentación trimestral del programa; acceso a datos según necesidad y registrado; declaración de conflictos. Auditoría: recomendaciones priorizadas por riesgo y respondidas en 30 días.
+\end{itemize}
+
+\section*{7. Hoja de ruta, metas y riesgos}
+La secuencia va de entender a mejorar y, después, a innovar:
+\begin{itemize}
+\item \textbf{Primeros meses}: diagnóstico y línea de base de errores y horas; acuerdo con Operaciones; plan anual, matriz de habilidades, seminario y repositorio.
+\item \textbf{Primer año}: liquidez y efectivo mínimo en paralelo y luego en producción; informe con agregados desestacionalizados, FCI, billeteras y ECC; programación; tablero y política de IA.
+\item \textbf{Segundo año}: evaluación ex post y, si hay horas, la segunda etapa (Divisia, perímetro del dinero, panel de crédito).
+\end{itemize}
+\textbf{Metas centrales} (umbrales sobre la línea de base; el detalle estadístico, en los anexos):
+\begin{enumerate}[itemsep=0pt]
+\item Pronósticos de liquidez y efectivo mínimo mejores que el ingenuo, fuera de muestra.
+\item Informes y módulos del IPOM entregados en fecha.
+\item Cada proceso crítico con manual y dos personas que puedan ejecutarlo.
+\item Banda del programa validada antes de usarse para explicar desvíos.
+\item Cada analista, autor o coautor de un prototipo o nota técnica por año.
+\end{enumerate}
+
+\textbf{Riesgos.} Un cambio de régimen puede quebrar los modelos: se reestiman y se revisa el plan. Una falla en la liquidez diaria se cubre con doble ejecutante y el proceso vigente. La sobrecarga posterga la segunda etapa, nunca la tarea diaria. La confidencialidad se protege en entorno interno.
+
+Medir el error, cambiar en paralelo y apoyarse en el equipo permite ganar precisión sin perder continuidad. Por mi experiencia, formación y vocación de conducción, entiendo que puedo llevar adelante este proyecto como Gerente de Análisis Monetario.
 
 \small
-\vspace{4pt}\textbf{Referencias}: BCRA (15-12-2025), \emph{Profundización del esquema de agregados monetarios: fase de re-monetización 2026}. BCRA (junio de 2026), \emph{Informe de Política Monetaria}. BCRA (agosto de 2026), \emph{Informe Monetario Mensual}. Barnett (1980), \emph{J.\ Econometrics} 14(1). Chakraborty y Joseph (2017), \emph{Machine learning at central banks}, BoE SWP 674. Hamilton (1996), \emph{JPE} 104(1).
+\textbf{Referencias}: BCRA (15-12-2025), \emph{Profundización del esquema de agregados monetarios: fase de re-monetización 2026}. BCRA (junio de 2026), \emph{Informe de Política Monetaria}. BCRA (agosto de 2026), \emph{Informe Monetario Mensual}. Barnett (1980), \emph{J.\ Econometrics} 14(1). Chakraborty y Joseph (2017), \emph{Machine learning at central banks}, BoE SWP 674. Hamilton (1996), \emph{JPE} 104(1).
 
 \end{document}
