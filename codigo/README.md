@@ -14,6 +14,7 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 | `monetario_demo/demanda_dinero.py` | Eje 4 (función 4) | Demanda de dinero real (base o M2 privado) por Engle-Granger en dos pasos con corrección de errores, en ventanas móviles. Da una alerta de inestabilidad de los coeficientes de largo plazo con un umbral simulado bajo estabilidad, y agrega CUSUM |
 | `monetario_demo/bandas.py` | Eje 4 (función 4) | Banda de tolerancia para base o M2 a 1–3 meses, a partir de cuantiles empíricos del error histórico de pronóstico sin *look-ahead*, para cualquier programa (matriz origen × horizonte). Chequeo mensual "dentro/fuera de banda", calibración fuera de muestra (`cobertura_banda`) y *fan chart* |
 | `monetario_demo/programa.py` | Eje 4 (función 4) | Programas a 1–3 meses: deriva, deriva estacional, velocidad constante y demanda MCE (con y sin dummies mensuales); los dos últimos, condicionales al IPC/EMAE/tasa observados. Compara MAE, DM-HLN y cobertura de la banda |
+| `monetario_demo/no_lineal.py` | Eje 4 (exploratorio, fuera de los anexos) | MCE con transición suave logística (LSTR) en el nivel rezagado de la tasa, tendencia logística de sustitución de pagos y prueba de linealidad LM3 (Teräsvirta); evaluación expansiva a 1–3 meses contra el MCE lineal y la deriva estacional (`--reales --salida salidas/exploratorio_no_lineal.txt`). Resultado con datos reales: no mejora fuera de muestra |
 | `monetario_demo/evaluacion.py` | Ejes 1 y 4 | Diebold-Mariano (HLN), cobertura, tabla de errores |
 | `monetario_demo/datos.py` | – | Cargadores de CSV `fecha,valor` (BCRA) y de los mensuales de INDEC (`mes,...`: EMAE e IPC), y generadores sintéticos rotulados |
 | `descargar_bcra.py`, `series.txt` | Eje 5 | Descarga de series públicas de la API de Estadísticas Monetarias v4.0 del BCRA a `datos/` (11 IDs verificados contra el catálogo) |
@@ -30,7 +31,7 @@ Desde la carpeta `codigo/`:
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q          # 78 pruebas, ~45 s
+python -m pytest -q          # 95 pruebas, ~70 s
 ```
 
 ## Uso con datos sintéticos (`--demo`)

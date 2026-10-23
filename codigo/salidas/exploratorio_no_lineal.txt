@@ -1,0 +1,124 @@
+# EXPLORATORIO. Datos reales; cálculo propio, no oficial. No es un modelo ni un pronóstico del BCRA.
+# Fuente: BCRA, API de Estadísticas Monetarias v4.0 (datos/bcra_<id>_daily.csv); INDEC (EMAE s.e.; IPC oficial desde 2016-12, sin empalme previo).
+# Ejecución: 2026-10-23 12:51
+
+Dinero real = promedio mensual (meses completos) / IPC; tasa = plazo fijo en pesos (id 1189, TNA en tanto por uno). MCE con dummies mensuales (dinero sin desestacionalizar). Pronósticos condicionales a IPC, EMAE y tasa observados (piso del error de un programa real); ventana expansiva desde 2017 (mínimo 48 meses); orígenes evaluados desde 2021-01. Errores en % simple: 100 * (obs / prog - 1). DM-HLN unilateral (H1: el modelo de la fila es más preciso), pérdida absoluta. Banda del 90 % por cuantiles empíricos de errores previos (mín. 24).
+
+## billetes y monedas en poder del público (17)
+Panel 2017-03 a 2026-08 (114 meses)
+Prueba de linealidad LM3 (F) contra transición en s_{t-1}; muestra completa y primera ventana (48 meses, lo que se sabía en el primer origen):
+                transición  p_LM3_completa  p_H04  p_H03  p_H02 sugerido  p_LM3_1ra_ventana  p_LM3_hasta_2023-06-30
+    tasa plazo fijo (1189)           0.000  0.109  0.004  0.005     ESTR              0.578                   0.233
+               BAIBAR (11)           0.000  0.062  0.007  0.002     LSTR              0.447                   0.041
+pases entre terceros (150)           0.001  0.021  0.040  0.018     LSTR              0.644                   0.071
+              inflación 3m           0.008  0.004  0.453  0.099     LSTR              0.768                   0.161
+Ajuste de muestra completa (in-sample, sólo descriptivo):
+  lineal: SSR = 0.0493, n = 112, parámetros = 20; largo plazo: b_y = -1.24, b_i = -0.70 | S_t (bajo/alto): u_1 -0.011/-0.011; di -0.06/-0.06; di_1 -0.126/-0.126
+  lstr: SSR = 0.0433, n = 112, parámetros = 25; largo plazo: b_y = -1.24, b_i = -0.70 | transición: c = 68 % anual, gamma = 1.0/desvío | S_t (bajo/alto): u_1 0.036/-0.223; di -0.223/0.286; di_1 -0.127/0.057
+  tec: SSR = 0.0464, n = 112, parámetros = 23; largo plazo: b_y = 0.79, b_i = -0.65 | tendencia: d = -0.71, g_T = 0.25/mes, punto medio ~ 2023-10 | S_t (bajo/alto): u_1 -0.057/-0.057; di -0.076/-0.076; di_1 -0.094/-0.094
+  lstr_tec: SSR = 0.0390, n = 112, parámetros = 28; largo plazo: b_y = 0.79, b_i = -0.65 | tendencia: d = -0.71, g_T = 0.25/mes, punto medio ~ 2023-10 | transición: c = 68 % anual, gamma = 1.0/desvío | S_t (bajo/alto): u_1 0.041/-0.284; di -0.19/0.039; di_1 -0.17/0.046
+Fuera de muestra (orígenes comunes):
+           modelo  h  n  MAE_%  MAE_rel_lineal  p_DM_vs_lineal  p_DM_vs_estac  n_cob  cobertura_90  ancho_90_pp
+           lineal  1 64  2.059           1.000             NaN          0.030     40         0.825        7.376
+           lineal  2 64  4.476           1.000             NaN          0.173     39         0.821       17.196
+           lineal  3 64  6.446           1.000             NaN          0.164     38         0.789       25.937
+             lstr  1 64  2.360           1.146           0.891          0.179     40         0.800        8.873
+             lstr  2 64  5.016           1.121           0.807          0.410     39         0.744       22.127
+             lstr  3 64  6.817           1.058           0.638          0.321     38         0.763       29.751
+              tec  1 64  2.189           1.063           0.736          0.083     40         0.775        8.069
+              tec  2 64  4.578           1.023           0.564          0.281     39         0.641       19.527
+              tec  3 64  6.828           1.059           0.613          0.347     38         0.658       30.886
+         lstr_tec  1 64  2.622           1.274           0.956          0.470     40         0.750       11.857
+         lstr_tec  2 64  5.363           1.198           0.811          0.537     39         0.692       26.049
+         lstr_tec  3 64  7.402           1.148           0.733          0.465     38         0.658       35.542
+deriva_estacional  1 64  2.653           1.288           0.970            NaN     40         0.575        8.428
+deriva_estacional  2 64  5.234           1.169           0.827            NaN     39         0.487       15.400
+deriva_estacional  3 64  7.598           1.179           0.836            NaN     38         0.447       22.358
+Estabilidad entre orígenes: umbral c del LSTR entre 22 y 69 % anual (mediana 34); gamma en el mínimo de la grilla (1.0/desvío, transición casi lineal) en 48 % de los orígenes; tendencia de pagos con punto medio en el último dato de la ventana en 8 % de los orígenes (no identificada: se extrapola).
+Submuestra ELEGIDA EX POST (orígenes desde 2024-07, 23 orígenes, ya con el episodio de tasa > 100 % en la estimación; sólo descriptiva, sin DM por su tamaño). MAE en %:
+                    h=1   h=2   h=3
+lineal             1.71  3.29  4.86
+lstr               1.80  3.25  4.45
+tec                1.99  4.14  7.27
+lstr_tec           1.99  3.86  5.94
+deriva_estacional  2.94  5.83  8.67
+
+## circulación monetaria (16)
+Panel 2017-03 a 2026-08 (114 meses)
+Prueba de linealidad LM3 (F) contra transición en s_{t-1}; muestra completa y primera ventana (48 meses, lo que se sabía en el primer origen):
+                transición  p_LM3_completa  p_H04  p_H03  p_H02 sugerido  p_LM3_1ra_ventana  p_LM3_hasta_2023-06-30
+    tasa plazo fijo (1189)           0.000  0.151  0.019  0.001     LSTR              0.487                   0.408
+               BAIBAR (11)           0.000  0.014  0.022  0.000     LSTR              0.518                   0.029
+pases entre terceros (150)           0.000  0.005  0.080  0.004     LSTR              0.783                   0.209
+              inflación 3m           0.005  0.017  0.159  0.048     LSTR              0.944                   0.373
+Ajuste de muestra completa (in-sample, sólo descriptivo):
+  lineal: SSR = 0.0474, n = 112, parámetros = 20; largo plazo: b_y = -1.42, b_i = -0.70 | S_t (bajo/alto): u_1 -0.009/-0.009; di -0.025/-0.025; di_1 -0.165/-0.165
+  lstr: SSR = 0.0396, n = 112, parámetros = 25; largo plazo: b_y = -1.42, b_i = -0.70 | transición: c = 68 % anual, gamma = 1.0/desvío | S_t (bajo/alto): u_1 0.042/-0.244; di -0.2/0.357; di_1 -0.143/0.011
+  tec: SSR = 0.0453, n = 112, parámetros = 23; largo plazo: b_y = 1.00, b_i = -0.44 | tendencia: d = -0.81, g_T = 0.12/mes, punto medio ~ 2023-04 | S_t (bajo/alto): u_1 -0.05/-0.05; di -0.022/-0.022; di_1 -0.134/-0.134
+  lstr_tec: SSR = 0.0351, n = 112, parámetros = 28; largo plazo: b_y = 1.00, b_i = -0.44 | tendencia: d = -0.81, g_T = 0.12/mes, punto medio ~ 2023-04 | transición: c = 68 % anual, gamma = 5.0/desvío | S_t (bajo/alto): u_1 -0.021/-0.37; di -0.093/0.194; di_1 -0.156/0.077
+Fuera de muestra (orígenes comunes):
+           modelo  h  n  MAE_%  MAE_rel_lineal  p_DM_vs_lineal  p_DM_vs_estac  n_cob  cobertura_90  ancho_90_pp
+           lineal  1 64  2.071           1.000             NaN          0.042     40         0.875        7.646
+           lineal  2 64  4.267           1.000             NaN          0.140     39         0.795       16.092
+           lineal  3 64  6.082           1.000             NaN          0.118     38         0.842       23.783
+             lstr  1 64  2.290           1.106           0.837          0.175     40         0.775        8.643
+             lstr  2 64  4.697           1.101           0.729          0.317     39         0.718       19.726
+             lstr  3 64  6.327           1.040           0.583          0.240     38         0.789       28.723
+              tec  1 64  2.116           1.022           0.603          0.087     40         0.775        7.998
+              tec  2 64  4.237           0.993           0.482          0.217     39         0.692       18.669
+              tec  3 64  6.220           1.023           0.541          0.253     38         0.632       28.385
+         lstr_tec  1 64  2.540           1.227           0.927          0.445     40         0.700       11.661
+         lstr_tec  2 64  5.196           1.218           0.804          0.505     39         0.718       25.309
+         lstr_tec  3 64  7.033           1.156           0.719          0.409     38         0.684       35.035
+deriva_estacional  1 64  2.599           1.255           0.958            NaN     40         0.650        9.116
+deriva_estacional  2 64  5.179           1.214           0.860            NaN     39         0.487       15.068
+deriva_estacional  3 64  7.558           1.243           0.882            NaN     38         0.421       22.167
+Estabilidad entre orígenes: umbral c del LSTR entre 33 y 69 % anual (mediana 54); gamma en el mínimo de la grilla (1.0/desvío, transición casi lineal) en 50 % de los orígenes; tendencia de pagos con punto medio en el último dato de la ventana en 8 % de los orígenes (no identificada: se extrapola).
+Submuestra ELEGIDA EX POST (orígenes desde 2024-07, 23 orígenes, ya con el episodio de tasa > 100 % en la estimación; sólo descriptiva, sin DM por su tamaño). MAE en %:
+                    h=1   h=2   h=3
+lineal             1.69  3.21  4.59
+lstr               1.73  3.25  4.42
+tec                1.77  4.00  6.80
+lstr_tec           1.87  3.82  5.63
+deriva_estacional  3.05  5.97  8.87
+
+## M2 total (109)
+Panel 2017-03 a 2026-08 (114 meses)
+Prueba de linealidad LM3 (F) contra transición en s_{t-1}; muestra completa y primera ventana (48 meses, lo que se sabía en el primer origen):
+                transición  p_LM3_completa  p_H04  p_H03  p_H02 sugerido  p_LM3_1ra_ventana  p_LM3_hasta_2023-06-30
+    tasa plazo fijo (1189)           0.001  0.005  0.355  0.009     LSTR              0.117                   0.069
+               BAIBAR (11)           0.015  0.041  0.478  0.020     LSTR              0.364                   0.335
+pases entre terceros (150)           0.013  0.076  0.221  0.020     LSTR              0.912                   0.374
+              inflación 3m           0.002  0.034  0.304  0.002     LSTR              0.210                   0.693
+Ajuste de muestra completa (in-sample, sólo descriptivo):
+  lineal: SSR = 0.1058, n = 112, parámetros = 20; largo plazo: b_y = -0.83, b_i = -0.22 | S_t (bajo/alto): u_1 -0.027/-0.027; di -0.064/-0.064; di_1 -0.064/-0.064
+  lstr: SSR = 0.0926, n = 112, parámetros = 25; largo plazo: b_y = -0.83, b_i = -0.22 | transición: c = 68 % anual, gamma = 2.5/desvío | S_t (bajo/alto): u_1 -0.008/-0.251; di -0.261/0.258; di_1 -0.128/0.134
+  tec: SSR = 0.1030, n = 112, parámetros = 23; largo plazo: b_y = 0.29, b_i = -0.31 | tendencia: d = -0.39, g_T = 0.25/mes, punto medio ~ 2024-04 | S_t (bajo/alto): u_1 -0.078/-0.078; di -0.076/-0.076; di_1 -0.04/-0.04
+  lstr_tec: SSR = 0.0872, n = 112, parámetros = 28; largo plazo: b_y = 0.29, b_i = -0.31 | tendencia: d = -0.39, g_T = 0.25/mes, punto medio ~ 2024-04 | transición: c = 68 % anual, gamma = 5.0/desvío | S_t (bajo/alto): u_1 -0.031/-0.343; di -0.226/0.111; di_1 -0.118/0.129
+Fuera de muestra (orígenes comunes):
+           modelo  h  n  MAE_%  MAE_rel_lineal  p_DM_vs_lineal  p_DM_vs_estac  n_cob  cobertura_90  ancho_90_pp
+           lineal  1 64  2.830           1.000             NaN          0.246     40         0.775       11.757
+           lineal  2 64  4.898           1.000             NaN          0.220     39         0.795       20.861
+           lineal  3 64  6.419           1.000             NaN          0.119     38         0.842       24.518
+             lstr  1 64  3.415           1.207           0.974          0.765     40         0.750       15.059
+             lstr  2 64  5.394           1.101           0.819          0.457     39         0.846       21.098
+             lstr  3 64  7.474           1.164           0.918          0.368     38         0.868       30.463
+              tec  1 64  2.831           1.000           0.502          0.269     40         0.750       11.742
+              tec  2 64  4.830           0.986           0.448          0.272     39         0.744       21.257
+              tec  3 64  6.581           1.025           0.569          0.219     38         0.658       30.273
+         lstr_tec  1 64  3.241           1.145           0.929          0.606     40         0.825       12.765
+         lstr_tec  2 64  5.524           1.128           0.848          0.508     39         0.744       20.491
+         lstr_tec  3 64  7.676           1.196           0.911          0.416     38         0.684       28.402
+deriva_estacional  1 64  3.105           1.097           0.754            NaN     40         0.575        9.859
+deriva_estacional  2 64  5.503           1.123           0.780            NaN     39         0.538       18.634
+deriva_estacional  3 64  8.085           1.259           0.881            NaN     38         0.368       26.713
+Estabilidad entre orígenes: umbral c del LSTR entre 28 y 69 % anual (mediana 47); gamma en el mínimo de la grilla (1.0/desvío, transición casi lineal) en 9 % de los orígenes; tendencia de pagos con punto medio en el último dato de la ventana en 24 % de los orígenes (no identificada: se extrapola).
+Submuestra ELEGIDA EX POST (orígenes desde 2024-07, 23 orígenes, ya con el episodio de tasa > 100 % en la estimación; sólo descriptiva, sin DM por su tamaño). MAE en %:
+                    h=1   h=2   h=3
+lineal             2.23  4.17  5.03
+lstr               2.33  4.68  5.97
+tec                2.25  3.83  5.26
+lstr_tec           2.19  4.21  5.11
+deriva_estacional  3.49  6.66  9.70
+
+Lectura: ver trabajo/analisis_no_lineal.md. Resultados exploratorios; la selección de modelo, grilla y variable de transición con ~115 meses implica riesgo de sobreajuste y de búsqueda de especificación.
