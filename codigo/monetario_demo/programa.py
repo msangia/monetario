@@ -247,7 +247,7 @@ def main(argv: list[str] | None = None) -> str:
     chequeos = {k: bandas.chequear_programa(nivel, v, a.trimestres) for k, v in pron.items()}
     partes = [f"[{rotulo.replace(chr(10), ' ')}]",
               f"Panel {panel.index[0]:%Y-%m} a {panel.index[-1]:%Y-%m} ({len(panel)} meses)",
-              f"Error fuera de muestra a h meses (%), orígenes desde {desde}; MCE en ventanas de "
+              f"Error fuera de muestra a h meses (% simple: 100 * (observado / programado - 1)), orígenes desde {desde}; MCE en ventanas de "
               f"{ventana_mce} meses; DM-HLN "
               "unilateral contra la deriva y contra la deriva estacional; cobertura y ancho "
               "de la banda del 90 % armada sin look-ahead",
@@ -257,6 +257,8 @@ def main(argv: list[str] | None = None) -> str:
         partes.append(f"Chequeo de los últimos {a.trimestres} trimestres "
                       f"({c['mes'].iloc[0]} a {c['mes'].iloc[-1]}), programa {k}: "
                       f"{(c['estado'] == 'fuera de banda').sum()} de {len(c)} meses fuera")
+    partes.append("Chequeo del programa MCE; desvío y límites de la banda en % simple "
+                  "(observado / programado - 1):")
     partes.append(chequeos["mce"][["mes", "h", "desvio_%", "inf_%", "sup_%", "estado"]]
                   .round(1).to_string(index=False))
     texto = "\n".join(partes)

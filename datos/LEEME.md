@@ -105,6 +105,55 @@ Para pedir ayuda, pegá: (a) el comando exacto, (b) las últimas 20 líneas de l
 log **sin** nombres de servidores, usuarios ni contraseñas (reemplazalos por `<proxy>`), y
 (c) la salida de `python verificar_series.py --series series.txt`.
 
+## Pendiente opcional: factores de la base para modelar las cuentas corrientes (Eje 1)
+
+El Anexo A muestra que las cuentas corrientes de las entidades en el BCRA (15 − 16) explican
+casi toda la varianza diaria de la base y que el calendario no las predice. Para evaluar con
+datos públicos un modelo **por factores** hace falta bajar estas series (no descargadas; bloque
+comentado en `codigo/series.txt`). Todas diarias, en millones de ARS; fechas del catálogo
+2026-10:
+
+| id | Descripción (catálogo) | Primer dato | Último dato | Factor del informe diario |
+|---|---|---|---|---|
+| 19 | Depósitos de las entidades financieras en cuenta corriente en el BCRA (saldo) | 2001-06-01 | 2026-10-19 | variable objetivo (control de 15 − 16) |
+| 47 | Efecto monetario de las compras netas de divisas al sector privado y otros | 2003-01-02 | 2026-10-16 | compra-venta de USD, privado |
+| 48 | Efecto monetario de las compras netas de divisas al Tesoro Nacional | 2003-01-02 | 2026-10-16 | compra-venta de USD, sector público |
+| 49 | Efecto monetario de los adelantos transitorios al Tesoro Nacional | 2003-01-02 | 2026-10-16 | adelantos transitorios |
+| 50 | Efecto monetario de las transferencias de utilidades al Tesoro Nacional | 2003-01-02 | 2026-10-16 | utilidades |
+| 51 | Efecto monetario del resto de operaciones con el Tesoro Nacional | 2003-01-02 | 2026-10-16 | depósitos del Gobierno en el BCRA |
+| 52 | Efecto monetario de las operaciones de pases | 2003-01-02 | 2026-10-16 | pases pasivos (REPO) y activos |
+| 53 | Efecto monetario de las LELIQ y NOTALIQ | 2003-01-02 | 2026-10-16 | operaciones de mercado abierto |
+| 54 | Efecto monetario de los redescuentos y adelantos | 2003-01-02 | 2026-10-16 | otros |
+| 55 | Efecto monetario de intereses, primas y remuneración de cuentas corrientes (pases, LELIQ, NOTALIQ, redescuentos) | 2003-01-02 | 2026-10-16 | otros (intereses) |
+| 58 | Efecto monetario de las operaciones con letras fiscales de liquidez (LEFI) | 2003-01-02 | 2026-10-16 | LEFI (hasta 2025-07) |
+| 59 | Efecto monetario de otras operaciones que explican la variación de la base | 2003-01-02 | 2026-10-16 | otros |
+
+Opcionales: 56 (LEBAC y NOBAC, relevante hasta 2018) y los saldos 152 (pases pasivos),
+154 (pases activos), 155 (LELIQ y NOTALIQ) y 196 (LEFI, hasta 2025-07-11) para controlar
+flujos contra variaciones de saldos. El 46 (total) ya está descargado. Comando:
+```
+python descargar_bcra.py --ids 19 47 48 49 50 51 52 53 54 55 58 59 --desde 2003-01-01
+```
+o, equivalente, `python descargar_bcra.py --series series_factores.txt --desde 2003-01-01`; control: `python verificar_series.py --series series_factores.txt --desde 2003-01-01` (paso 5). Subir los 12 CSV y sus `metadata_<id>.json` como en el paso 6.
+
+**Cómo se usarían sin *look-ahead*.** Por identidad, la variación diaria de la base es la suma
+de los factores (= id 46), y la de las cuentas corrientes es esa suma menos la variación de la
+circulación (16). Por eso los factores del **mismo día** no pueden usarse como regresores: serían
+la respuesta. Hay tres variantes honestas, que se informarían por separado:
+1. **Factores rezagados** (t − 1 a t − 5, y su suma en la semana): sólo información ya
+   publicada al pronosticar; capta persistencia (p. ej., compras de divisas sostenidas).
+2. **Factores programados con su calendario** (no su monto): días de liquidación de
+   licitaciones del Tesoro y de vencimientos, pago de intereses y remuneraciones (55), fin del
+   período de cómputo del efectivo mínimo. Las fechas son públicas de antemano (cronograma de
+   licitaciones de la Secretaría de Finanzas; calendario de vencimientos); entran como variables
+   indicadoras junto al calendario actual. Los **montos** programados (p. ej., el uso de los
+   depósitos del Tesoro, 51) son información interna: con datos públicos sólo se evalúa una
+   **cota superior** ("previsión perfecta" del factor 51 o 55), rotulada como no factible.
+3. **Benchmark**: el ingenuo y el ensamble de calendario actuales, con DM-HLN al 10 % y la misma
+   muestra (ene-2022 en adelante; tramo desde 11-07-2025 aparte).
+La distancia entre (1)–(2) y la cota de previsión perfecta mide cuánto valdría la
+programación interna de factores: el argumento del Eje 1.
+
 ## Uso de estos archivos en las rutinas
 
 ```

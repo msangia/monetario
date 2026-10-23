@@ -2,8 +2,9 @@
 
 1. Errores históricos de pronóstico a h = 1..3 meses (origen móvil): el
    programa proyecta log(M_{t+h}) = log(M_t) + h * deriva_t, con deriva igual
-   al crecimiento mensual medio de los últimos ``ventana`` meses. Error en %:
-   100 * (log observado - log programado). El modelo de programación es
+   al crecimiento mensual medio de los últimos ``ventana`` meses. Error (desvío)
+   en porcentaje simple: 100 * (observado / programado - 1); es la unidad de
+   todas las salidas (MAE, banda, chequeo, figuras). El modelo de programación es
    intercambiable: la banda sólo necesita su historial de errores.
 2. Banda de tolerancia por horizonte: cuantiles empíricos de esos errores,
    usando sólo errores ya observados al momento del programa (sin look-ahead).
@@ -44,7 +45,10 @@ def pronostico_deriva(serie: pd.Series, ventana: int = 36, h_max: int = H) -> pd
 
 
 def errores_de_pronostico(log_obs: pd.Series, pron_log: pd.DataFrame) -> pd.DataFrame:
-    """Errores (%) = 100 * (log observado en t + h - log programado en t para t + h).
+    """Errores en porcentaje simple: 100 * (observado / programado - 1) en t + h.
+
+    Se calculan a partir de logs (``exp(log obs - log prog) - 1``); no es la
+    diferencia logarítmica (que daría, p. ej., -8,2 en lugar de -7,9 %).
 
     ``pron_log`` tiene índice = origen t (fechas de ``log_obs``) y columnas h = 1, 2, ...
     Si t + h cae fuera de la muestra, el error es NaN (todavía no se observó).
@@ -56,12 +60,12 @@ def errores_de_pronostico(log_obs: pd.Series, pron_log: pd.DataFrame) -> pd.Data
         valido = (pos >= 0) & (destino < len(log_obs))
         obs = np.full(len(pos), np.nan)
         obs[valido] = log_obs.to_numpy()[destino[valido]]
-        out[h] = 100 * (obs - pron_log[h].to_numpy())
+        out[h] = 100 * np.expm1(obs - pron_log[h].to_numpy())
     return pd.DataFrame(out, index=pron_log.index)
 
 
 def errores_historicos(serie: pd.Series, ventana: int = 36, h_max: int = H) -> pd.DataFrame:
-    """Errores (%) del programa de deriva por origen (filas) y horizonte (columnas 1..h_max)."""
+    """Errores (% simple) del programa de deriva por origen (filas) y horizonte (columnas 1..h_max)."""
     return errores_de_pronostico(np.log(serie), pronostico_deriva(serie, ventana, h_max))
 
 
@@ -176,8 +180,8 @@ def fan_chart(serie: pd.Series, ruta: str | Path, ventana: int = 36, historia: i
     tonos = {90: "#b7d3f6", 70: "#86b6ef", 50: "#5598e7"}  # azul secuencial claro -> oscuro
     fig, ax = plt.subplots(figsize=(5.2, 2.5), dpi=150)
     for n in (90, 70, 50):
-        inf = prog * np.exp(np.r_[0, banda[f"inf_{n}"]] / 100)
-        sup = prog * np.exp(np.r_[0, banda[f"sup_{n}"]] / 100)
+        inf = prog * (1 + np.r_[0, banda[f"inf_{n}"]] / 100)
+        sup = prog * (1 + np.r_[0, banda[f"sup_{n}"]] / 100)
         ax.fill_between(fechas, inf, sup, color=tonos[n], lw=0, label=f"banda {n} %")
     hist = serie.iloc[max(t - historia, 0):t + 1]
     ax.plot(mes_x(hist.index), hist, color="#52514e", lw=1.5, label="observado")
@@ -255,8 +259,8 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
         t = primero + k - 1                      # origen: cierre del trimestre previo
         x = mes_x(serie.index[t:t + H + 1])
         prog = np.r_[serie.iloc[t], tramo["programado"].to_numpy()]
-        inf = np.r_[serie.iloc[t], tramo["programado"] * np.exp(tramo["inf_%"] / 100)]
-        sup = np.r_[serie.iloc[t], tramo["programado"] * np.exp(tramo["sup_%"] / 100)]
+        inf = np.r_[serie.iloc[t], tramo["programado"] * (1 + tramo["inf_%"] / 100)]
+        sup = np.r_[serie.iloc[t], tramo["programado"] * (1 + tramo["sup_%"] / 100)]
         ax.fill_between(x, inf, sup, color="#b7d3f6", lw=0,
                         label=f"banda del {n} % del programa" if k == 0 else None)
         ax.plot(x, prog, color="#0d366b", lw=1.3, ls="--",

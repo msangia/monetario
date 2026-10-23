@@ -10,7 +10,7 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 
 | Archivo | Eje del proyecto | Qué hace |
 |---|---|---|
-| `monetario_demo/liquidez.py` | Eje 1 (funciones 1 y 5) | Pronóstico diario a un día de la variación de la base o la liquidez con efectos de calendario (inicio y fin de mes, quincena, aguinaldo, diciembre, lunes). Usa regresión, ARIMAX (espacio de estado) y un ensamble, contra un benchmark ingenuo. Evalúa fuera de muestra con ventana expansiva y reporta MAE relativo, sesgo por posición y por día del mes, cobertura de intervalos del 90 % y Diebold-Mariano con corrección HLN al 10 % (`--ultimos 60` reproduce el mínimo de 60 días en paralelo) |
+| `monetario_demo/liquidez.py` | Eje 1 (funciones 1 y 5) | Pronóstico diario a un día de la variación de la base o la liquidez con efectos de calendario (inicio y fin de mes, quincena, aguinaldo, diciembre, lunes). Usa regresión con calendario, espacio de estado (nivel local + calendario, `UnobservedComponents`) y ARIMAX, y su ensamble (promedio de los tres, como en el núcleo), contra un benchmark ingenuo. Evalúa fuera de muestra con ventana expansiva y reporta MAE relativo, sesgo por posición y por día del mes, cobertura de intervalos del 90 % y Diebold-Mariano con corrección HLN al 10 % (`--ultimos 60` reproduce el mínimo de 60 días en paralelo) |
 | `monetario_demo/demanda_dinero.py` | Eje 4 (función 4) | Demanda de dinero real (base o M2 privado) por Engle-Granger en dos pasos con corrección de errores, en ventanas móviles. Da una alerta de inestabilidad de los coeficientes de largo plazo con un umbral simulado bajo estabilidad, y agrega CUSUM |
 | `monetario_demo/bandas.py` | Eje 4 (función 4) | Banda de tolerancia para base o M2 a 1–3 meses, a partir de cuantiles empíricos del error histórico de pronóstico sin *look-ahead*, para cualquier programa (matriz origen × horizonte). Chequeo mensual "dentro/fuera de banda", calibración fuera de muestra (`cobertura_banda`) y *fan chart* |
 | `monetario_demo/programa.py` | Eje 4 (función 4) | Programas a 1–3 meses: deriva, deriva estacional, velocidad constante y demanda MCE (con y sin dummies mensuales); los dos últimos, condicionales al IPC/EMAE/tasa observados. Compara MAE, DM-HLN y cobertura de la banda |
@@ -111,16 +111,19 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
   (15 − 16), que explican el 98 % de la varianza diaria de la base; la base por componentes mejora
   sólo 1 %. El total de factores (46) es idéntico a Δ15: no se puede usar como regresor sin
   *look-ahead*. B (IPC oficial, 2017–2026): sin cointegración en ninguna especificación (p EG ≥ 0,70).
-  C (orígenes 2021–2026): el MCE condicional no supera a la deriva ni a la deriva estacional al 10 %
-  en h = 1 y 3; su banda cubre 74–81 % (nominal 90 %): hay que recalibrar. Ver `anexos.tex`.
+  C (orígenes 2021–2026; errores en % simple, observado/programado − 1): el MCE condicional supera
+  a la deriva a 2 y 3 meses (p 0,06 y 0,08) pero no a la deriva estacional; su banda cubre 74–81 %
+  (nominal 90 %, 41–43 orígenes): hay que recalibrar. Ver `anexos.tex`.
+- **Factores de la base (pendiente).** `series_factores.txt` lista los IDs (19, 47–55, 58, 59) para
+  modelar las cuentas corrientes por factores sin *look-ahead*; ver `datos/LEEME.md`.
 - **M2 (109).** Es el M2 total: efectivo en poder del público + cuentas corrientes y cajas de
   ahorro en pesos de los sectores privado **y público** (metodología de la API). No es el M2
   privado del proyecto; el M2 transaccional privado (197) empieza en 2021.
 
 - **Calendario.** Con `--demo` usa lunes a viernes sin feriados. En producción conviene agregar
   los vencimientos del Tesoro y del período de cómputo del efectivo mínimo.
-- **Ensamble.** Es un promedio simple de dos modelos, y sus límites son el promedio de los
-  límites de cada modelo (una simplificación).
+- **Ensamble.** Es un promedio simple de tres modelos (regresión, espacio de estado, ARIMAX), y
+  sus límites son el promedio de los límites de cada modelo (una simplificación).
 - **Horizonte de la rutina A.** Pronostica a un día; los horizontes semanal y mensual del proyecto
   quedan para una extensión.
 - **Errores estándar en la rutina B.** Los errores estándar MCO de la regresión cointegrante no

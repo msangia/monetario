@@ -56,3 +56,13 @@ def test_grafico_chequeo_marca_meses_fuera(tmp_path):
     serie = demo_agregado_mensual(shock_final=0.06)
     ruta = grafico_chequeo(serie, pronostico_deriva(serie), tmp_path / "chk.png")
     assert ruta.exists() and ruta.stat().st_size > 1000
+
+
+def test_desvio_en_porcentaje_simple():
+    """El desvío es 100 * (obs / prog - 1), no la diferencia logarítmica."""
+    import numpy as np
+    from monetario_demo.bandas import errores_de_pronostico
+    idx = pd.period_range("2020-01", periods=3, freq="M").to_timestamp("M")
+    log_obs = pd.Series(np.log([100.0, 92.1, 50.0]), index=idx)
+    pron = pd.DataFrame({1: [np.log(100.0)]}, index=idx[:1])
+    assert errores_de_pronostico(log_obs, pron).iloc[0, 0] == pytest.approx(-7.9)

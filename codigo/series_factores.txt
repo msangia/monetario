@@ -1,0 +1,17 @@
+# Factores de la base para el modelo de cuentas corrientes en el BCRA (15 - 16), Eje 1.
+# NO se usan todavía en las rutinas: se bajan para evaluar el modelo por factores.
+#   python descargar_bcra.py --series series_factores.txt --desde 2003-01-01
+#   python verificar_series.py --series series_factores.txt --desde 2003-01-01
+# Uso sin look-ahead: datos/LEEME.md. Mismos IDs que el bloque comentado de series.txt.
+19    # Depósitos de las entidades financieras en cuenta corriente en el BCRA
+47    # Efecto monetario de las compras netas de divisas al sector privado y otros
+48    # Efecto monetario de las compras netas de divisas al Tesoro Nacional
+49    # Efecto monetario de los adelantos transitorios al Tesoro Nacional
+50    # Efecto monetario de las transferencias de utilidades al Tesoro Nacional
+51    # Efecto monetario del resto de operaciones con el Tesoro Nacional
+52    # Efecto monetario de las operaciones de pases
+53    # Efecto monetario de las LELIQ y NOTALIQ
+54    # Efecto monetario de los redescuentos y adelantos
+55    # Efecto monetario de intereses, primas y remuneración de cuentas corrientes
+58    # Efecto monetario de las operaciones con letras fiscales de liquidez
+59    # Efecto monetario de otras operaciones que explican la variación de la base

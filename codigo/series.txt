@@ -23,3 +23,28 @@
 # propiamente dicha (ninguna descripción contiene "caución" ni "call"). Como tasa
 # interbancaria se usa BAIBAR (id 11), el call entre bancos privados. La caución
 # bursátil (BYMA) habría que tomarla de otra fuente pública.
+#
+# ---------------------------------------------------------------------------------
+# BLOQUE INACTIVO (comentado): factores de la base para un modelo de las cuentas
+# corrientes de las entidades en el BCRA (15 - 16), Eje 1 / Anexo A. Para activarlo,
+# quitar el '#' inicial de cada línea con id (o copiar los IDs a otro archivo) y bajar:
+#   python descargar_bcra.py --ids 19 47 48 49 50 51 52 53 54 55 58 59 --desde 2003-01-01
+# Todos diarios, millones de ARS, 2003-01-02 a 2026-10-16 en el catálogo (2026-10),
+# salvo el 19 (desde 2001-06-01). Identidad: variación de la base (15) = suma de los
+# factores 47-59 (= total, id 46, ya descargado). Uso sin look-ahead en datos/LEEME.md.
+#19   # Depósitos de las entidades financieras en cuenta corriente en el BCRA (control de 15 - 16)
+#47   # Efecto monetario de las compras netas de divisas al sector privado y otros
+#48   # Efecto monetario de las compras netas de divisas al Tesoro Nacional
+#49   # Efecto monetario de los adelantos transitorios al Tesoro Nacional
+#50   # Efecto monetario de las transferencias de utilidades al Tesoro Nacional
+#51   # Efecto monetario del resto de operaciones con el Tesoro Nacional (incl. sus depósitos en el BCRA)
+#52   # Efecto monetario de las operaciones de pases
+#53   # Efecto monetario de las LELIQ y NOTALIQ
+#54   # Efecto monetario de los redescuentos y adelantos
+#55   # Efecto monetario de intereses, primas y remuneración de cuentas corrientes (pases, LELIQ, redescuentos)
+#58   # Efecto monetario de las operaciones con letras fiscales de liquidez (LEFI)
+#59   # Efecto monetario de otras operaciones que explican la variación de la base
+# Opcionales (historia previa a 2018 o saldos para validar flujos):
+#56   # Efecto monetario de las LEBAC y NOBAC (relevante hasta 2018)
+#152  # Pases pasivos para el BCRA (saldo)        #154  # Pases activos para el BCRA (saldo)
+#155  # LELIQ y NOTALIQ (saldo, 2018-01 a hoy)    #196  # LEFI en cartera de entidades (saldo, hasta 2025-07-11)
