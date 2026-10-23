@@ -183,17 +183,21 @@ def informe(ev: dict[str, object], rotulo: str) -> str:
     return "\n".join(lineas)
 
 
-def descomponer_varianza(base: pd.Series, circulacion: pd.Series) -> dict[str, float]:
+def descomponer_varianza(base: pd.Series, circulacion: pd.Series, desde: str | None = None,
+                         hasta: str | None = None) -> dict[str, float]:
     """Participación de cada componente en la varianza de la variación diaria de la base.
 
     Base = circulación monetaria (16) + cuentas corrientes de las entidades en el BCRA
     (15 - 16). Las variaciones se miden en % de la base del día anterior, así que
     var(dB) = var(dC) + var(dCC) + 2 cov(dC, dCC) y las tres partes suman 1.
+    ``desde``/``hasta`` recortan las *variaciones* (no los niveles): la del primer día
+    usa el nivel del día hábil previo, como los pronósticos de la rutina A, de modo que
+    ambos cubren los mismos días.
     """
     cc = base - circulacion
     previo = base.shift()
     d = pd.DataFrame({"dB": base.diff(), "dC": circulacion.diff(), "dCC": cc.diff()})
-    d = d.div(previo, axis=0).mul(100).dropna()
+    d = d.div(previo, axis=0).mul(100).dropna().loc[desde:hasta]
     v = d["dB"].var()
     return {"circulacion": float(d["dC"].var() / v), "cuentas_corrientes": float(d["dCC"].var() / v),
             "covarianza": float(2 * d["dC"].cov(d["dCC"]) / v), "n": len(d),

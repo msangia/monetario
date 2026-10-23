@@ -157,10 +157,11 @@ def rutina_a() -> str:
                             "MAE_rel": r["MAE_rel"], "p_DM": r["p_DM"], "cob90": r["cobertura"],
                             "ahorro_pp_base": ahorro_pp_base(comp, ingenuo_base, base / base,
                                                              **kw)})
-    descomp = {per: liquidez.descomponer_varianza(cargar_csv("15").loc[per[0]:per[1]],
-                                                  cargar_csv("16").loc[per[0]:per[1]])
-               for per in (("2010-01-04", "2021-12-31"), ("2022-01-01", "2026-12-31"),
-                           ("2025-07-11", "2026-12-31"))}
+    # Mismos días que la evaluación de pronósticos (la variación del primer día usa el
+    # nivel del día hábil previo): n coincide con el de la tabla de resumen.
+    descomp = {per: liquidez.descomponer_varianza(base, circ, per[0], per[1])
+               for per in (("2010-01-05", "2021-12-31"), ("2022-01-03", None),
+                           ("2025-07-11", None))}
     partes.insert(3, "## Resumen (ensamble vs. ingenuo; DM-HLN unilateral; cobertura del 90 %; "
                   "sesgo = observado - pronóstico, pp; ahorro_pp_base = MAE ingenuo - MAE ensamble, "
                   "en pp de la base, errores ponderados por el peso de la serie en la base)\n"

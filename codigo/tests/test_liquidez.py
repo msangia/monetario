@@ -87,6 +87,10 @@ def test_componentes_y_varianza(nivel):
     d = descomponer_varianza(base, nivel)
     assert d["circulacion"] + d["cuentas_corrientes"] + d["covarianza"] == pytest.approx(1)
     assert d["n"] == len(base) - 1 and d["desde"] == base.index[1] and d["hasta"] == base.index[-1]
+    # recorte sobre variaciones: el primer día del período conserva su variación
+    corte = base.index[100]
+    d2 = descomponer_varianza(base, nivel, desde=corte)
+    assert d2["desde"] == corte and d2["n"] == len(base.loc[corte:])
     comp = pronostico_por_componentes(base, nivel, "2023-01-02", cada=120)
     ing = pronostico_fuera_de_muestra(base, "2023-01-02", cada=120)["ingenuo"]
     r = evaluar_contra_ingenuo(comp, ing)
