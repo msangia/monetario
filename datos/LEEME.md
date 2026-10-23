@@ -12,16 +12,15 @@ entidad, información interna ni nada de liquidez que no esté publicado.
 | `emae_mensual.csv` | cargado (INDEC, 2004-01 a 2026-08) | `mes,emae_orig,emae_se`; `mes` en `d/m/aaaa` |
 | `ipc_mensual.csv` | cargado (INDEC, base dic-16 = 100, 2016-12 a 2026-09) | `mes,ipc_ng`; `mes` tipo `dic-16`, `sept-26` |
 | `ipc_historico.csv` | cargado (IPC empalmado, 1992-12 a 2026-09; igual al oficial desde 2016-12; **fuente previa a 2016-12 a documentar**) | `fecha,ipc`; `fecha` en `d/m/aaaa` |
-| `bcra_<id>_daily.csv` + `metadata_<id>.json` | cargados (2026-10-22): 15, 17, 104, 197, 11, 150, 44 (todos `ok`). **Faltan 16, 109, 1189 y 46** | `fecha,valor` (ISO) |
+| `bcra_<id>_daily.csv` + `metadata_<id>.json` | cargados (descarga 2026-10-22): los 11 IDs de `series.txt` (15, 16, 17, 104, 109, 197, 46, 11, 150, 1189, 44), todos `ok` | `fecha,valor` (ISO) |
 
 Los cargadores leen EMAE e IPC tal como están (meses en español, `sept`/`set`, espacios
 finales); no hace falta convertirlos. Las series diarias usan `fecha,valor` con
 `fecha` `AAAA-MM-DD` y punto decimal; `descargar_bcra.py` ya las genera así.
 
-**Próximo paso:** bajar los que faltan con
-`python descargar_bcra.py --ids 16 109 1189 46 --desde 2003-01-01` (el `series.txt` viejo no
-los tenía), controlarlos con `python verificar_series.py --series series.txt --desde 2003-01-01`,
-subir los 4 CSV y los 4 `metadata_<id>.json` (paso 6) y correr `python correr_reales.py`.
+**Estado:** completo. Para actualizar, repetir los pasos 3 a 6 y correr
+`python correr_reales.py` desde `codigo/`. Pendiente: documentar la fuente de
+`ipc_historico.csv` antes de dic-2016.
 
 ## Paso a paso en la PC del BCRA (sin git)
 
@@ -110,7 +109,7 @@ log **sin** nombres de servidores, usuarios ni contraseñas (reemplazalos por `<
 
 ```
 python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
-    --precios datos/ipc_mensual.csv --actividad datos/emae_mensual.csv
+    --precios empalmado --actividad datos/emae_mensual.csv
 ```
 `--actividad` usa `emae_se` (desestacionalizado) por defecto; para la serie original:
 `datos/emae_mensual.csv:emae_orig`. Ver `codigo/README.md`.

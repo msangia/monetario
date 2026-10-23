@@ -12,11 +12,12 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 |---|---|---|
 | `monetario_demo/liquidez.py` | Eje 1 (funciones 1 y 5) | Pronóstico diario a un día de la variación de la base o la liquidez con efectos de calendario (inicio y fin de mes, quincena, aguinaldo, diciembre, lunes). Usa regresión, ARIMAX (espacio de estado) y un ensamble, contra un benchmark ingenuo. Evalúa fuera de muestra con ventana expansiva y reporta MAE relativo, sesgo por posición y por día del mes, cobertura de intervalos del 90 % y Diebold-Mariano con corrección HLN al 10 % (`--ultimos 60` reproduce el mínimo de 60 días en paralelo) |
 | `monetario_demo/demanda_dinero.py` | Eje 4 (función 4) | Demanda de dinero real (base o M2 privado) por Engle-Granger en dos pasos con corrección de errores, en ventanas móviles. Da una alerta de inestabilidad de los coeficientes de largo plazo con un umbral simulado bajo estabilidad, y agrega CUSUM |
-| `monetario_demo/bandas.py` | Eje 4 (función 4) | Banda de tolerancia para base o M2 a 1–3 meses, a partir de cuantiles empíricos del error histórico de pronóstico sin *look-ahead*. Hace el chequeo mensual "dentro/fuera de banda" de cada trimestre y un *fan chart* |
+| `monetario_demo/bandas.py` | Eje 4 (función 4) | Banda de tolerancia para base o M2 a 1–3 meses, a partir de cuantiles empíricos del error histórico de pronóstico sin *look-ahead*, para cualquier programa (matriz origen × horizonte). Chequeo mensual "dentro/fuera de banda", calibración fuera de muestra (`cobertura_banda`) y *fan chart* |
+| `monetario_demo/programa.py` | Eje 4 (función 4) | Programas a 1–3 meses: deriva, deriva estacional, velocidad constante y demanda MCE (con y sin dummies mensuales); los dos últimos, condicionales al IPC/EMAE/tasa observados. Compara MAE, DM-HLN y cobertura de la banda |
 | `monetario_demo/evaluacion.py` | Ejes 1 y 4 | Diebold-Mariano (HLN), cobertura, tabla de errores |
 | `monetario_demo/datos.py` | – | Cargadores de CSV `fecha,valor` (BCRA) y de los mensuales de INDEC (`mes,...`: EMAE e IPC), y generadores sintéticos rotulados |
 | `descargar_bcra.py`, `series.txt` | Eje 5 | Descarga de series públicas de la API de Estadísticas Monetarias v4.0 del BCRA a `datos/` (11 IDs verificados contra el catálogo) |
-| `monetario_demo/calidad.py` | Eje 5 | Controles de calidad de las series diarias: duplicados, fines de semana, huecos, saltos anómalos (> 10 MAD), unidad según la metadata y concordancia con el último valor del catálogo |
+| `monetario_demo/calidad.py` | Eje 5 | Controles de calidad de las series diarias: duplicados, fines de semana, huecos, saltos anómalos (> 10 MAD; las series de flujo, como la 46, se controlan en nivel), unidad según la metadata y concordancia con el último valor del catálogo; `controles_cruzados` verifica 46 = Δ15, 16 ≥ 17, 109 ≥ 197 y 109 > 17 |
 | `correr_reales.py` | – | Corre las rutinas A, B y C con los datos reales de `datos/` y escribe `salidas/real_*.txt` y `salidas/fan_chart_real.pdf`, con encabezado de fuente, último dato y fecha de ejecución |
 | `verificar_series.py` | Eje 5 | Tabla de IDs de `series.txt` contra `datos/catalogo_monetarias.csv` y control de las descargas (filas, primer y último dato) |
 | `referencia/estadisticas-monetarias-v4.json` | – | Esquema OpenAPI público de la API (referencia) |
@@ -29,7 +30,7 @@ Desde la carpeta `codigo/`:
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q          # 68 pruebas, ~40 s
+python -m pytest -q          # 78 pruebas, ~45 s
 ```
 
 ## Uso con datos sintéticos (`--demo`)
@@ -38,16 +39,16 @@ python -m pytest -q          # 68 pruebas, ~40 s
 python -m monetario_demo.liquidez --demo [--ultimos 60]
 python -m monetario_demo.demanda_dinero --demo
 python -m monetario_demo.bandas --demo --figura salidas/fan_chart_demo.pdf
+python -m monetario_demo.programa --demo
 ```
 
 ## Uso con datos reales
 
-> **Estado (2026-10-22).** En `datos/` están el catálogo, EMAE, IPC (`ipc_mensual.csv` e
-> `ipc_historico.csv`) y 7 de las 11 series diarias (15, 17, 104, 197, 11, 150, 44), todas `ok`
-> en `verificar_series.py`. **Faltan 16, 109, 1189 y 46.** `python correr_reales.py` corre:
-> A con base (15) y billetes (17); B en versión **provisoria** con base o billetes y BAIBAR (11),
-> **no M2**; C con M2 transaccional (197, deriva de 24 meses porque empieza en 2021) y base (15).
-> Cuando estén 109 y 1189, B se corre como está previsto (abajo).
+> **Estado (2026-10-23).** Las 11 series diarias, EMAE e IPC están en `datos/` y todas dan `ok`
+> en `verificar_series.py`. `python correr_reales.py` (~2,5 min) corre: A con base (15), billetes
+> (17), circulación (16), cuentas corrientes en el BCRA (15 − 16) y la base por componentes;
+> B con M2 (109) real, IPC empalmado, EMAE s.e. y plazo fijo (1189) o BAIBAR (11), tasa en nivel
+> y en log, y dos submuestras; C con M2 (109) y base (15) y cinco programas (`programa.py`).
 
 1. Bajar las series con `descargar_bcra.py` y dejar los CSV en `datos/`; el paso a paso está en
    [`../datos/LEEME.md`](../datos/LEEME.md).
@@ -62,12 +63,15 @@ python -m monetario_demo.liquidez --csv 17 --desde 2010-01-04 --inicio-eval 2022
 
 # B. Demanda de dinero: M2 (109), IPC, EMAE y plazo fijo en pesos (1189, % anual)
 python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
-    --precios empalmado --actividad datos/emae_mensual.csv [--ventana 60] [--desde AAAA-MM]
+    --precios empalmado --actividad datos/emae_mensual.csv [--ventana 60] [--desde AAAA-MM] \
+    [--hasta AAAA-MM] [--forma-tasa nivel|log]
 # --precios empalmado = cargar_ipc_historico(): INDEC desde 2016-12 y ipc_historico.csv antes
 
 # C. Banda de tolerancia: base (15) o M2 (109; 197 empieza en 2021) — diaria o mensual, se promedia por mes
 python -m monetario_demo.bandas --csv 109 --trimestres 4 --figura salidas/fan_chart.pdf
 python -m monetario_demo.bandas --csv 197 --ventana 24     # 197 empieza en 2021: deriva de 24 meses
+# C con programas de demanda: deriva, deriva estacional, velocidad, MCE (condicionales)
+python -m monetario_demo.programa --dinero 109 --tasa 1189 --figura salidas/fan_chart_real.pdf
 ```
 
 ### Formato de los CSV
@@ -99,9 +103,16 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
 - **Calendario con datos reales.** Las posiciones en el mes se calculan sobre los días con dato
   (los feriados no aparecen); sólo el mes inicial y el final incompletos se completan con lunes
   a viernes. Los meses parciales se descartan antes de promediar (`meses_completos`).
-- **Resultados reales (2026-10).** A: el ensamble mejora al ingenuo en billetes (17), no en la
-  base (15). B: sin cointegración con base o billetes (no es M2): no se interpreta. C: el programa
-  de deriva es ilustrativo y sus desvíos reflejan la desinflación. Ver `anexos.tex`.
+- **Resultados reales (2026-10-23).** A: el ensamble de calendario mejora al ingenuo en
+  circulación (16) y billetes (17), no en la base (15) ni en las cuentas corrientes en el BCRA
+  (15 − 16), que explican el 98 % de la varianza diaria de la base; la base por componentes mejora
+  sólo 1 %. El total de factores (46) es idéntico a Δ15: no se puede usar como regresor sin
+  *look-ahead*. B: M2 (109) sin cointegración en ninguna especificación; CUSUM rechaza estabilidad.
+  C: el MCE condicional le gana a la deriva sólo por la estacionalidad (empata con la deriva
+  estacional) y todas las bandas cubren menos que el 90 % nominal (68–86 %). Ver `anexos.tex`.
+- **M2 (109).** Es el M2 total: efectivo en poder del público + cuentas corrientes y cajas de
+  ahorro en pesos de los sectores privado **y público** (metodología de la API). No es el M2
+  privado del proyecto; el M2 transaccional privado (197) empieza en 2021.
 
 - **Calendario.** Con `--demo` usa lunes a viernes sin feriados. En producción conviene agregar
   los vencimientos del Tesoro y del período de cómputo del efectivo mínimo.
@@ -131,10 +142,11 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
   `emae_orig` con dummies mensuales (no implementado).
 - **Tasas cortas.** TAMAR (44) empieza en 2024-10 y M2 transaccional (197) en 2021: no alcanzan
   para ventanas de 72 meses; por eso la rutina B usa M2 (109) y plazo fijo en pesos (1189).
-- **Comparación con velocidad.** La comparación con un modelo simple de velocidad, que propone el
-  proyecto, queda pendiente.
-- **Modelo de programación en la rutina C.** Usa un modelo ilustrativo: deriva de 36 meses. La
-  banda sólo necesita el historial de errores del modelo que se use en la programación.
+- **Comparación con velocidad.** Implementada en `programa.py` (velocidad constante, condicional).
+- **Modelo de programación en la rutina C.** `bandas.py` usa la deriva; `programa.py` agrega la
+  deriva estacional, la velocidad y la demanda MCE. Los programas condicionales usan el IPC, el
+  EMAE y la tasa observados: su error es un piso del error de un programa real. El EMAE s.e. y el
+  IPC son la versión actual (no en tiempo real).
 - **Descargador.** Se escribió según el esquema OpenAPI público y se **probó con respuestas
   simuladas, no contra la API real**: el host estaba bloqueado en el entorno de desarrollo.
 - **Confidencialidad.** Sólo series públicas. El proxy de red es opcional: se toma de

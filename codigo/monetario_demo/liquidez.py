@@ -183,6 +183,73 @@ def informe(ev: dict[str, object], rotulo: str) -> str:
     return "\n".join(lineas)
 
 
+def descomponer_varianza(base: pd.Series, circulacion: pd.Series) -> dict[str, float]:
+    """Participación de cada componente en la varianza de la variación diaria de la base.
+
+    Base = circulación monetaria (16) + cuentas corrientes de las entidades en el BCRA
+    (15 - 16). Las variaciones se miden en % de la base del día anterior, así que
+    var(dB) = var(dC) + var(dCC) + 2 cov(dC, dCC) y las tres partes suman 1.
+    """
+    cc = base - circulacion
+    previo = base.shift()
+    d = pd.DataFrame({"dB": base.diff(), "dC": circulacion.diff(), "dCC": cc.diff()})
+    d = d.div(previo, axis=0).mul(100).dropna()
+    v = d["dB"].var()
+    return {"circulacion": float(d["dC"].var() / v), "cuentas_corrientes": float(d["dCC"].var() / v),
+            "covarianza": float(2 * d["dC"].cov(d["dCC"]) / v), "n": len(d)}
+
+
+def pronostico_por_componentes(base: pd.Series, circulacion: pd.Series,
+                               inicio_eval: str, cada: int = 60, ventana: int | None = None,
+                               cc_modelo: str = "ingenuo", ventana_error: int = 250,
+                               minimo_error: int = 60) -> pd.DataFrame:
+    """Pronóstico de la variación de la base sumando el de sus componentes (sin *look-ahead*).
+
+    La circulación (16) se pronostica con el ensamble de calendario; las cuentas
+    corrientes en el BCRA (15 - 16) con el ingenuo (``cc_modelo="ingenuo"``) o con
+    el ensamble (``"ensamble"``). Se suman en millones y se pasan a % de la base del
+    día anterior. El intervalo del 90 % sale de los cuantiles de los últimos
+    ``ventana_error`` errores fuera de muestra ya observados (NaN mientras haya menos
+    de ``minimo_error``).
+
+    Returns:
+        DataFrame con ``obs``, ``pron``, ``inf``, ``sup`` (variación % de la base).
+    """
+    base, circulacion = base.align(circulacion, join="inner")
+    cc = base - circulacion
+    p_c = pronostico_fuera_de_muestra(circulacion, inicio_eval, cada, ventana)["ensamble"]
+    idx = p_c.index
+    b_1, c_1, cc_1 = (s.shift().reindex(idx) for s in (base, circulacion, cc))
+    delta = c_1 * (np.exp(p_c["pron"] / 100) - 1)
+    if cc_modelo == "ensamble":
+        p_cc = pronostico_fuera_de_muestra(cc, inicio_eval, cada, ventana)["ensamble"]
+        delta = delta + cc_1 * (np.exp(p_cc["pron"].reindex(idx) / 100) - 1)
+    elif cc_modelo != "ingenuo":
+        raise ValueError("cc_modelo debe ser 'ingenuo' o 'ensamble'")
+    pron = 100 * np.log1p(delta / b_1)
+    obs = (100 * np.log(base).diff()).reindex(idx)
+    err = obs - pron
+    previos = err.shift()                                   # sólo errores ya observados
+    q_inf = previos.rolling(ventana_error, min_periods=minimo_error).quantile(ALFA / 2)
+    q_sup = previos.rolling(ventana_error, min_periods=minimo_error).quantile(1 - ALFA / 2)
+    return pd.DataFrame({"obs": obs, "pron": pron, "inf": pron + q_inf, "sup": pron + q_sup})
+
+
+def evaluar_contra_ingenuo(modelo: pd.DataFrame, ingenuo: pd.DataFrame,
+                           desde: str | None = None, ultimos: int | None = None) -> dict:
+    """MAE relativo al ingenuo, DM-HLN unilateral y cobertura (días con intervalo)."""
+    m, g = modelo.loc[desde:], ingenuo.loc[desde:]
+    if ultimos:
+        m, g = m.iloc[-ultimos:], g.iloc[-ultimos:]
+    e_m, e_g = m["obs"] - m["pron"], g["obs"] - g["pron"]
+    con_int = m.dropna(subset=["inf", "sup"])
+    dm = diebold_mariano(e_m, e_g, h=1, perdida="abs", alternativa="menor")
+    return {"n": len(m), "MAE_rel": float(e_m.abs().mean() / e_g.abs().mean()),
+            "p_DM": dm.p_valor,
+            "cobertura": float(((con_int["obs"] >= con_int["inf"])
+                                & (con_int["obs"] <= con_int["sup"])).mean())}
+
+
 def main(argv: list[str] | None = None) -> str:
     """Punto de entrada de línea de comandos."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])

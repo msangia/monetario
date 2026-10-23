@@ -1,6 +1,5 @@
 """Tests de la rutina C (Eje 4): banda de tolerancia y fan chart."""
 
-import numpy as np
 import pandas as pd
 import pytest
 

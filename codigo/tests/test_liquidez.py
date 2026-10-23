@@ -75,3 +75,23 @@ def test_inicio_por_fecha_ventana_movil_y_deriva(nivel):
     assert ev["periodo"][0] >= pd.Timestamp("2024-01-01") and ev["dm_deriva"] is not None
     with pytest.raises(ValueError):
         pronostico_fuera_de_muestra(nivel, "2030-01-01")
+
+
+def test_componentes_y_varianza(nivel):
+    """Base sintética = circulación sintética + cuentas; sólo la circulación tiene calendario."""
+    from monetario_demo.liquidez import (descomponer_varianza, evaluar_contra_ingenuo,
+                                         pronostico_por_componentes)
+    rng = np.random.default_rng(5)
+    cc = pd.Series(500 * np.exp(np.cumsum(rng.normal(0, 0.01, len(nivel)))), index=nivel.index)
+    base = nivel + cc
+    d = descomponer_varianza(base, nivel)
+    assert d["circulacion"] + d["cuentas_corrientes"] + d["covarianza"] == pytest.approx(1)
+    comp = pronostico_por_componentes(base, nivel, "2023-01-02", cada=120)
+    ing = pronostico_fuera_de_muestra(base, "2023-01-02", cada=120)["ingenuo"]
+    r = evaluar_contra_ingenuo(comp, ing)
+    assert r["MAE_rel"] < 1 and 0.75 <= r["cobertura"] <= 1
+    # sin look-ahead: alterar el final no cambia los pronósticos del primer bloque
+    b2 = base.copy()
+    b2.iloc[-20:] *= 1.3
+    comp2 = pronostico_por_componentes(b2, nivel, "2023-01-02", cada=120)
+    pd.testing.assert_series_equal(comp["pron"].iloc[:120], comp2["pron"].iloc[:120])

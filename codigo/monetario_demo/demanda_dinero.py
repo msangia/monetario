@@ -199,16 +199,22 @@ def informe(res: dict[str, object], rotulo: str, muestra: str | None = None) -> 
 
 
 def armar_panel(dinero: pd.Series, precios: pd.Series, actividad: pd.Series,
-                tasa_pct: pd.Series) -> pd.DataFrame:
+                tasa_pct: pd.Series, forma_tasa: str = "nivel") -> pd.DataFrame:
     """Arma el panel mensual (promedios mensuales) a partir de series en niveles.
 
     ``tasa_pct`` en porcentaje anual (p. ej., 35.0); se pasa a tanto por uno.
+    ``forma_tasa``: ``"nivel"`` (i en tanto por uno: b_i es una semielasticidad,
+    como en Cagan) o ``"log"`` (log i: b_i es una elasticidad).
     """
+    if forma_tasa not in ("nivel", "log"):
+        raise ValueError("forma_tasa debe ser 'nivel' o 'log'")
     m = [a_mensual(s) for s in (dinero, precios, actividad, tasa_pct)]
     df = pd.concat(m, axis=1, keys=["dinero", "precios", "actividad", "tasa"],
                    sort=True).dropna()
+    i = df["tasa"] / 100
     return pd.DataFrame({"m_real": np.log(df["dinero"] / df["precios"]),
-                         "y": np.log(df["actividad"]), "i": df["tasa"] / 100})
+                         "y": np.log(df["actividad"]),
+                         "i": np.log(i) if forma_tasa == "log" else i})
 
 
 def verificar_muestra(df: pd.DataFrame, ventana: int, minimo_ventanas: int = 24) -> str:
@@ -234,6 +240,9 @@ def main(argv: list[str] | None = None) -> str:
     ap.add_argument("--actividad"), ap.add_argument("--tasa")
     ap.add_argument("--ventana", type=int, default=72, help="meses por ventana")
     ap.add_argument("--desde", default=None, help="primer mes del panel (AAAA-MM)")
+    ap.add_argument("--hasta", default=None, help="último mes del panel (AAAA-MM)")
+    ap.add_argument("--forma-tasa", choices=("nivel", "log"), default="nivel",
+                    help="nivel = semielasticidad (defecto); log = elasticidad")
     a = ap.parse_args(argv)
     if a.demo:
         df, rotulo = demo_demanda_dinero(), ROTULO_SINTETICO + " (quiebre en b_i en 2016-01)"
@@ -249,10 +258,10 @@ def main(argv: list[str] | None = None) -> str:
             except (FileNotFoundError, ValueError) as e:
                 ap.error(f"--{clave}: {e}")
         df = armar_panel(series["dinero"], series["precios"], series["actividad"],
-                         series["tasa"])
-        if a.desde:
-            df = df.loc[a.desde:]
-        rotulo = "Datos: " + ", ".join([a.dinero, a.precios, a.actividad, a.tasa])
+                         series["tasa"], a.forma_tasa)
+        df = df.loc[a.desde:a.hasta]
+        rotulo = "Datos: " + ", ".join([a.dinero, a.precios, a.actividad, a.tasa]) \
+            + f"; tasa en {a.forma_tasa}"
     else:
         ap.error("usar --demo o indicar --dinero, --precios, --actividad y --tasa")
     try:

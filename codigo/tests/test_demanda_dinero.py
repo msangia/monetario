@@ -117,3 +117,12 @@ def test_cli_precios_empalmado(tmp_path):
     texto = main(["--dinero", str(m), "--tasa", str(tasa), "--precios", "empalmado",
                   "--actividad", "datos/emae_mensual.csv", "--desde", "2010-01"])
     assert "Panel 2010-01 a 2026-08" in texto and "ADF" in texto
+
+
+def test_forma_tasa_log():
+    idx = pd.date_range("2020-01-01", "2020-12-31", freq="D")
+    uno = pd.Series(np.linspace(100, 200, len(idx)), index=idx)
+    df = armar_panel(uno, uno / 2, uno, pd.Series(40.0, index=idx), forma_tasa="log")
+    assert df["i"].iloc[0] == pytest.approx(np.log(0.40))
+    with pytest.raises(ValueError):
+        armar_panel(uno, uno, uno, uno, forma_tasa="raiz")
