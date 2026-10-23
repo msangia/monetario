@@ -1,5 +1,5 @@
 [Datos: BCRA, API de Estadísticas Monetarias v4.0 (descarga 2026-10-22 a 2026-10-23); cálculo propio, NO OFICIAL.]
-Ejecución: 2026-10-23 16:31. Último dato de factores: 2026-10-19; de la base: 2026-10-20.
+Ejecución: 2026-10-23 16:55. Último dato de factores: 2026-10-19; de la base: 2026-10-20.
 
 1. Identidades contables (millones de ARS)
 (a) 46 = suma de 47-55, 58, 59: 5834 días; |residuo| <= 1 millón en 61.9% (desde 2019: 100.0%, máx. 0.0 millones); máx. histórico 336,792 millones; último día con residuo > 1 millón: 2018-12-19

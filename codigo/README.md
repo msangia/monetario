@@ -1,6 +1,6 @@
 # Rutinas ilustrativas – Gerencia de Análisis Monetario (426 05)
 
-Código que acompaña a `anexos.tex`. Ilustra cómo se aplicarían tres propuestas del
+Código que acompaña a `anexos.tex`. Ilustra cómo se aplicarían cuatro propuestas del
 proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyecto.**
 
 > Con `--demo` todo corre con **datos sintéticos de demostración, no oficiales**:
@@ -24,7 +24,7 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 | `verificar_series.py` | Eje 5 | Tabla de IDs de `series.txt` contra `datos/catalogo_monetarias.csv` y control de las descargas (filas, primer y último dato) |
 | `referencia/estadisticas-monetarias-v4.json` | – | Esquema OpenAPI público de la API (referencia) |
 | `tests/` | – | Pruebas `pytest` (el descargador se prueba con respuestas simuladas) |
-| `salidas/` | – | `real_factores.txt` y `demo_factores.txt` (rutina A2); `real_*.txt`, `fan_chart_real.pdf` y `chequeo_real.pdf` (datos reales; `chequeo_real.pdf` es la figura 1 de `anexos.tex`); `demo_*.txt` y `fan_chart_demo.pdf` (sintéticos) |
+| `salidas/` | – | `real_factores.txt` y `demo_factores.txt` (Anexo A.2); `real_*.txt`, `fan_chart_real.pdf` y `chequeo_real.pdf` (datos reales; `chequeo_real.pdf` es la figura 1 de `anexos.tex`); `demo_*.txt` y `fan_chart_demo.pdf` (sintéticos) |
 
 ## Instalación y pruebas
 
@@ -76,7 +76,7 @@ python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
 # C. Banda de tolerancia: base (15) o M2 (109; 197 empieza en 2021) — diaria o mensual, se promedia por mes
 python -m monetario_demo.bandas --csv 109 --trimestres 4 --figura salidas/fan_chart.pdf
 python -m monetario_demo.bandas --csv 197 --ventana 24     # 197 empieza en 2021: deriva de 24 meses
-# A2. Cuentas corrientes por factores (19, 46, 47-55, 58, 59 en datos/; ~2,5 min)
+# A.2. Cuentas corrientes por factores (19, 46, 47-55, 58, 59 en datos/; ~2,5 min)
 python -m monetario_demo.factores --reales --salida salidas/real_factores.txt
 
 # C con programas de demanda: deriva, deriva estacional, velocidad, MCE (condicionales)
@@ -120,14 +120,14 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
   C (orígenes 2021–2026; errores en % simple, observado/programado − 1): el MCE condicional supera
   a la deriva a 2 y 3 meses (p 0,06 y 0,08) pero no a la deriva estacional; su banda cubre 74–81 %
   (nominal 90 %, 41–43 orígenes): hay que recalibrar. Ver `anexos.tex`.
-- **Factores de la base (2026-10-23; `salidas/real_factores.txt`, borrador
-  `../anexo_factores_borrador.tex`).** Las 12 series de `series_factores.txt` dan `ok`.
+- **Factores de la base (2026-10-23; `salidas/real_factores.txt`, Anexo A.2 de
+  `../anexos.tex`).** Las 12 series de `series_factores.txt` dan `ok`.
   Identidades: 46 = suma de factores exacta desde 2019 (antes el residuo serían 56 y 57, no
   bajadas: hipótesis a verificar); 46 = Δ15 en el 98,9 % de los días (máx. 1,5 millones);
   19 = 15 − 16 siempre. Varianza de ΔCC 2022–2026 por covarianza: pases 50 %, LEFI 32 %, otras
   (59) 14 %, LELIQ 14 %, Tesoro (51) −11 % (las varianzas propias suman 7 veces la total: los
   factores se compensan); desde 11-07-2025: otras 55 %, Tesoro 44 %. Fuera de muestra
-  (2022–2026, MAE relativo al ingenuo): ensamble 1,01, V1 1,05, V2 1,03, V3 (no factible) 1,06;
+  (2022–2026, MAE relativo al ingenuo): ensamble 1,01, V1 1,05, V2 1,03, V3 (no factible) 1,05;
   ninguna mejora al ingenuo. Oráculo no factible del Tesoro 48–51 y 55: 1,32 (2022–2026) y 0,96
   desde 11-07-2025 (p 0,24); oráculo de 59: 0,57 desde 11-07-2025. Todos subestiman el fin de mes
   (+1,4 pp). La salida tiene un único sábado en los saldos (2005-12-31, fuera de la muestra).

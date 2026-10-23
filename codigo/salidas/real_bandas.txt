@@ -4,7 +4,7 @@
 #   id 1189 (plazo fijo en pesos): 2003-01-02 a 2026-10-21 (último dato)
 #   id 197 (M2 transaccional privado): 2021-01-04 a 2026-10-19 (último dato)
 #   EMAE desestacionalizado (INDEC) hasta 2026-08; IPC oficial de INDEC desde 2016-12 (sin empalme previo)
-# Ejecución: 2026-10-23 13:08
+# Ejecución: 2026-10-23 16:55
 
 
 Promedios mensuales de meses completos (se descarta 2026-10, parcial). Programas: deriva (36 meses) y deriva estacional (efectos de 72 meses), con toda la historia del agregado; velocidad constante y demanda MCE (ventana de 48 meses desde 2016-12, plazo fijo 1189, dummies mensuales), que necesitan el IPC oficial. Orígenes evaluados desde 2021-01. Velocidad y MCE son condicionales al IPC, EMAE y tasa observados. Ninguno es el programa del BCRA.
