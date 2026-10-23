@@ -3,7 +3,7 @@
 #   id 16 (circulación monetaria): 2003-01-02 a 2026-10-20 (último dato)
 #   id 17 (billetes y monedas en poder del público): 2003-01-02 a 2026-10-20 (último dato)
 #   id 46 (factores de explicación de la base (flujo)): 2003-01-02 a 2026-10-19 (último dato)
-# Ejecución: 2026-10-23 11:26
+# Ejecución: 2026-10-23 11:48
 
 
 Muestra: desde 2010-01-04; evaluación fuera de muestra desde 2022-01-03; reestimación cada 60 días hábiles. Feriados: días sin dato de la serie.

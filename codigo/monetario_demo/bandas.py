@@ -235,6 +235,8 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
     Para cada trimestre muestra el programa armado al cierre del trimestre previo
     (línea discontinua), su banda del ``nivel`` (sólo errores conocidos al armarlo) y el
     observado; los meses fuera de banda se marcan en rojo con su fecha.
+
+    Tamaño pensado para incluirse al ancho del texto A4 (16 cm): tipografía de 8,5-9 pt.
     """
     import matplotlib
     matplotlib.use("Agg")
@@ -247,7 +249,7 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
     mes_x = lambda idx: pd.DatetimeIndex(idx).to_period("M").to_timestamp()
     meses = pd.PeriodIndex(chk["mes"], freq="M")
     primero = serie.index.get_loc(serie.index[serie.index.to_period("M") == meses[0]][0])
-    fig, ax = plt.subplots(figsize=(6.2, 3.1), dpi=150)
+    fig, ax = plt.subplots(figsize=(6.3, 3.0), dpi=150)
     for k in range(0, len(chk), H):
         tramo = chk.iloc[k:k + H]
         t = primero + k - 1                      # origen: cierre del trimestre previo
@@ -269,19 +271,19 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
                 ls="none", zorder=5, label="fuera de banda" if j == 0 else None)
         ax.annotate(f"{_mes_es(f)}: desvío {r['desvio_%']:.1f} %\n(banda {r['inf_%']:.1f} a "
                     f"{r['sup_%']:.1f} %)".replace(".", ","), (f, r["observado"]),
-                    xytext=(8, -26), textcoords="offset points", fontsize=7.5,
+                    xytext=(8, -26), textcoords="offset points", fontsize=8.5,
                     color="#d03b3b", bbox=dict(fc="white", ec="none", alpha=0.85, pad=1))
-    ax.set_ylabel(unidad, fontsize=8, color="#52514e")
-    ax.set_xlabel("mes (promedio mensual)", fontsize=8, color="#52514e")
+    ax.set_ylabel(unidad, fontsize=9, color="#52514e")
+    ax.set_xlabel("mes (promedio mensual)", fontsize=9, color="#52514e")
     if rotulo:
-        ax.set_title(rotulo, fontsize=7.5, color="#52514e", loc="left")
+        ax.set_title(rotulo, fontsize=8.5, color="#52514e", loc="left")
     ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(
         lambda v, _: _mes_es(matplotlib.dates.num2date(v))))
-    ax.tick_params(labelsize=7.5, colors="#52514e")
+    ax.tick_params(labelsize=8.5, colors="#52514e")
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     ax.grid(axis="y", color="#e6e5e1", lw=0.6)
-    ax.legend(fontsize=7, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.28),
+    ax.legend(fontsize=8.5, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.24),
               ncol=2)
     fig.tight_layout()
     ruta = Path(ruta)
