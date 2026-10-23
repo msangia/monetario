@@ -15,6 +15,7 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 | `monetario_demo/bandas.py` | Eje 4 (función 4) | Banda de tolerancia para base o M2 a 1–3 meses, a partir de cuantiles empíricos del error histórico de pronóstico sin *look-ahead*, para cualquier programa (matriz origen × horizonte). Chequeo mensual "dentro/fuera de banda", calibración fuera de muestra (`cobertura_banda`) y *fan chart* |
 | `monetario_demo/programa.py` | Eje 4 (función 4) | Programas a 1–3 meses: deriva, deriva estacional, velocidad constante y demanda MCE (con y sin dummies mensuales); los dos últimos, condicionales al IPC/EMAE/tasa observados. Compara MAE, DM-HLN y cobertura de la banda |
 | `monetario_demo/no_lineal.py` | Eje 4 (exploratorio, fuera de los anexos) | MCE con transición suave logística (LSTR) en el nivel rezagado de la tasa, tendencia logística de sustitución de pagos y prueba de linealidad LM3 (Teräsvirta); evaluación expansiva a 1–3 meses contra el MCE lineal y la deriva estacional (`--reales --salida salidas/exploratorio_no_lineal.txt`). Resultado con datos reales: no mejora fuera de muestra |
+| `monetario_demo/factores.py` | Eje 1 (funciones 1 y 5) | Variación diaria de las cuentas corrientes en el BCRA (15 − 16) por factores de la base (47–55, 58, 59), sin *look-ahead*: identidades contables (46 = suma de factores, 46 = Δ15, 19 = 15 − 16), descomposición de varianza por factor (por covarianza, suma 1), y tres variantes con MCO expansivo de reestimación diaria: V1 factores rezagados t−1 a t−5 + calendario; V2 calendario ampliado + fechas regulares inferidas del pasado (pagos concentrados en 55 y 51, vencimientos aproximados en 52, 53, 58); V3 previsión perfecta de 51 y 55 del mismo día y oráculos contables, rotulados **NO FACTIBLE**. Contra el ingenuo y el ensamble de A, con DM-HLN, cobertura y sesgo por día del mes; sensibilidades: rezago de publicación, ventana móvil de 500 días, sin el 10-07-2025 |
 | `monetario_demo/evaluacion.py` | Ejes 1 y 4 | Diebold-Mariano (HLN), cobertura, tabla de errores |
 | `monetario_demo/datos.py` | – | Cargadores de CSV `fecha,valor` (BCRA) y de los mensuales de INDEC (`mes,...`: EMAE e IPC), y generadores sintéticos rotulados |
 | `descargar_bcra.py`, `series.txt` | Eje 5 | Descarga de series públicas de la API de Estadísticas Monetarias v4.0 del BCRA a `datos/` (11 IDs verificados contra el catálogo) |
@@ -23,7 +24,7 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 | `verificar_series.py` | Eje 5 | Tabla de IDs de `series.txt` contra `datos/catalogo_monetarias.csv` y control de las descargas (filas, primer y último dato) |
 | `referencia/estadisticas-monetarias-v4.json` | – | Esquema OpenAPI público de la API (referencia) |
 | `tests/` | – | Pruebas `pytest` (el descargador se prueba con respuestas simuladas) |
-| `salidas/` | – | `real_*.txt`, `fan_chart_real.pdf` y `chequeo_real.pdf` (datos reales; `chequeo_real.pdf` es la figura 1 de `anexos.tex`); `demo_*.txt` y `fan_chart_demo.pdf` (sintéticos) |
+| `salidas/` | – | `real_factores.txt` y `demo_factores.txt` (rutina A2); `real_*.txt`, `fan_chart_real.pdf` y `chequeo_real.pdf` (datos reales; `chequeo_real.pdf` es la figura 1 de `anexos.tex`); `demo_*.txt` y `fan_chart_demo.pdf` (sintéticos) |
 
 ## Instalación y pruebas
 
@@ -31,7 +32,7 @@ Desde la carpeta `codigo/`:
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q          # 95 pruebas, ~70 s
+python -m pytest -q          # 104 pruebas, ~100 s
 ```
 
 ## Uso con datos sintéticos (`--demo`)
@@ -41,6 +42,7 @@ python -m monetario_demo.liquidez --demo [--ultimos 60]
 python -m monetario_demo.demanda_dinero --demo
 python -m monetario_demo.bandas --demo --figura salidas/fan_chart_demo.pdf
 python -m monetario_demo.programa --demo
+python -m monetario_demo.factores --demo --salida salidas/demo_factores.txt
 ```
 
 ## Uso con datos reales
@@ -74,6 +76,9 @@ python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
 # C. Banda de tolerancia: base (15) o M2 (109; 197 empieza en 2021) — diaria o mensual, se promedia por mes
 python -m monetario_demo.bandas --csv 109 --trimestres 4 --figura salidas/fan_chart.pdf
 python -m monetario_demo.bandas --csv 197 --ventana 24     # 197 empieza en 2021: deriva de 24 meses
+# A2. Cuentas corrientes por factores (19, 46, 47-55, 58, 59 en datos/; ~2,5 min)
+python -m monetario_demo.factores --reales --salida salidas/real_factores.txt
+
 # C con programas de demanda: deriva, deriva estacional, velocidad, MCE (condicionales)
 python -m monetario_demo.programa --dinero 109 --tasa 1189 --figura salidas/fan_chart_real.pdf --figura-chequeo salidas/chequeo_real.pdf
 ```
@@ -115,8 +120,17 @@ filas caen en el mismo mes (p. ej. por leer m/d en vez de d/m), el cargador da e
   C (orígenes 2021–2026; errores en % simple, observado/programado − 1): el MCE condicional supera
   a la deriva a 2 y 3 meses (p 0,06 y 0,08) pero no a la deriva estacional; su banda cubre 74–81 %
   (nominal 90 %, 41–43 orígenes): hay que recalibrar. Ver `anexos.tex`.
-- **Factores de la base (pendiente).** `series_factores.txt` lista los IDs (19, 47–55, 58, 59) para
-  modelar las cuentas corrientes por factores sin *look-ahead*; ver `datos/LEEME.md`.
+- **Factores de la base (2026-10-23; `salidas/real_factores.txt`, borrador
+  `../anexo_factores_borrador.tex`).** Las 12 series de `series_factores.txt` dan `ok`.
+  Identidades: 46 = suma de factores exacta desde 2019 (antes el residuo serían 56 y 57, no
+  bajadas: hipótesis a verificar); 46 = Δ15 en el 98,9 % de los días (máx. 1,5 millones);
+  19 = 15 − 16 siempre. Varianza de ΔCC 2022–2026 por covarianza: pases 50 %, LEFI 32 %, otras
+  (59) 14 %, LELIQ 14 %, Tesoro (51) −11 % (las varianzas propias suman 7 veces la total: los
+  factores se compensan); desde 11-07-2025: otras 55 %, Tesoro 44 %. Fuera de muestra
+  (2022–2026, MAE relativo al ingenuo): ensamble 1,01, V1 1,05, V2 1,03, V3 (no factible) 1,06;
+  ninguna mejora al ingenuo. Oráculo no factible del Tesoro 48–51 y 55: 1,32 (2022–2026) y 0,96
+  desde 11-07-2025 (p 0,24); oráculo de 59: 0,57 desde 11-07-2025. Todos subestiman el fin de mes
+  (+1,4 pp). La salida tiene un único sábado en los saldos (2005-12-31, fuera de la muestra).
 - **M2 (109).** Es el M2 total: efectivo en poder del público + cuentas corrientes y cajas de
   ahorro en pesos de los sectores privado **y público** (metodología de la API). No es el M2
   privado del proyecto; el M2 transaccional privado (197) empieza en 2021.

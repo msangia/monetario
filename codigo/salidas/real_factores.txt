@@ -1,0 +1,112 @@
+[Datos: BCRA, API de Estadísticas Monetarias v4.0 (descarga 2026-10-22 a 2026-10-23); cálculo propio, NO OFICIAL.]
+Ejecución: 2026-10-23 16:31. Último dato de factores: 2026-10-19; de la base: 2026-10-20.
+
+1. Identidades contables (millones de ARS)
+(a) 46 = suma de 47-55, 58, 59: 5834 días; |residuo| <= 1 millón en 61.9% (desde 2019: 100.0%, máx. 0.0 millones); máx. histórico 336,792 millones; último día con residuo > 1 millón: 2018-12-19
+    (hipótesis, a verificar bajando 56 y 57: el residuo previo a 2019 serían los factores no descargados 56 LEBAC y NOBAC y 57 rescate de cuasimonedas)
+(b) 46 = variación diaria de 15: 5832 días; |dif| <= 1 millón en 98.9%; máx. |dif| = 1.46 millones
+(c) 19 = 15 - 16: 5835 días; |dif| <= 1 millón en 100.0%; máx. |dif| = 1.00 millones
+
+2. Descomposición de la varianza diaria de CC = 15 - 16 (pp de la base del día previo)
+   participación = cov(F_k, dCC) / var(dCC) (suma 1); varianza propia = var(F_k)/var(dCC)
+   2022-01-03 a 2026-10-19, n = 1165; suma de varianzas propias = 7.0
+                                                participacion  varianza_propia
+52 pases                                                0.495            2.523
+58 LEFI                                                 0.320            0.799
+59 otras                                                0.144            0.311
+53 LELIQ y NOTALIQ                                      0.141            0.628
+50 utilidades                                           0.010            0.586
+55 intereses y remuneración                             0.010            0.055
+49 adelantos transitorios                               0.002            0.049
+48 divisas Tesoro                                      -0.003            0.137
+circulacion - variación de la circulación (16)         -0.006            0.011
+47 divisas sector privado                              -0.007            0.044
+51 resto op. Tesoro                                    -0.107            1.884
+   2022-01-03 a 2026-10-19, n = 1164, sin 2025-07-10; suma de varianzas propias = 7.5
+                                                participacion  varianza_propia
+52 pases                                                0.550            2.807
+58 LEFI                                                 0.178            0.605
+59 otras                                                0.161            0.346
+53 LELIQ y NOTALIQ                                      0.156            0.699
+55 intereses y remuneración                             0.012            0.061
+50 utilidades                                           0.012            0.652
+49 adelantos transitorios                               0.002            0.054
+48 divisas Tesoro                                      -0.004            0.152
+circulacion - variación de la circulación (16)         -0.006            0.012
+47 divisas sector privado                              -0.007            0.049
+51 resto op. Tesoro                                    -0.055            2.059
+   2025-07-11 a 2026-10-19, n = 309; suma de varianzas propias = 6.9
+                                                participacion  varianza_propia
+59 otras                                                0.552            0.831
+51 resto op. Tesoro                                     0.441            3.363
+50 utilidades                                           0.013            2.556
+47 divisas sector privado                               0.010            0.021
+circulacion - variación de la circulación (16)         -0.005            0.007
+48 divisas Tesoro                                      -0.010            0.090
+   Correlación de dCC con cada factor del mismo día (y entre 50 y 51):
+   desde 2022-01-03: 51: -0.08, 55: +0.04, 59: +0.26, 48-51: -0.09; corr(50, 51) = -0.56
+   desde 2025-07-11: 51: +0.24, 59: +0.61, 48-51: +0.53; corr(50, 51) = -0.87
+
+3. Pronóstico a un día de dCC, fuera de muestra (MCO expansivo desde 2010-01-04, reestimación diaria)
+   Días concentrados inferidos al 2022-01-03 (500 días previos): 55 inicio [2], fin []; 51 inicio [14], fin [1]
+   V1: factores por bloque en t-1..t-5 + calendario; V1_rez2: t-2..t-6 (rezago de publicación); V2: calendario ampliado + días concentrados (55, 51) + vencimientos aproximados (52, 53, 58); V3_NF / V3b_NF: V2 + 51 y 55 del mismo día / bloque Tesoro 48-51 y 55 del mismo día: NO FACTIBLE (previsión perfecta, cota superior, coeficientes estimados); *_movil: ventana móvil de 500 días hábiles; O51_55_NF, OTes_NF (48-51 y 55), O59_NF: oráculo contable NO FACTIBLE (pronóstico = suma de esos factores del mismo día, coeficiente 1, sin estimar).
+   p_DM_*: DM-HLN unilateral (H1: el modelo tiene menor error absoluto) contra el ingenuo / el ensamble del Anexo A; cobertura del intervalo del 90 %.
+   [desde 2022-01-03]
+                n   MAE  MAE_rel  p_DM_ing  p_DM_ens  sesgo  cobertura
+ingenuo      1165 1.628    1.000       NaN       NaN  0.112      0.905
+ensamble     1165 1.642    1.009     0.834       NaN  0.063      0.895
+V1           1165 1.707    1.049     0.999     0.998  0.033      0.888
+V1_rez2      1165 1.744    1.071     1.000     1.000 -0.005      0.890
+V2           1165 1.676    1.030     0.987     0.953  0.055      0.896
+V3_NF        1165 1.717    1.055     1.000     0.999 -0.120      0.888
+V3b_NF       1165 1.760    1.082     1.000     1.000 -0.072      0.882
+V1_movil     1165 1.803    1.108     1.000     1.000  0.018      0.862
+V2_movil     1165 1.698    1.043     0.992     0.975  0.059      0.882
+V3_movil_NF  1165 1.767    1.085     1.000     1.000 -0.118      0.876
+O51_55_NF    1165 2.302    1.414     1.000     1.000 -0.066      0.902
+OTes_NF      1165 2.148    1.320     1.000     1.000 -0.060      0.906
+O59_NF       1165 1.583    0.972     0.111     0.066  0.033      0.903
+   [desde 2025-07-11]
+               n   MAE  MAE_rel  p_DM_ing  p_DM_ens  sesgo  cobertura
+ingenuo      309 1.366    1.000       NaN       NaN  0.007      0.932
+ensamble     309 1.468    1.075     0.997       NaN -0.058      0.961
+V1           309 1.439    1.054     0.941     0.208 -0.037      0.922
+V1_rez2      309 1.492    1.093     1.000     0.758 -0.050      0.926
+V2           309 1.428    1.046     0.950     0.145 -0.009      0.916
+V3_NF        309 1.449    1.061     0.986     0.310  0.008      0.916
+V3b_NF       309 1.428    1.045     0.948     0.143  0.010      0.913
+V1_movil     309 1.553    1.137     0.999     0.950 -0.060      0.916
+V2_movil     309 1.536    1.125     0.998     0.878 -0.104      0.896
+V3_movil_NF  309 1.588    1.163     1.000     0.969 -0.108      0.900
+O51_55_NF    309 1.552    1.136     0.811     0.653  0.119      0.958
+OTes_NF      309 1.309    0.958     0.239     0.033  0.016      0.955
+O59_NF       309 0.775    0.567     0.000     0.000  0.108      0.935
+   [sensibilidad: sin el 2025-07-10 en la estimación y en la evaluación; el ensamble sólo se excluye de la evaluación]
+                n   MAE  MAE_rel  p_DM_ing  p_DM_ens  sesgo  cobertura
+ingenuo      1164 1.604    1.000       NaN       NaN  0.086      0.905
+V1           1164 1.684    1.050     0.999     0.998  0.009      0.889
+V1_rez2      1164 1.720    1.073     1.000     1.000 -0.029      0.890
+V2           1164 1.652    1.030     0.987     0.951  0.030      0.893
+V3_NF        1164 1.689    1.053     0.999     0.998 -0.144      0.886
+V3b_NF       1164 1.731    1.080     1.000     1.000 -0.096      0.881
+V1_movil     1164 1.780    1.110     1.000     1.000  0.008      0.861
+V2_movil     1164 1.675    1.045     0.993     0.978  0.048      0.884
+V3_movil_NF  1164 1.738    1.084     1.000     1.000 -0.128      0.875
+O51_55_NF    1164 2.264    1.412     1.000     1.000 -0.106      0.903
+OTes_NF      1164 2.110    1.316     1.000     1.000 -0.100      0.906
+O59_NF       1164 1.559    0.972     0.111     0.065  0.007      0.904
+ensamble     1164 1.618    1.009     0.835       NaN  0.038      0.896
+   Sesgo medio (obs - pron, pp de la base) por posición y por día del mes:
+  ingenuo    inicio +0.58, fin +1.38, resto -0.10; días con mayor |sesgo|: 31: +2.53, 1: +2.14, 30: +1.46
+  ensamble   inicio -0.93, fin +1.30, resto +0.04; días con mayor |sesgo|: 31: +2.49, 2: -2.03, 30: +1.38
+  V1         inicio -0.56, fin +1.38, resto -0.06; días con mayor |sesgo|: 31: +2.66, 2: -1.71, 30: +1.49
+  V1_rez2    inicio -0.68, fin +1.28, resto -0.08; días con mayor |sesgo|: 31: +2.44, 2: -1.88, 30: +1.32
+  V2         inicio -0.81, fin +1.43, resto -0.01; días con mayor |sesgo|: 31: +2.32, 2: -1.46, 30: +1.43
+  V3_NF      inicio -1.05, fin +1.34, resto -0.18; días con mayor |sesgo|: 31: +2.42, 2: -1.74, 1: -1.39
+  V3b_NF     inicio -1.06, fin +1.57, resto -0.15; días con mayor |sesgo|: 31: +2.96, 2: -1.79, 30: +1.53
+  V1_movil   inicio -0.35, fin +0.46, resto +0.01; días con mayor |sesgo|: 31: +1.84, 2: -1.49, 1: +1.06
+  V2_movil   inicio -0.49, fin +0.44, resto +0.08; días con mayor |sesgo|: 2: -1.22, 31: +0.94, 21: -0.77
+  V3_movil_NF inicio -0.69, fin +0.29, resto -0.10; días con mayor |sesgo|: 2: -1.52, 21: -1.25, 31: +0.88
+  O51_55_NF  inicio +0.12, fin +1.43, resto -0.27; días con mayor |sesgo|: 31: +3.40, 1: +2.45, 20: +2.36
+  OTes_NF    inicio +0.17, fin +1.49, resto -0.28; días con mayor |sesgo|: 31: +3.52, 1: +2.47, 20: +2.46
+  O59_NF     inicio +0.72, fin +0.97, resto -0.17; días con mayor |sesgo|: 1: +2.32, 31: +2.14, 21: -0.96

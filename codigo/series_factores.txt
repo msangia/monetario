@@ -1,5 +1,5 @@
 # Factores de la base para el modelo de cuentas corrientes en el BCRA (15 - 16), Eje 1.
-# NO se usan todavía en las rutinas: se bajan para evaluar el modelo por factores.
+# Los usa monetario_demo/factores.py (descargados 2026-10-23, todos ok).
 #   python descargar_bcra.py --series series_factores.txt --desde 2003-01-01
 #   python verificar_series.py --series series_factores.txt --desde 2003-01-01
 # Uso sin look-ahead: datos/LEEME.md. Mismos IDs que el bloque comentado de series.txt.

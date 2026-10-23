@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[spanish,es-noquoting,es-tabla]{babel}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs,array}
+\usepackage{float}
+\usepackage[font=small,labelfont=bf,skip=3pt]{caption}
+\usepackage[colorlinks=false,hidelinks]{hyperref}
+\setlist{itemsep=1pt,topsep=2pt,parsep=0pt,leftmargin=1.2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\setlength{\emergencystretch}{3em}
+\pagestyle{empty}
+
+\newcommand{\fuente}[1]{\par\vspace{1pt}{\small\raggedright #1\par}}
+\newcommand{\nooficial}{Cálculo propio con datos públicos; no es una estimación oficial del BCRA.}
+
+\begin{document}
+\section*{Anexo A2 (borrador). Cuentas corrientes por factores (Eje 1)}
+
+\textbf{Pregunta.} Las cuentas corrientes de las entidades en el BCRA ($CC$ = base 15 $-$ circulación 16), el 97,8\,\% de la varianza diaria de la base, no se anticipan con el calendario (Anexo~A). ¿Las anticipan los factores públicos? ¿Cuánto valdría conocer los montos del Tesoro?
+
+\textbf{Datos.} API de Estadísticas Monetarias v4.0 del BCRA (descarga 22/23-10-2026), flujos diarios con signo de efecto monetario: divisas al sector privado (47) y al Tesoro (48), adelantos transitorios (49), utilidades (50), resto de operaciones con el Tesoro (51, cuenta del Gobierno), pases (52, hasta 07-2025), LELIQ/NOTALIQ (53), redescuentos (54), intereses y remuneración (55), LEFI (58), otras (59: títulos, BOPREAL, simultáneas y otras); saldo de cuentas corrientes (19). Controles: total 46 = suma de factores (exacta desde 2019; antes faltan 56 y 57, no bajadas) = variación de la base (98,9\,\% de los días; máx. 1,5 millones); 19 $=$ 15 $-$ 16 siempre.
+
+\textbf{Método.} $\Delta CC_t$ en puntos de la base del día previo, así que $\Delta CC_t$ = suma de factores $-$ $\Delta$circulación: los factores del mismo día \emph{son} la respuesta y no pueden ser regresores. MCO reestimado cada día con el pasado desde 2010; a un día; evaluación desde ene-2022. \textbf{V1}: factores por bloque de $t-1$ a $t-5$ y el calendario del Anexo~A. \textbf{V2}: calendario ampliado y fechas regulares inferidas sólo del pasado (días de pago concentrado en 55 y 51; vencimientos aproximados 7, 14 y 28 días después de un salto en 52, 53 o 58), sin montos del día. \textbf{V3}: V2 más 51 y 55 \emph{del mismo día}; y el \emph{oráculo}: el pronóstico es la suma del día de esos factores. V3 y oráculos son \textbf{no factibles}: miden cuánto valdría la información.
+
+\begin{table}[H]\centering\small
+\caption{MAE relativo al ingenuo ($p$ DM-HLN unilateral) y cobertura del intervalo del 90\,\%.}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Modelo & 2022--2026 & desde 11-07-25 & $p$ vs. & Cobertura\\
+ & ($n=1165$) & ($n=309$) & ensamble$^{a}$ & 90\,\%\\
+\midrule
+Ensamble del Anexo A & 1,01 (0,83) & 1,07 (0,997) & -- & 0,90\\
+V1 factores rezagados & 1,05 (0,999) & 1,05 (0,94) & 0,21 & 0,89\\
+V2 calendario y fechas & 1,03 (0,99) & 1,05 (0,95) & 0,15 & 0,90\\
+V3: V2 + 51 y 55 del día (NF) & 1,06 (1,00) & 1,06 (0,99) & 0,31 & 0,89\\
+Oráculo Tesoro 48--51 y 55 (NF) & 1,32 (1,00) & 0,96 (0,24) & 0,03 & 0,91\\
+Oráculo otras, 59 (NF) & 0,97 (0,11) & 0,57 ($<$0,001) & $<$0,001 & 0,90\\
+\bottomrule
+\end{tabular}
+\fuente{Notas: NF: no factible. MAE del ingenuo (variación nula): 1,63 y 1,37 pp de la base. $^{a}$ Desde 11-07-25. Cobertura 2022--2026. Sin el 10-07-2025 (fin de las LEFI) en estimación y evaluación, V1--V3 no cambian a dos decimales (1,05; 1,03; 1,05). Con rezago de publicación ($t-2$ a $t-6$) V1 empeora (1,07); con ventana móvil de 500 días V1 y V2 dan 1,11 y 1,04. Fuente: BCRA (factores hasta 19-10-2026). \nooficial}
+\end{table}
+
+\textbf{Lectura.} V1 y V2 \textbf{no mejoran} al ingenuo ni al ensamble. Y conocer el Tesoro (V3, oráculo) tampoco alcanza en 2022--2026: sus flujos se compensan el mismo día con otros (correlación 50--51 de $-$0,56), y la correlación de 51 con $\Delta CC$ es $-$0,08. Por covarianza, la varianza de $\Delta CC$ se reparte entre pases (50\,\%), LEFI (32\,\%), otras (14\,\%) y LELIQ (14\,\%), con el Tesoro en $-$11\,\%; las varianzas propias suman 7 veces la total. Desde el 11-07-2025 el reparto cambia (otras 55\,\%, Tesoro 44\,\%): el Tesoro neto apenas mejora (0,96; $p=0{,}24$) y la información está en las \emph{otras} operaciones (0,57). Todos subestiman el fin de mes ($+$1,4 pp; $+$0,4 con ventana móvil), aun con calendario.
+
+\textbf{Límites.} Modelo lineal y un solo horizonte; 59 mezcla operaciones; los oráculos son cotas, no pronósticos.
+
+\textbf{Qué pedir a Operaciones (entorno resguardado).} (1) Los montos programados del día de las operaciones del BCRA con las entidades y con títulos (las que hoy caen en 59). (2) Los movimientos previstos de la cuenta del Tesoro, \emph{netos} de sus contrapartidas (licitaciones, vencimientos, utilidades y su depósito). (3) La posición agregada de efectivo mínimo por período de cómputo, para el sesgo de fin de mes.
+\end{document}

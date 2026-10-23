@@ -64,7 +64,10 @@ def controlar_serie(id_variable: int, carpeta: Path | None = None, hueco: int = 
         f = pd.Timestamp(cat["ultFechaInformada"])
         if f in s.index:
             v_cat = float(cat["ultValorInformado"])
-            concordancia = float(s.loc[f] / v_cat - 1) if v_cat else None
+            if v_cat:
+                concordancia = float(s.loc[f] / v_cat - 1)
+            else:                        # flujo nulo en el catálogo: coincide si el CSV es 0
+                concordancia = 0.0 if float(s.loc[f]) == 0.0 else float("inf")
     return {
         "id": id_variable, "filas": len(s), "primero": idx[0].date(), "ultimo": idx[-1].date(),
         "duplicados": int(crudo["fecha"].duplicated().sum()),
