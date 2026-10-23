@@ -1,6 +1,7 @@
 [DATOS SINTÉTICOS DE DEMOSTRACIÓN, NO OFICIALES (quiebre en b_i en 2016-01)]
 Muestra completa: b_y = 0.24, b_i = -2.19, p Engle-Granger = 0.387, ajuste g = -0.072 (t = -2.7)
 CUSUM del MCE: p = 0.632
+ADF (p-valor) niveles / diferencias: m_real: 0.15 / 0.00; y: 0.98 / 0.00; i: 0.18 / 0.00
 Ventanas de 72 meses (fin de ventana):
   primera 2009-12: b_y = 0.92, b_i = -1.99, p EG = 0.004, g = -0.748
   última  2024-12: b_y = 0.94, b_i = -4.12, p EG = 0.005, g = -0.452

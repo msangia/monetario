@@ -27,7 +27,8 @@ Uso::
     python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
         --precios datos/ipc_mensual.csv --actividad datos/emae_mensual.csv
 
-``--dinero 109`` y ``--tasa 1189`` leen ``datos/bcra_<id>_daily.csv`` (M2 y tasa de
+``--precios empalmado`` usa :func:`~monetario_demo.datos.cargar_ipc_historico`
+(IPC empalmado desde 1992-12). ``--dinero 109`` y ``--tasa 1189`` leen ``datos/bcra_<id>_daily.csv`` (M2 y tasa de
 plazo fijo en pesos, diarias; se promedian por mes). EMAE e IPC se leen en el
 formato de INDEC (``mes,...``); ``datos/emae_mensual.csv:emae_orig`` elige la
 serie original en lugar de la desestacionalizada (``emae_se``, por defecto).
@@ -40,14 +41,16 @@ la primera ventana, que fija la referencia de estabilidad, abarca 2016-2022.
 from __future__ import annotations
 
 import argparse
+import warnings
 
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.stats.diagnostic import breaks_cusumolsresid
-from statsmodels.tsa.stattools import coint
+from statsmodels.tsa.stattools import adfuller, coint
 
-from .datos import ROTULO_SINTETICO, a_mensual, cargar_csv, demo_demanda_dinero
+from .datos import (ROTULO_SINTETICO, a_mensual, cargar_csv, cargar_ipc_historico,
+                    demo_demanda_dinero)
 
 
 def engle_granger(df: pd.DataFrame) -> dict[str, float]:
@@ -70,6 +73,22 @@ def engle_granger(df: pd.DataFrame) -> dict[str, float]:
             "se_y": float(lp.bse["y"]), "se_i": float(lp.bse["i"]),
             "p_coint": p_coint, "g": float(mce.params["u_1"]),
             "t_g": float(mce.tvalues["u_1"]), "_mce": mce}
+
+
+def raices_unitarias(df: pd.DataFrame) -> pd.DataFrame:
+    """ADF (constante, rezagos por AIC) en niveles y en primeras diferencias.
+
+    La regresión de Engle-Granger supone variables I(1); si alguna es I(0) o I(2)
+    en la muestra, la cointegración no se interpreta como relación de largo plazo.
+    """
+    def _p(x: pd.Series) -> float:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # aviso de cambio futuro del tipo de retorno
+            return float(adfuller(x, regression="c", autolag="AIC")[1])
+
+    filas = {c: {"p_niveles": _p(df[c]), "p_diferencias": _p(df[c].diff().dropna())}
+             for c in df.columns}
+    return pd.DataFrame(filas).T
 
 
 def ventanas_moviles(df: pd.DataFrame, ventana: int = 72) -> pd.DataFrame:
@@ -146,6 +165,7 @@ def analizar(df: pd.DataFrame, ventana: int = 72, B: int = 200) -> dict[str, obj
     rol = ventanas_moviles(df, ventana)
     umbral = umbral_simulado(df, ventana, B)
     return {"completa": completa, "rolling": rol, "umbral": umbral,
+            "adf": raices_unitarias(df),
             "alertas": detectar_inestabilidad(rol, umbral), "p_cusum": float(p_cusum),
             "ventana": ventana}
 
@@ -162,6 +182,9 @@ def informe(res: dict[str, object], rotulo: str, muestra: str | None = None) -> 
         f"Muestra completa: b_y = {c['b_y']:.2f}, b_i = {c['b_i']:.2f}, "
         f"p Engle-Granger = {c['p_coint']:.3f}, ajuste g = {c['g']:.3f} (t = {c['t_g']:.1f})",
         f"CUSUM del MCE: p = {res['p_cusum']:.3f}",
+        *(["ADF (p-valor) niveles / diferencias: " + "; ".join(
+            f"{k}: {r['p_niveles']:.2f} / {r['p_diferencias']:.2f}"
+            for k, r in res["adf"].iterrows())] if "adf" in res else []),
         f"Ventanas de {res['ventana']} meses (fin de ventana):",
         f"  primera {rol.index[0]:%Y-%m}: b_y = {ini['b_y']:.2f}, b_i = {ini['b_i']:.2f}, "
         f"p EG = {ini['p_coint']:.3f}, g = {ini['g']:.3f}",
@@ -210,6 +233,7 @@ def main(argv: list[str] | None = None) -> str:
     ap.add_argument("--dinero"), ap.add_argument("--precios")
     ap.add_argument("--actividad"), ap.add_argument("--tasa")
     ap.add_argument("--ventana", type=int, default=72, help="meses por ventana")
+    ap.add_argument("--desde", default=None, help="primer mes del panel (AAAA-MM)")
     a = ap.parse_args(argv)
     if a.demo:
         df, rotulo = demo_demanda_dinero(), ROTULO_SINTETICO + " (quiebre en b_i en 2016-01)"
@@ -218,11 +242,16 @@ def main(argv: list[str] | None = None) -> str:
         # Primero los insumos mensuales de INDEC; después las diarias del BCRA.
         for clave in ("precios", "actividad", "dinero", "tasa"):
             try:
+                if clave == "precios" and a.precios == "empalmado":
+                    series[clave] = cargar_ipc_historico()  # ipc_historico + ipc_mensual
+                    continue
                 series[clave] = cargar_csv(getattr(a, clave))
             except (FileNotFoundError, ValueError) as e:
                 ap.error(f"--{clave}: {e}")
         df = armar_panel(series["dinero"], series["precios"], series["actividad"],
                          series["tasa"])
+        if a.desde:
+            df = df.loc[a.desde:]
         rotulo = "Datos: " + ", ".join([a.dinero, a.precios, a.actividad, a.tasa])
     else:
         ap.error("usar --demo o indicar --dinero, --precios, --actividad y --tasa")

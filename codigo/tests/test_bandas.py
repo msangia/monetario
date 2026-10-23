@@ -42,3 +42,10 @@ def test_fan_chart_y_cli(tmp_path):
     ruta = fan_chart(demo_agregado_mensual(), tmp_path / "fan.png")
     assert ruta.exists() and ruta.stat().st_size > 1000
     assert "SINTÉTICOS" in main(["--demo"])
+
+
+def test_ventana_corta_permite_series_cortas():
+    serie = demo_agregado_mensual(n_meses=62, shock_final=0.0)
+    with pytest.raises(ValueError):
+        chequear_desvios(serie, trimestres=2, ventana=36)
+    assert len(chequear_desvios(serie, trimestres=2, ventana=24)) == 6

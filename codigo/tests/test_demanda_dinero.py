@@ -99,3 +99,21 @@ def test_verificar_muestra_corta():
     df = demo_demanda_dinero(n_meses=80)
     with pytest.raises(ValueError, match="--ventana 60"):
         verificar_muestra(df, 72)
+
+
+def test_raices_unitarias_en_informe():
+    res = analizar(demo_demanda_dinero(mes_quiebre=None), ventana=72, B=30)
+    assert set(res["adf"].columns) == {"p_niveles", "p_diferencias"}
+    assert res["adf"].loc["y", "p_diferencias"] < 0.05
+
+
+@pytest.mark.skipif(not (CARPETA_DATOS / "ipc_historico.csv").exists()
+                    or not (CARPETA_DATOS / "emae_mensual.csv").exists(),
+                    reason="faltan IPC histórico o EMAE en datos/")
+def test_cli_precios_empalmado(tmp_path):
+    """IPC empalmado y EMAE reales; dinero y tasa diarios SINTÉTICOS (sólo test)."""
+    m = _diaria_sintetica(tmp_path / "m.csv", "2003-01-01", "2026-10-16", 3e4, 0.25, 0.004, 3)
+    tasa = _diaria_sintetica(tmp_path / "i.csv", "2003-01-01", "2026-10-16", 20.0, 0.0, 0.01, 4)
+    texto = main(["--dinero", str(m), "--tasa", str(tasa), "--precios", "empalmado",
+                  "--actividad", "datos/emae_mensual.csv", "--desde", "2010-01"])
+    assert "Panel 2010-01 a 2026-08" in texto and "ADF" in texto

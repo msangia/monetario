@@ -11,11 +11,17 @@ entidad, información interna ni nada de liquidez que no esté publicado.
 | `catalogo_monetarias.csv` | cargado (1610 series de la API v4.0) | catálogo de la API |
 | `emae_mensual.csv` | cargado (INDEC, 2004-01 a 2026-08) | `mes,emae_orig,emae_se`; `mes` en `d/m/aaaa` |
 | `ipc_mensual.csv` | cargado (INDEC, base dic-16 = 100, 2016-12 a 2026-09) | `mes,ipc_ng`; `mes` tipo `dic-16`, `sept-26` |
-| `bcra_<id>_daily.csv` + `metadata_<id>.json` | **faltan**: se bajan dentro del BCRA (pasos 1–7) | `fecha,valor` (ISO) |
+| `ipc_historico.csv` | cargado (IPC empalmado, 1992-12 a 2026-09; igual al oficial desde 2016-12; **fuente previa a 2016-12 a documentar**) | `fecha,ipc`; `fecha` en `d/m/aaaa` |
+| `bcra_<id>_daily.csv` + `metadata_<id>.json` | cargados (2026-10-22): 15, 17, 104, 197, 11, 150, 44 (todos `ok`). **Faltan 16, 109, 1189 y 46** | `fecha,valor` (ISO) |
 
 Los cargadores leen EMAE e IPC tal como están (meses en español, `sept`/`set`, espacios
 finales); no hace falta convertirlos. Las series diarias usan `fecha,valor` con
 `fecha` `AAAA-MM-DD` y punto decimal; `descargar_bcra.py` ya las genera así.
+
+**Próximo paso:** bajar los que faltan con
+`python descargar_bcra.py --ids 16 109 1189 46 --desde 2003-01-01` (el `series.txt` viejo no
+los tenía), controlarlos con `python verificar_series.py --series series.txt --desde 2003-01-01`,
+subir los 4 CSV y los 4 `metadata_<id>.json` (paso 6) y correr `python correr_reales.py`.
 
 ## Paso a paso en la PC del BCRA (sin git)
 

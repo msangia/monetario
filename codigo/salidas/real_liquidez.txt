@@ -1,0 +1,160 @@
+# DATOS REALES. Fuente: BCRA, API de Estadísticas Monetarias v4.0 (archivos datos/bcra_<id>_daily.csv); INDEC (EMAE, IPC) cuando se indica.
+#   id 15 (base monetaria): 2003-01-02 a 2026-10-20 (último dato)
+#   id 17 (billetes y monedas en poder del público): 2003-01-02 a 2026-10-20 (último dato)
+# Ejecución: 2026-10-22 23:21
+
+
+Muestra: desde 2010-01-04; evaluación fuera de muestra desde 2022-01-03; reestimación cada 60 días hábiles. Feriados: días sin dato de la serie.
+
+[id 15, ventana expansiva; 2022-01 a 2026-10]
+Evaluación fuera de muestra, 1 día, n = 1166 (2022-01-03 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    1.648    1.000  0.219      0.864
+deriva     1.645    0.998  0.087      0.866
+regresion  1.659    1.007  0.090      0.893
+arimax     1.635    0.992  0.104      0.895
+ensamble   1.640    0.995  0.097      0.898
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = -0.51, p = 0.305 -> no rechaza al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = -0.30, p = 0.382
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes        1.310    1.584
+inicio de mes    -0.759    0.738
+resto             0.055   -0.012
+Días del mes con mayor |sesgo| del ensamble (pp): día 31: +2.43, día 2: -1.84, día 30: +1.31
+
+[id 15, ventana expansiva; posterior a las LEFI (desde 2025-07-11)]
+Evaluación fuera de muestra, 1 día, n = 310 (2025-07-11 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    1.384    1.000  0.029      0.906
+deriva     1.389    1.004 -0.120      0.910
+regresion  1.440    1.040 -0.108      0.932
+arimax     1.415    1.023 -0.113      0.926
+ensamble   1.420    1.026 -0.111      0.935
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = 1.15, p = 0.874 -> no rechaza al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = 1.02, p = 0.845
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes        0.669    1.136
+inicio de mes    -1.986   -0.412
+resto             0.021   -0.052
+Días del mes con mayor |sesgo| del ensamble (pp): día 2: -2.72, día 31: +1.89, día 1: -1.43
+
+[id 15, ventana expansiva; últimos 60 días]
+Evaluación fuera de muestra, 1 día, n = 60 (2026-07-27 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    1.203    1.000  0.033      0.933
+deriva     1.190    0.989 -0.114      0.933
+regresion  1.276    1.061 -0.065      0.983
+arimax     1.238    1.029 -0.080      0.983
+ensamble   1.255    1.043 -0.073      0.983
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = 0.85, p = 0.800 -> no rechaza al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = 1.07, p = 0.857
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes        1.329    1.759
+inicio de mes    -2.310   -0.900
+resto             0.032   -0.067
+Días del mes con mayor |sesgo| del ensamble (pp): día 2: -3.15, día 16: -2.46, día 30: +2.04
+
+[id 15, ventana móvil de 500 días; 2022-01 a 2026-10]
+Evaluación fuera de muestra, 1 día, n = 1166 (2022-01-03 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    1.648    1.000  0.219      0.917
+deriva     1.655    1.004 -0.013      0.917
+regresion  1.682    1.021 -0.003      0.932
+arimax     1.671    1.014  0.001      0.925
+ensamble   1.660    1.007 -0.001      0.932
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = 0.54, p = 0.704 -> no rechaza al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = 0.21, p = 0.583
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes        0.365    1.584
+inicio de mes    -0.504    0.738
+resto             0.017   -0.012
+Días del mes con mayor |sesgo| del ensamble (pp): día 2: -1.59, día 31: +1.58, día 1: +0.99
+
+[id 15, ventana móvil de 500 días; posterior a las LEFI (desde 2025-07-11)]
+Evaluación fuera de muestra, 1 día, n = 310 (2025-07-11 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    1.384    1.000  0.029      0.961
+deriva     1.412    1.020 -0.258      0.955
+regresion  1.480    1.069 -0.232      0.974
+arimax     1.492    1.078 -0.269      0.961
+ensamble   1.472    1.064 -0.251      0.968
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = 2.00, p = 0.977 -> no rechaza al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = 1.40, p = 0.919
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes       -1.098    1.136
+inicio de mes    -1.856   -0.412
+resto             0.044   -0.052
+Días del mes con mayor |sesgo| del ensamble (pp): día 2: -2.63, día 1: -1.39, día 28: -1.19
+
+[id 15, ventana móvil de 500 días; últimos 60 días]
+Evaluación fuera de muestra, 1 día, n = 60 (2026-07-27 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    1.203    1.000  0.033      0.967
+deriva     1.191    0.989 -0.129      0.967
+regresion  1.241    1.031 -0.060      1.000
+arimax     1.219    1.013 -0.079      1.000
+ensamble   1.228    1.021 -0.069      1.000
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = 0.29, p = 0.613 -> no rechaza al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = 0.43, p = 0.665
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes        0.162    1.759
+inicio de mes    -2.307   -0.900
+resto             0.181   -0.067
+Días del mes con mayor |sesgo| del ensamble (pp): día 2: -3.03, día 21: -1.86, día 16: -1.81
+
+[id 17, ventana expansiva; 2022-01 a 2026-10]
+Evaluación fuera de muestra, 1 día, n = 1166 (2022-01-03 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    0.355    1.000  0.205      0.917
+deriva     0.341    0.959  0.076      0.928
+regresion  0.306    0.860  0.082      0.926
+arimax     0.245    0.690  0.034      0.945
+ensamble   0.260    0.732  0.058      0.945
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = -12.44, p = 0.000 -> rechaza igualdad al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = -11.93, p = 0.000
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes        0.029    0.320
+inicio de mes    -0.108    0.371
+resto             0.082    0.171
+Días del mes con mayor |sesgo| del ensamble (pp): día 8: +0.26, día 6: +0.22, día 7: +0.21
+
+[id 17, ventana expansiva; posterior a las LEFI (desde 2025-07-11)]
+Evaluación fuera de muestra, 1 día, n = 310 (2025-07-11 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    0.228    1.000  0.065      0.977
+deriva     0.251    1.098 -0.078      0.981
+regresion  0.227    0.996 -0.066      0.974
+arimax     0.191    0.838 -0.030      0.984
+ensamble   0.196    0.857 -0.048      0.984
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = -2.64, p = 0.004 -> rechaza igualdad al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = -4.81, p = 0.000
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes       -0.032    0.251
+inicio de mes    -0.350    0.068
+resto            -0.013    0.042
+Días del mes con mayor |sesgo| del ensamble (pp): día 2: -0.30, día 1: -0.28, día 8: +0.15
+
+[id 17, ventana expansiva; últimos 60 días]
+Evaluación fuera de muestra, 1 día, n = 60 (2026-07-27 a 2026-10-20)
+             MAE  MAE_rel  sesgo  cobertura
+ingenuo    0.137    1.000  0.004        1.0
+deriva     0.183    1.333 -0.137        1.0
+regresion  0.170    1.240 -0.069        1.0
+arimax     0.137    1.001 -0.038        1.0
+ensamble   0.137    0.998 -0.053        1.0
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = -0.02, p = 0.493 -> no rechaza al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = -2.40, p = 0.010
+Sesgo medio por posición en el mes (pp):
+               ensamble  ingenuo
+fin de mes       -0.059    0.164
+inicio de mes    -0.286    0.019
+resto            -0.024   -0.017
+Días del mes con mayor |sesgo| del ensamble (pp): día 1: -0.38, día 19: -0.36, día 3: -0.30

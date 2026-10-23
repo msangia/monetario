@@ -20,12 +20,14 @@ Uso::
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from .datos import ROTULO_SINTETICO, a_mensual, cargar_csv, demo_agregado_mensual
+from .datos import (CARPETA_DATOS, ROTULO_SINTETICO, a_mensual, cargar_csv, demo_agregado_mensual,
+                    meses_completos)
 
 NIVELES = (0.5, 0.7, 0.9)
 H = 3
@@ -91,11 +93,12 @@ def chequear_desvios(serie: pd.Series, trimestres: int = 4, ventana: int = 36,
 
 
 def fan_chart(serie: pd.Series, ruta: str | Path, ventana: int = 36, historia: int = 12,
-              rotulo: str = "") -> Path:
+              rotulo: str = "", unidad: str = "nivel") -> Path:
     """Fan chart del último trimestre chequeado: historia, programa, bandas y observados."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    import matplotlib.ticker
 
     lg = np.log(serie)
     deriva = lg.diff().rolling(ventana).mean()
@@ -127,7 +130,12 @@ def fan_chart(serie: pd.Series, ruta: str | Path, ventana: int = 36, historia: i
         ax.annotate(f"fuera de banda ({len(fuera)} meses)",
                     (pd.Timestamp(r["mes"]) + pd.offsets.MonthEnd(0), r["observado"]),
                     xytext=(-95, 6), textcoords="offset points", fontsize=7, color="#0b0b0b")
-    ax.set_ylabel("nivel (unidades sintéticas)" if "SINT" in rotulo else "nivel",
+    if "millones" in unidad.lower() and float(serie.max()) > 1e6:
+        # millones de ARS -> billones de ARS (10^12) para evitar la notación científica
+        ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(
+            lambda v, _: f"{v / 1e6:.0f}"))
+        unidad = unidad.replace("millones", "billones").replace("Millones", "Billones")
+    ax.set_ylabel("nivel (unidades sintéticas)" if "SINT" in rotulo else unidad,
                   fontsize=7, color="#52514e")
     ax.set_title(rotulo, fontsize=7.5, color="#52514e", loc="left")
     ax.tick_params(labelsize=7, colors="#52514e")
@@ -150,20 +158,32 @@ def main(argv: list[str] | None = None) -> str:
     g.add_argument("--demo", action="store_true", help="datos sintéticos de demostración")
     g.add_argument("--csv", help="CSV fecha,valor de base o M2 (diario o mensual)")
     ap.add_argument("--trimestres", type=int, default=4)
+    ap.add_argument("--ventana", type=int, default=36, help="meses para la deriva del programa")
+    ap.add_argument("--desde", default=None, help="primer mes de la muestra (AAAA-MM)")
     ap.add_argument("--figura", default=None, help="ruta del fan chart (PDF o PNG)")
     a = ap.parse_args(argv)
     if a.demo:
         serie = demo_agregado_mensual()
         rotulo = ROTULO_SINTETICO + " (shock agregado en los dos últimos meses)"
     else:
-        serie, rotulo = a_mensual(cargar_csv(a.csv)), f"Datos: {a.csv}"
-    tabla = chequear_desvios(serie, a.trimestres)
+        # Promedio mensual sólo de meses completos (se descarta un último mes parcial).
+        serie, rotulo = a_mensual(meses_completos(cargar_csv(a.csv))), f"Datos: {a.csv}"
+        if a.desde:
+            serie = serie.loc[a.desde:]
+    tabla = chequear_desvios(serie, a.trimestres, a.ventana)
     cols = ["mes", "h", "desvio_%", "inf_%", "sup_%", "estado"]
     texto = f"[{rotulo}]\nBanda central del 90 % por horizonte (cuantiles empíricos)\n" \
             + tabla[cols].round(1).to_string(index=False)
     print(texto)
     if a.figura:
-        fan_chart(serie, a.figura, rotulo=rotulo)
+        unidad = "nivel"
+        meta = CARPETA_DATOS / f"metadata_{a.csv}.json"
+        if a.csv and a.csv.isdigit() and meta.exists():
+            cat = json.loads(meta.read_text(encoding="utf-8")).get("catalogo", {})
+            unidad = cat.get("unidadExpresion", unidad).replace("En ", "").strip()
+            desc = cat.get("descripcion", "").strip()
+            rotulo = f"Datos reales: BCRA, API v4.0, id {a.csv} ({desc}), promedio mensual"
+        fan_chart(serie, a.figura, ventana=a.ventana, rotulo=rotulo, unidad=unidad)
     return texto
 
 
