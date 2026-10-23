@@ -63,8 +63,17 @@ def test_cobertura_banda_sin_look_ahead():
 
 
 def test_cli_demo_rotulada(tmp_path):
-    texto = main(["--demo", "--figura", str(tmp_path / "f.png")])
+    texto = main(["--demo", "--figura", str(tmp_path / "f.png"),
+                  "--figura-chequeo", str(tmp_path / "c.png")])
     assert "SINTÉTICOS" in texto and (tmp_path / "f.png").exists()
+    assert (tmp_path / "c.png").exists() and "Rango de cobertura" in texto
+
+
+def test_resumen_cobertura_usa_min_y_max_por_programa():
+    t = pd.DataFrame({"programa": ["mce"] * 3, "h": [1, 2, 3],
+                      "cobertura_90": [0.744, 0.786, 0.805]})
+    from monetario_demo.programa import resumen_cobertura
+    assert "mce: 74.4-80.5 %" in resumen_cobertura(t)
 
 
 def test_cobertura_desde_evalua_solo_origenes_posteriores():

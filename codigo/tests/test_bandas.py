@@ -4,7 +4,8 @@ import pandas as pd
 import pytest
 
 from monetario_demo.bandas import (banda_tolerancia, chequear_desvios, errores_historicos,
-                                   fan_chart, main)
+                                   fan_chart, grafico_chequeo, main,
+                                   pronostico_deriva)
 from monetario_demo.datos import demo_agregado_mensual
 
 
@@ -48,3 +49,10 @@ def test_ventana_corta_permite_series_cortas():
     with pytest.raises(ValueError):
         chequear_desvios(serie, trimestres=2, ventana=36)
     assert len(chequear_desvios(serie, trimestres=2, ventana=24)) == 6
+
+
+def test_grafico_chequeo_marca_meses_fuera(tmp_path):
+    """DATOS SINTÉTICOS: con shock final, el gráfico se genera sobre los 4 trimestres."""
+    serie = demo_agregado_mensual(shock_final=0.06)
+    ruta = grafico_chequeo(serie, pronostico_deriva(serie), tmp_path / "chk.png")
+    assert ruta.exists() and ruta.stat().st_size > 1000

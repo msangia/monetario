@@ -9,7 +9,8 @@
    usando sólo errores ya observados al momento del programa (sin look-ahead).
 3. Chequeo mensual de cada trimestre: desvío del observado frente al programa,
    "dentro de banda" o "fuera de banda" (banda central del 90 %).
-4. Fan chart simple con bandas del 50, 70 y 90 %.
+4. Fan chart simple con bandas del 50, 70 y 90 % y gráfico del chequeo de los
+   trimestres evaluados (:func:`grafico_chequeo`).
 
 Uso::
 
@@ -209,6 +210,79 @@ def fan_chart(serie: pd.Series, ruta: str | Path, ventana: int = 36, historia: i
         ax.spines[s].set_visible(False)
     ax.grid(axis="y", color="#e6e5e1", lw=0.6)
     ax.legend(fontsize=7.5, frameon=False, loc="upper left", ncol=2)
+    fig.tight_layout()
+    ruta = Path(ruta)
+    ruta.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(ruta)
+    plt.close(fig)
+    return ruta
+
+
+MESES_ES = ("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic")
+
+
+def _mes_es(fecha) -> str:
+    """Mes abreviado en español, p. ej. ``ene-2026``."""
+    return f"{MESES_ES[fecha.month - 1]}-{fecha.year}"
+
+
+def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
+                    trimestres: int = 4, nivel: float = 0.9, historia: int = 3,
+                    rotulo: str = "", unidad: str = "nivel",
+                    etiqueta: str = "programa") -> Path:
+    """Gráfico del chequeo de :func:`chequear_programa`: los ``trimestres`` evaluados.
+
+    Para cada trimestre muestra el programa armado al cierre del trimestre previo
+    (línea discontinua), su banda del ``nivel`` (sólo errores conocidos al armarlo) y el
+    observado; los meses fuera de banda se marcan en rojo con su fecha.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.dates
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker
+
+    chk = chequear_programa(serie, pron_log, trimestres, nivel)
+    n = int(nivel * 100)
+    mes_x = lambda idx: pd.DatetimeIndex(idx).to_period("M").to_timestamp()
+    meses = pd.PeriodIndex(chk["mes"], freq="M")
+    primero = serie.index.get_loc(serie.index[serie.index.to_period("M") == meses[0]][0])
+    fig, ax = plt.subplots(figsize=(6.2, 3.1), dpi=150)
+    for k in range(0, len(chk), H):
+        tramo = chk.iloc[k:k + H]
+        t = primero + k - 1                      # origen: cierre del trimestre previo
+        x = mes_x(serie.index[t:t + H + 1])
+        prog = np.r_[serie.iloc[t], tramo["programado"].to_numpy()]
+        inf = np.r_[serie.iloc[t], tramo["programado"] * np.exp(tramo["inf_%"] / 100)]
+        sup = np.r_[serie.iloc[t], tramo["programado"] * np.exp(tramo["sup_%"] / 100)]
+        ax.fill_between(x, inf, sup, color="#b7d3f6", lw=0,
+                        label=f"banda del {n} % del programa" if k == 0 else None)
+        ax.plot(x, prog, color="#0d366b", lw=1.3, ls="--",
+                label=f"{etiqueta}, armado al cierre del trimestre previo" if k == 0 else None)
+    obs = serie.iloc[max(primero - 1 - historia, 0):primero + len(chk)]
+    ax.plot(mes_x(obs.index), obs, color="#52514e", lw=1.5, marker="o", ms=3,
+            label="observado")
+    fuera = chk[chk["estado"] == "fuera de banda"]
+    for j, (_, r) in enumerate(fuera.iterrows()):
+        f = pd.Period(r["mes"], freq="M").to_timestamp()
+        ax.plot(f, r["observado"], marker="o", ms=8, mfc="none", mec="#d03b3b", mew=1.8,
+                ls="none", zorder=5, label="fuera de banda" if j == 0 else None)
+        ax.annotate(f"{_mes_es(f)}: desvío {r['desvio_%']:.1f} %\n(banda {r['inf_%']:.1f} a "
+                    f"{r['sup_%']:.1f} %)".replace(".", ","), (f, r["observado"]),
+                    xytext=(8, -26), textcoords="offset points", fontsize=7.5,
+                    color="#d03b3b", bbox=dict(fc="white", ec="none", alpha=0.85, pad=1))
+    ax.set_ylabel(unidad, fontsize=8, color="#52514e")
+    ax.set_xlabel("mes (promedio mensual)", fontsize=8, color="#52514e")
+    if rotulo:
+        ax.set_title(rotulo, fontsize=7.5, color="#52514e", loc="left")
+    ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(
+        lambda v, _: _mes_es(matplotlib.dates.num2date(v))))
+    ax.tick_params(labelsize=7.5, colors="#52514e")
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    ax.grid(axis="y", color="#e6e5e1", lw=0.6)
+    ax.legend(fontsize=7, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.28),
+              ncol=2)
     fig.tight_layout()
     ruta = Path(ruta)
     ruta.parent.mkdir(parents=True, exist_ok=True)

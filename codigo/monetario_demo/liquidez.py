@@ -196,7 +196,8 @@ def descomponer_varianza(base: pd.Series, circulacion: pd.Series) -> dict[str, f
     d = d.div(previo, axis=0).mul(100).dropna()
     v = d["dB"].var()
     return {"circulacion": float(d["dC"].var() / v), "cuentas_corrientes": float(d["dCC"].var() / v),
-            "covarianza": float(2 * d["dC"].cov(d["dCC"]) / v), "n": len(d)}
+            "covarianza": float(2 * d["dC"].cov(d["dCC"]) / v), "n": len(d),
+            "desde": d.index[0], "hasta": d.index[-1]}
 
 
 def pronostico_por_componentes(base: pd.Series, circulacion: pd.Series,

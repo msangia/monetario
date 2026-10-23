@@ -188,6 +188,19 @@ def comparar(panel: pd.DataFrame, pron: dict[str, pd.DataFrame], desde: str | No
     return pd.DataFrame(filas)
 
 
+def resumen_cobertura(tabla: pd.DataFrame) -> str:
+    """Rango (mínimo-máximo entre h = 1..3) de la cobertura de la banda del 90 %, por programa.
+
+    Es el número que se cita en los anexos: sale directamente de :func:`comparar`.
+    """
+    lineas = ["Rango de cobertura de la banda del 90 % entre h = 1 y h = 3 (por programa):"]
+    for k, g in tabla.groupby("programa", sort=False):
+        c = 100 * g.sort_values("h")["cobertura_90"]
+        lineas.append(f"  {k}: {c.min():.1f}-{c.max():.1f} % "
+                      f"(h=1/2/3: {' / '.join(f'{v:.1f}' for v in c)})")
+    return "\n".join(lineas)
+
+
 def demo_panel(semilla: int = 426) -> pd.DataFrame:
     """Panel para el programa. DATOS SINTÉTICOS DE DEMOSTRACIÓN, NO OFICIALES."""
     df = demo_demanda_dinero(mes_quiebre=None, semilla=semilla)
@@ -211,6 +224,8 @@ def main(argv: list[str] | None = None) -> str:
                          "ipc_historico.csv antes (fuente no documentada; descartado)")
     ap.add_argument("--trimestres", type=int, default=4)
     ap.add_argument("--figura", default=None, help="fan chart del programa MCE (PDF o PNG)")
+    ap.add_argument("--figura-chequeo", default=None,
+                    help="gráfico del chequeo de los últimos trimestres, programa MCE (PDF o PNG)")
     a = ap.parse_args(argv)
     if a.demo:
         panel, rotulo = demo_panel(), ROTULO_SINTETICO
@@ -236,7 +251,8 @@ def main(argv: list[str] | None = None) -> str:
               f"{ventana_mce} meses; DM-HLN "
               "unilateral contra la deriva y contra la deriva estacional; cobertura y ancho "
               "de la banda del 90 % armada sin look-ahead",
-              tabla.round(3).to_string(index=False)]
+              tabla.round(3).to_string(index=False),
+              resumen_cobertura(tabla)]
     for k, c in chequeos.items():
         partes.append(f"Chequeo de los últimos {a.trimestres} trimestres "
                       f"({c['mes'].iloc[0]} a {c['mes'].iloc[-1]}), programa {k}: "
@@ -251,6 +267,12 @@ def main(argv: list[str] | None = None) -> str:
         bandas.fan_chart(serie, a.figura, rotulo=rotulo, unidad=unidad,
                          pron_log=pron["mce"] - (np.log(1e6) if not a.demo else 0),
                          etiqueta="programa (demanda MCE, condicional)")
+    if a.figura_chequeo:
+        unidad = "nivel (unidades sintéticas)" if a.demo else "billones de ARS"
+        bandas.grafico_chequeo(nivel / (1e6 if not a.demo else 1),
+                               pron["mce"] - (np.log(1e6) if not a.demo else 0),
+                               a.figura_chequeo, a.trimestres, rotulo=rotulo, unidad=unidad,
+                               etiqueta="programa MCE (condicional)")
     return texto
 
 

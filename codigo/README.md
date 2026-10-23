@@ -18,11 +18,11 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 | `monetario_demo/datos.py` | – | Cargadores de CSV `fecha,valor` (BCRA) y de los mensuales de INDEC (`mes,...`: EMAE e IPC), y generadores sintéticos rotulados |
 | `descargar_bcra.py`, `series.txt` | Eje 5 | Descarga de series públicas de la API de Estadísticas Monetarias v4.0 del BCRA a `datos/` (11 IDs verificados contra el catálogo) |
 | `monetario_demo/calidad.py` | Eje 5 | Controles de calidad de las series diarias: duplicados, fines de semana, huecos, saltos anómalos (> 10 MAD; las series de flujo, como la 46, se controlan en nivel), unidad según la metadata y concordancia con el último valor del catálogo; `controles_cruzados` verifica 46 = Δ15, 16 ≥ 17, 109 ≥ 197 y 109 > 17 |
-| `correr_reales.py` | – | Corre las rutinas A, B y C con los datos reales de `datos/` y escribe `salidas/real_*.txt` y `salidas/fan_chart_real.pdf`, con encabezado de fuente, último dato y fecha de ejecución |
+| `correr_reales.py` | – | Corre las rutinas A, B y C con los datos reales de `datos/` y escribe `salidas/real_*.txt`, `salidas/fan_chart_real.pdf` y `salidas/chequeo_real.pdf` (figura 1 de los anexos), con encabezado de fuente, último dato y fecha de ejecución |
 | `verificar_series.py` | Eje 5 | Tabla de IDs de `series.txt` contra `datos/catalogo_monetarias.csv` y control de las descargas (filas, primer y último dato) |
 | `referencia/estadisticas-monetarias-v4.json` | – | Esquema OpenAPI público de la API (referencia) |
 | `tests/` | – | Pruebas `pytest` (el descargador se prueba con respuestas simuladas) |
-| `salidas/` | – | `real_*.txt` y `fan_chart_real.pdf` (datos reales, usados en `anexos.tex`); `demo_*.txt` y `fan_chart_demo.pdf` (sintéticos) |
+| `salidas/` | – | `real_*.txt`, `fan_chart_real.pdf` y `chequeo_real.pdf` (datos reales; `chequeo_real.pdf` es la figura 1 de `anexos.tex`); `demo_*.txt` y `fan_chart_demo.pdf` (sintéticos) |
 
 ## Instalación y pruebas
 
@@ -74,7 +74,7 @@ python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
 python -m monetario_demo.bandas --csv 109 --trimestres 4 --figura salidas/fan_chart.pdf
 python -m monetario_demo.bandas --csv 197 --ventana 24     # 197 empieza en 2021: deriva de 24 meses
 # C con programas de demanda: deriva, deriva estacional, velocidad, MCE (condicionales)
-python -m monetario_demo.programa --dinero 109 --tasa 1189 --figura salidas/fan_chart_real.pdf
+python -m monetario_demo.programa --dinero 109 --tasa 1189 --figura salidas/fan_chart_real.pdf --figura-chequeo salidas/chequeo_real.pdf
 ```
 
 ### Formato de los CSV

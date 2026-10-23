@@ -4,7 +4,7 @@
 #   id 1189 (plazo fijo en pesos): 2003-01-02 a 2026-10-21 (último dato)
 #   id 197 (M2 transaccional privado): 2021-01-04 a 2026-10-19 (último dato)
 #   EMAE desestacionalizado (INDEC) hasta 2026-08; IPC oficial de INDEC desde 2016-12 (sin empalme previo)
-# Ejecución: 2026-10-23 02:19
+# Ejecución: 2026-10-23 11:19
 
 
 Promedios mensuales de meses completos (se descarta 2026-10, parcial). Programas: deriva (36 meses) y deriva estacional (efectos de 72 meses), con toda la historia del agregado; velocidad constante y demanda MCE (ventana de 48 meses desde 2016-12, plazo fijo 1189, dummies mensuales), que necesitan el IPC oficial. Orígenes evaluados desde 2021-01. Velocidad y MCE son condicionales al IPC, EMAE y tasa observados. Ninguno es el programa del BCRA.
@@ -29,6 +29,12 @@ deriva_estacional  3 65  7.893           0.926           0.112            NaN   
     mce_sin_estac  1 65  3.548           0.956           0.351          0.845     43         0.767       12.875
     mce_sin_estac  2 65  6.374           1.026           0.562          0.787     42         0.786       22.429
     mce_sin_estac  3 65  8.510           0.999           0.498          0.610     41         0.829       29.990
+Rango de cobertura de la banda del 90 % entre h = 1 y h = 3 (por programa):
+  deriva: 64.6-80.0 % (h=1/2/3: 80.0 / 72.3 / 64.6)
+  deriva_estacional: 58.5-72.3 % (h=1/2/3: 72.3 / 64.6 / 58.5)
+  velocidad: 90.8-93.8 % (h=1/2/3: 90.8 / 90.8 / 93.8)
+  mce: 74.4-80.5 % (h=1/2/3: 74.4 / 78.6 / 80.5)
+  mce_sin_estac: 76.7-82.9 % (h=1/2/3: 76.7 / 78.6 / 82.9)
 Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva: 7 de 12 meses fuera
 Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva_estacional: 11 de 12 meses fuera
 Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa velocidad: 1 de 12 meses fuera
@@ -68,6 +74,12 @@ deriva_estacional  3 65  9.069           0.883           0.046            NaN   
     mce_sin_estac  1 65  4.348           0.978           0.426          0.844     43         0.767       14.203
     mce_sin_estac  2 65  8.231           1.053           0.625          0.854     42         0.762       26.562
     mce_sin_estac  3 65 11.189           1.089           0.709          0.860     41         0.780       35.787
+Rango de cobertura de la banda del 90 % entre h = 1 y h = 3 (por programa):
+  deriva: 60.0-67.7 % (h=1/2/3: 67.7 / 60.0 / 61.5)
+  deriva_estacional: 63.1-67.7 % (h=1/2/3: 67.7 / 63.1 / 63.1)
+  velocidad: 78.5-83.1 % (h=1/2/3: 83.1 / 80.0 / 78.5)
+  mce: 68.3-81.4 % (h=1/2/3: 81.4 / 78.6 / 68.3)
+  mce_sin_estac: 76.2-78.0 % (h=1/2/3: 76.7 / 76.2 / 78.0)
 Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva: 7 de 12 meses fuera
 Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva_estacional: 9 de 12 meses fuera
 Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa velocidad: 0 de 12 meses fuera

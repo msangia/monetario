@@ -12,7 +12,9 @@ Escribe en ``codigo/salidas/``:
   fuente no documentada, se descarta);
 * ``real_bandas.txt`` (rutina C: programas de deriva, deriva estacional, velocidad y
   demanda MCE para M2 (109) y base (15), banda del 90 % y chequeo de desvíos) y
-  ``fan_chart_real.pdf`` (M2, programa MCE).
+  ``fan_chart_real.pdf`` (M2, programa MCE armado en el último trimestre) y
+  ``chequeo_real.pdf`` (M2, programa MCE: los cuatro trimestres chequeados, con la
+  banda del 90 % y los meses fuera de banda).
 
 Cada archivo lleva un encabezado con la fuente, el último dato de cada serie usada
 y la fecha de ejecución. Las especificaciones (muestras, ventanas, variantes) están
@@ -164,10 +166,15 @@ def rutina_a() -> str:
                   "en pp de la base, errores ponderados por el peso de la serie en la base)\n"
                   + pd.DataFrame(resumen).round(3).to_string(index=False)
                   + "\n\n## Varianza de la variación diaria de la base (en % de la base previa)\n"
-                  + "\n".join(f"{a} a {b}: circulación {d['circulacion']:.1%}, cuentas "
-                               f"corrientes {d['cuentas_corrientes']:.1%}, 2 cov "
-                               f"{d['covarianza']:.1%} (n = {d['n']})"
-                               for (a, b), d in descomp.items()))
+                  + "Definición: dB_t = dC_t + dCC_t, con B = base (15), C = circulación (16) y "
+                    "CC = cuentas corrientes de las entidades en el BCRA (15 - 16); cada variación "
+                    "diaria en % de la base del día hábil anterior, de modo que var(dB) = var(dC) "
+                    "+ var(dCC) + 2 cov(dC, dCC). Participación = término / var(dB) "
+                    "(liquidez.descomponer_varianza).\n"
+                  + "\n".join(f"{d['desde']:%Y-%m-%d} a {d['hasta']:%Y-%m-%d} (n = {d['n']} "
+                               f"variaciones diarias): cuentas corrientes {d['cuentas_corrientes']:.1%}, "
+                               f"circulación {d['circulacion']:.1%}, 2 cov {d['covarianza']:.1%}"
+                               for d in descomp.values()))
     return "\n\n".join(partes) + "\n"
 
 
@@ -241,7 +248,8 @@ def rutina_c() -> str:
         "evaluados desde 2021-01. Velocidad y MCE son condicionales al IPC, EMAE y tasa "
         "observados. Ninguno es el programa del BCRA."]
     partes.append("## M2 (109)\n" + _capturar(programa.main, [
-        "--dinero", "109", "--tasa", "1189", "--figura", str(SALIDAS / "fan_chart_real.pdf")]))
+        "--dinero", "109", "--tasa", "1189", "--figura", str(SALIDAS / "fan_chart_real.pdf"),
+        "--figura-chequeo", str(SALIDAS / "chequeo_real.pdf")]))
     partes.append("## Base monetaria (15)\n" + _capturar(programa.main, [
         "--dinero", "15", "--tasa", "1189"]))
     partes.append("## Referencia: M2 transaccional privado (197), deriva de 24 meses "
