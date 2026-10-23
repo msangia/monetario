@@ -5,7 +5,7 @@
 #   id 11 (BAIBAR): 2003-01-02 a 2026-10-21 (último dato)
 #   EMAE desestacionalizado (INDEC): 2004-01 a 2026-08
 #   IPC oficial (INDEC, ipc_mensual.csv, dic-2016 = 100): 2016-12 a 2026-09. No se usa el IPC empalmado previo (fuente no documentada).
-# Ejecución: 2026-10-23 13:08
+# Ejecución: 2026-10-23 16:54
 
 
 M2 (109) = M2 total (billetes y monedas en poder del público + cuentas a la vista en pesos de los sectores privado y público); el M2 transaccional privado (197) empieza en 2021. IPC observado (no inflación esperada). Especificaciones fijadas de antemano; se informan todas.

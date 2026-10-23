@@ -41,3 +41,13 @@ Fuente del manual: `manual_organico.docx` (reemplaza al PDF; misión, 11 funcion
 | Código abierto e IA | Stata, R, Python; 11 módulos Stata; curso interno de R BCRA (nov/2019, ago/2021); ITBA; Banca d'Italia Big Data & ML (feb/2021) | E5 |
 | Desarrollo de colaboradores (F10) | Docente Economic Policy II UNLP (2010-present); 6 cursos CCBS BoE (2007, 2009, 2011, 2021 x3) | E6 |
 | Inglés avanzado | CV: "Languages: English"; nivel avanzado confirmado por el usuario (sin certificaciones) | Intro, E6 |
+
+## Cambios de la respuesta 16 (dictamen 16, mejoras sugeridas)
+
+- **F1 (E1)**: el Tesoro deja de figurar como factor principal. Con datos públicos (borrador Anexo A2), ni los factores rezagados, ni las fechas regulares, ni conocer los montos del Tesoro mejoran el pronóstico de cuentas corrientes; lo que más explicaría son las otras operaciones del BCRA (desde julio de 2025) y el sesgo de fin de mes ligado al efectivo mínimo. El modelo por factores programados necesita la programación interna de las operaciones del BCRA y la posición de efectivo mínimo, no sólo los movimientos del Tesoro. Transición: en caso de duda rige el proceso vigente; el desacuerdo se documenta y se escala al Gerente, que responde por el resultado. Indicador (i) en dos niveles (meta comprensible + detalle DM al 10 %, ≥60 obs., intervalo de respaldo); umbral de cuentas corrientes y de efectivo mínimo: ≥5 % de reducción del error frente al ingenuo (provisorio).
+- **F3 (E3)**: adaptación del BLS del BCE: se explota la ECC existente, no se crea otra encuesta.
+- **F4 (E4)**: fan chart del BoE adaptado (representa el error del programa y del escenario de IPC y actividad); plan B de la banda: si al mes 12 no se valida, los desvíos se informan con rangos históricos descriptivos rotulados como no validados y se fija la fecha de revisión. Se quitó la frase sobre demanda no lineal (espacio).
+- **Perfil, IA (E5)**: sólo salen del entorno interno agregados ya publicados; meta: reducir ≥20 % las horas de producción del informe sin más defectos en revisión (umbral provisorio).
+- **Perfil, conducción (Riesgos)**: fila nueva "Resistencia al cambio" (señal: baja adopción; mitigación: pilotos y encuesta semestral de clima; responsable: Gerente).
+- **Referencias**: comunicado de política monetaria del BCRA del 15-12-2025 ("Profundización del esquema de agregados monetarios: fase de re-monetización 2026") y BCRA, Informe monetario diario (fuente de la banda del M2 privado transaccional).
+- **Brechas** (E1, E2, E3): una frase cada una. Se quitaron menciones de credenciales accesorias (docencia UNLP, "donde cursé", once módulos de Stata, años del curso de R) por instrucción del postulante.

@@ -13,6 +13,7 @@ entidad, información interna ni nada de liquidez que no esté publicado.
 | `ipc_mensual.csv` | cargado (INDEC, base dic-16 = 100, 2016-12 a 2026-09) | `mes,ipc_ng`; `mes` tipo `dic-16`, `sept-26` |
 | `ipc_historico.csv` | cargado (IPC empalmado, 1992-12 a 2026-09; igual al oficial desde 2016-12; **fuente previa a 2016-12 a documentar**) | `fecha,ipc`; `fecha` en `d/m/aaaa` |
 | `bcra_<id>_daily.csv` + `metadata_<id>.json` | cargados (descarga 2026-10-22): los 11 IDs de `series.txt` (15, 16, 17, 104, 109, 197, 46, 11, 150, 1189, 44), todos `ok` | `fecha,valor` (ISO) |
+| ídem, factores | cargados (descarga 2026-10-23): los 12 IDs de `codigo/series_factores.txt` (19, 47–55, 58, 59), todos `ok`; flujos hasta 2026-10-19 | `fecha,valor` (ISO) |
 
 Los cargadores leen EMAE e IPC tal como están (meses en español, `sept`/`set`, espacios
 finales); no hace falta convertirlos. Las series diarias usan `fecha,valor` con
@@ -105,7 +106,17 @@ Para pedir ayuda, pegá: (a) el comando exacto, (b) las últimas 20 líneas de l
 log **sin** nombres de servidores, usuarios ni contraseñas (reemplazalos por `<proxy>`), y
 (c) la salida de `python verificar_series.py --series series.txt`.
 
-## Pendiente opcional: factores de la base para modelar las cuentas corrientes (Eje 1)
+## Factores de la base para modelar las cuentas corrientes (Eje 1) — cargados 2026-10-23
+
+**Estado.** Las 12 series están en `datos/` y dan `ok` en
+`python verificar_series.py --series series_factores.txt --desde 2003-01-01`. Las usa
+`python -m monetario_demo.factores --reales` (salida en `codigo/salidas/real_factores.txt`).
+Identidades: 46 = suma de 47–55, 58, 59 exacta desde 2019; antes de 2019 hay residuo, que
+serían 56 (LEBAC y NOBAC) y 57 (cuasimonedas), **no bajadas**. Para cerrar la identidad en toda
+la muestra (opcional): `python descargar_bcra.py --ids 56 57 --desde 2003-01-01`. Los saldos
+(15, 16, 19) traen un sábado (2005-12-31) sin factores; queda fuera de la muestra de los modelos.
+
+Texto original de la solicitud (referencia):
 
 El Anexo A muestra que las cuentas corrientes de las entidades en el BCRA (15 − 16) explican
 casi toda la varianza diaria de la base y que el calendario no las predice. Para evaluar con
