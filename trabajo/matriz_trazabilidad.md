@@ -59,3 +59,13 @@ Fuente del manual: `manual_organico.docx` (reemplaza al PDF; misión, 11 funcion
 - **F2 (E2, Divisia)**: por qué sirve en Argentina (medios de pago con rendimientos distintos: cuentas remuneradas, billeteras, FCI MM; con inflación alta y cambios de régimen el M2 simple suma igual dinero que rinde y que no; Divisia pondera por costo de uso) y vínculo con el perímetro del dinero (E3). Antecedente en pasado: índices de servicios monetarios que publicó la Fed de St. Louis.
 - **Perfil, IA (E5)**: meta de −20 % de horas medida contra la línea de base de horas de producción del informe en los primeros 90 días.
 - **Espacio**: recortes de redacción en E4, E6 (articulación, auditoría), hoja de ruta 12–24 y capacidad; sin cambios de contenido sustantivo.
+
+## Cambios de la respuesta 18 (dictamen 18, APROBADO 84/100; mejoras del núcleo)
+
+- **F1 (E1, efectivo mínimo)**: método explícito: posición = exigencia frente a integración acumulada en el período de cómputo, por grupo de entidades, con datos internos; se pronostica la integración diaria necesaria para cerrar el período.
+- **F1 (E1, regla de paralelo)**: si a los 9 meses no corre en paralelo, o corre sin alcanzar la meta, rige el proceso vigente y se informa a Operaciones el error observado; el sesgo por día del mes se evalúa aparte y, si persiste, se corrige con un ajuste de fin de mes.
+- **F1 (E1, definiciones)**: "ingenuo" = repetir el último valor; "ensamble" = promedio de regresión con calendario, espacio de estado y ARIMAX (en la Intro "ensamble de liquidez" pasa a "pronóstico de liquidez" para que la definición quede en la primera aparición). Frase de tasas reescrita: diferencial entre call, pases y caución, y de éstos con plazo fijo y TAMAR, como señal de tensión, comparado con el excedente proyectado y la posición de efectivo mínimo, foco en fin de mes.
+- **Perfil, medios de pago y FCI (E3)**: pregunta analítica propia: cuánto de la demanda transaccional de dinero migra a billeteras y FCI MM y cómo cambia la velocidad del M2.
+- **F8 (E6)**: registro de recomendaciones priorizadas por riesgo; respuesta en 30 días; informe trimestral a la Gerencia Principal.
+- **F7 (E4)**: los escenarios del IPOM se acuerdan con el área de modelos. **F4 (E4)**: el MCE no ancla el programa; sirve de contraste y de señal de cambio estructural.
+- **F4 (E4, alcance del M2)**: el núcleo dice "M2" (sin "privado transaccional") y aclara que los anexos prueban el M2 total y la base.
