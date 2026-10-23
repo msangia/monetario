@@ -90,6 +90,9 @@ PERIODOS_A = (("2022-01 a 2026-10", {}), ("desde 2025-07-11", {"desde": "2025-07
               ("últimos 60 días", {"ultimos": 60}))
 
 
+DIA_LEFI = "2025-07-10"   # la base sube 30 % en un día (fin de las LEFI)
+
+
 def ahorro_pp_base(modelo: pd.DataFrame, ingenuo: pd.DataFrame, peso: pd.Series,
                    desde: str | None = None, ultimos: int | None = None) -> float:
     """Significancia económica: reducción del MAE expresada en puntos porcentuales de la base.
@@ -120,7 +123,7 @@ def rutina_a() -> str:
               "antemano agregarían información; no están entre las series descargadas."]
     base, circ = cargar_csv("15").loc["2010-01-04":], cargar_csv("16").loc["2010-01-04":]
     cc = (base - circ).rename("cuentas_corrientes_bcra")
-    resumen = []
+    resumen, sensib = [], []
     pesos = {"base (15)": base / base, "base (15), móvil 500": base / base,
              "billetes (17)": cargar_csv("17").loc["2010-01-04":] / base,
              "circulación (16)": circ / base, "cuentas corrientes en el BCRA (15 - 16)": cc / base}
@@ -147,6 +150,16 @@ def rutina_a() -> str:
                             "sesgo_fin_ing": sp.loc["fin de mes", "ingenuo"],
                             "sesgo_ini_ens": sp.loc["inicio de mes", "ensamble"],
                             "sesgo_ini_ing": sp.loc["inicio de mes", "ingenuo"]})
+        if ventana is None and not nombre.startswith("billetes"):
+            # Sensibilidad: 2022-2026 sin el día del salto de la base por las LEFI.
+            sin = {m: d.drop(pd.Timestamp(DIA_LEFI), errors="ignore") for m, d in pronos.items()}
+            ev = liquidez.evaluar(sin)
+            e_ing = sin["ingenuo"]["obs"] - sin["ingenuo"]["pron"]
+            sensib.append({"serie": nombre, "n": ev["n"],
+                           "MAE_rel": ev["tabla"].loc["ensamble", "MAE_rel"],
+                           "p_DM": ev["dm"].p_valor,
+                           "cob90": ev["tabla"].loc["ensamble", "cobertura"],
+                           "MAE_ingenuo": float(e_ing.abs().mean())})
     for cc_modelo in ("ingenuo", "ensamble"):
         comp = liquidez.pronostico_por_componentes(base, circ, "2022-01-03", 60,
                                                    cc_modelo=cc_modelo)
@@ -175,7 +188,10 @@ def rutina_a() -> str:
                   + "\n".join(f"{d['desde']:%Y-%m-%d} a {d['hasta']:%Y-%m-%d} (n = {d['n']} "
                                f"variaciones diarias): cuentas corrientes {d['cuentas_corrientes']:.1%}, "
                                f"circulación {d['circulacion']:.1%}, 2 cov {d['covarianza']:.1%}"
-                               for d in descomp.values()))
+                               for d in descomp.values())
+                  + f"\n\n## Sensibilidad: 2022-01 a 2026-10 sin el {DIA_LEFI} (salto de la base "
+                    "por las LEFI; mismos pronósticos, se excluye ese día de la evaluación)\n"
+                  + pd.DataFrame(sensib).round(3).to_string(index=False))
     return "\n\n".join(partes) + "\n"
 
 
