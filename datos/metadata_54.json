@@ -1,0 +1,30 @@
+{
+  "idVariable": 54,
+  "catalogo": {
+    "idVariable": "54",
+    "descripcion": "Efecto monetario de los redescuentos y adelantos ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "0.0"
+  },
+  "metodologia": [
+    {
+      "id": 54,
+      "detalle": "Financiamiento otorgado por el BCRA a entidades financieras mediante redescuentos o adelantos."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:55",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/54"
+}

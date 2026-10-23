@@ -1,0 +1,30 @@
+{
+  "idVariable": 53,
+  "catalogo": {
+    "idVariable": "53",
+    "descripcion": "Efecto monetario de las LELIQ y NOTALQ ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "0.0"
+  },
+  "metodologia": [
+    {
+      "id": 53,
+      "detalle": "Incluye el efecto monetario asociado a las operaciones con Letras de Liquidez5 y Notas de Liquidez a tasa variable6 (NOTALIQ) del BCRA. Se muestra con signo negativo la contracción asociada al aumento del saldo de LELIQ y/o NOTALIQ y con signo positivo la disminución de los stocks de estos títulos. Excluye la expansión vinculada al pago de intereses."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:53",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/53"
+}

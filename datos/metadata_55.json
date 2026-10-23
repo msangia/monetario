@@ -1,0 +1,30 @@
+{
+  "idVariable": 55,
+  "catalogo": {
+    "idVariable": "55",
+    "descripcion": "Efecto monetario de los intereses, primas y remuneración de cuentas corrientes asociados a op. de pases, LELIQ, NOTALQ, redescuentos y adel. ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "0.0"
+  },
+  "metodologia": [
+    {
+      "id": 55,
+      "detalle": "Cobro de intereses por parte del BCRA asociados a las operaciones de redescuentos y adelantos, del pago neto de primas de operaciones de pases que realizó el BCRA hasta el 14 de julio de 2025, del pago de intereses de LELIQ y NOTALIQ, y del pago de remuneración de las cuentas corrientes de las entidades financieras en el BCRA (incluye los reintegros realizados por la conversión a pesos de las cuentas corrientes en moneda extranjera en el marco de la Comunicación A 4043 y complementarias). Los cobros del BCRA implican contracción monetaria y los pagos que realiza se traducen en expansión monetaria."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:56",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/55"
+}

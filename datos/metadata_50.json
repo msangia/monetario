@@ -1,0 +1,30 @@
+{
+  "idVariable": 50,
+  "catalogo": {
+    "idVariable": "50",
+    "descripcion": "Efecto monetario de las transferencia de utilidades al tesoro nacional ",
+    "categoria": "Series.xlsm",
+    "tipoSerie": "Flujo diario",
+    "periodicidad": "D",
+    "unidadExpresion": "En millones de ARS",
+    "moneda": "ML",
+    "primerFechaInformada": "2003-01-02",
+    "ultFechaInformada": "2026-10-16",
+    "ultValorInformado": "0.0"
+  },
+  "metodologia": [
+    {
+      "id": 50,
+      "detalle": "Transferencia de utilidades que realiza el BCRA al Gobierno Nacional en el marco de lo dispuesto en el artículo 38 de la Carta Orgánica del BCRA."
+    }
+  ],
+  "descarga": {
+    "fecha_descarga": "2026-10-23T10:08:48",
+    "desde": "2003-01-01",
+    "hasta": null,
+    "filas": 5834,
+    "count_informado": 5834,
+    "validacion": "ok"
+  },
+  "fuente": "https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/50"
+}
