@@ -8,7 +8,10 @@ desvíos absolutos medianos móviles) y concordancia del CSV con el último valo
 catálogo (la API revisa datos recientes, así que una diferencia chica es esperable).
 
 Los saltos se miden en % (100 * diff log) para saldos y en puntos porcentuales para
-tasas. Un salto no es un error: puede ser un cambio de régimen o de normativa (p. ej.,
+tasas. Las series de flujo (``tipoSerie`` "Flujo diario", p. ej. id 46, factores de la
+base) pueden ser negativas: se controla el valor del día (no su variación) contra la
+mediana y el MAD móviles, y los valores no positivos no se cuentan como anomalía.
+:func:`controles_cruzados` contrasta identidades contables entre series. Un salto no es un error: puede ser un cambio de régimen o de normativa (p. ej.,
 encajes); el control sólo lo señala para revisarlo.
 
 Uso (desde ``codigo/``)::
@@ -44,10 +47,14 @@ def controlar_serie(id_variable: int, carpeta: Path | None = None, hueco: int = 
     cat = meta.get("catalogo", {})
     unidad = cat.get("unidadExpresion", "?")
     es_tasa = "porcentaje" in unidad.lower() or cat.get("tipoSerie", "").startswith("Tasa")
+    es_flujo = cat.get("tipoSerie", "").lower().startswith("flujo")
     idx = s.index
     faltan = pd.bdate_range(idx[0], idx[-1]).difference(idx)
     saltos_dias = pd.Series(np.diff(idx.to_numpy()).astype("timedelta64[D]").astype(int))
-    cambio = s.diff() if es_tasa else 100 * np.log(s).diff()
+    if es_flujo:
+        cambio = s                       # el flujo ya es una variación (millones)
+    else:
+        cambio = s.diff() if es_tasa else 100 * np.log(s).diff()
     centro = cambio.rolling(250, min_periods=60).median()
     mad = (cambio - centro).abs().rolling(250, min_periods=60).median()
     anomalos = ((cambio - centro).abs() > k_mad * 1.4826 * mad) & mad.gt(0)
@@ -66,8 +73,8 @@ def controlar_serie(id_variable: int, carpeta: Path | None = None, hueco: int = 
         "habiles_sin_dato_por_anio": round(len(faltan) / max((idx[-1] - idx[0]).days / 365.25,
                                                               1e-9), 1),
         "huecos": int((saltos_dias > hueco).sum()), "hueco_max": int(saltos_dias.max()),
-        "no_positivos": int((s <= 0).sum()), "unidad": unidad,
-        "medida_salto": "pp" if es_tasa else "%",
+        "no_positivos": None if es_flujo else int((s <= 0).sum()), "unidad": unidad,
+        "medida_salto": "millones, flujo" if es_flujo else ("pp" if es_tasa else "%"),
         "saltos_anomalos": int(anomalos.sum()),
         "mayores_saltos": [(d.date().isoformat(), round(float(cambio[d]), 1)) for d in top],
         "dif_ultimo_catalogo": concordancia,
@@ -88,7 +95,7 @@ def informe_calidad(ids: list[int], carpeta: Path | None = None) -> str:
         lineas.append(
             f"id {i} ({c['unidad']}): {c['filas']} filas {c['primero']} a {c['ultimo']}; "
             f"duplicados {c['duplicados']}, vacíos {c['vacios']}, no positivos "
-            f"{c['no_positivos']}, fin de semana {c['fin_semana'] or 'ninguno'}; "
+            f"{'n/c (flujo)' if c['no_positivos'] is None else c['no_positivos']}, fin de semana {c['fin_semana'] or 'ninguno'}; "
             f"hábiles sin dato {c['habiles_sin_dato_por_anio']}/año (feriados); "
             f"huecos > 5 días: {c['huecos']} (máx. {c['hueco_max']} días); "
             f"saltos > 10 MAD: {c['saltos_anomalos']}; mayores ({c['medida_salto']}): "
@@ -96,6 +103,35 @@ def informe_calidad(ids: list[int], carpeta: Path | None = None) -> str:
             + "; CSV vs. último valor del catálogo: "
             + ("fecha no disponible" if dif is None else f"{dif:+.4%}")
             + f"; metadata: {c['validacion']}")
+    return "\n".join(lineas)
+
+
+def controles_cruzados(carpeta: Path | None = None) -> str:
+    """Identidades y desigualdades contables entre series (si están los CSV).
+
+    * factores de explicación (46) = variación diaria de la base (15);
+    * circulación monetaria (16) >= billetes y monedas en poder del público (17);
+    * M2 (109) >= M2 transaccional privado (197) y M2 (109) > billetes (17).
+    """
+    carpeta = carpeta or datos.CARPETA_DATOS
+    try:
+        s = {i: datos.cargar_csv(carpeta / f"bcra_{i}_daily.csv") for i in (15, 16, 17, 46, 109, 197)}
+    except FileNotFoundError as e:
+        return f"controles cruzados: falta un CSV ({e})"
+    df = pd.concat(s, axis=1, sort=True)
+    lineas = []
+    par = pd.concat([df[15].dropna().diff(), df[46]], axis=1).dropna()
+    dif = (par[15] - par[46]).abs()
+    rel = dif / df[15].shift().reindex(par.index)
+    exacto = dif <= 1.0                                  # redondeo a 1 millón
+    lineas.append(
+        f"46 vs. variación diaria de 15: {len(par)} días; |dif| <= 1 millón en "
+        f"{exacto.mean():.1%} (desde 2016: {exacto.loc['2016':].mean():.1%}); "
+        f"máx. |dif| / base = {rel.max():.1e}; correlación {par[15].corr(par[46]):.6f}")
+    for a, b, signo in ((16, 17, ">="), (109, 197, ">="), (109, 17, ">")):
+        x = df[[a, b]].dropna()
+        ok = (x[a] >= x[b]) if signo == ">=" else (x[a] > x[b])
+        lineas.append(f"{a} {signo} {b}: se cumple en {ok.mean():.1%} de {len(x)} días")
     return "\n".join(lineas)
 
 

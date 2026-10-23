@@ -8,8 +8,13 @@ a un día hábil. Modelos:
   (paseo al azar con deriva); separa la ganancia por calendario de la que sólo
   refleja el crecimiento nominal medio;
 * ``regresion``: MCO sobre variables de calendario;
-* ``arimax``:    AR(1) con las mismas variables exógenas (espacio de estado, SARIMAX);
-* ``ensamble``:  promedio simple de ``regresion`` y ``arimax``.
+* ``espacio_estado``: modelo de componentes no observados con nivel local
+  (paseo al azar en la media de la variación) y las mismas variables de calendario
+  como regresores (``UnobservedComponents``, filtro de Kalman); adapta la media
+  a cambios graduales de régimen sin reestimar;
+* ``arimax``:    AR(1) con las mismas variables exógenas (SARIMAX);
+* ``ensamble``:  promedio simple de ``regresion``, ``espacio_estado`` y ``arimax``
+  (la misma definición que el Eje 1 del proyecto).
 
 Evaluación fuera de muestra con ventana expansiva (o móvil): los parámetros se
 reestiman cada ``cada`` días con información disponible hasta ese momento
@@ -30,11 +35,13 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.tsa.statespace.sarimax import SARIMAX
+from statsmodels.tsa.statespace.structural import UnobservedComponents
 
 from .datos import ROTULO_SINTETICO, cargar_csv, demo_liquidez_diaria, posicion_en_mes
 from .evaluacion import diebold_mariano, sesgo_por_dia, tabla_errores
 
 ALFA = 0.10  # intervalos al 90 %
+MODELOS_ENSAMBLE = ("regresion", "espacio_estado", "arimax")
 
 
 def variables_calendario(idx: pd.DatetimeIndex) -> pd.DataFrame:
@@ -68,7 +75,7 @@ def variables_calendario(idx: pd.DatetimeIndex) -> pd.DataFrame:
 def pronostico_fuera_de_muestra(nivel: pd.Series, inicio_eval: float | str = 0.5,
                                 cada: int = 60,
                                 ventana: int | None = None) -> dict[str, pd.DataFrame]:
-    """Pronósticos a un día, fuera de muestra, de los cuatro modelos.
+    """Pronósticos a un día, fuera de muestra: benchmarks, tres modelos y ensamble.
 
     Args:
         nivel: serie diaria en niveles (p. ej., base monetaria), días hábiles.
@@ -90,7 +97,7 @@ def pronostico_fuera_de_muestra(nivel: pd.Series, inicio_eval: float | str = 0.5
     if not 30 <= n0 < len(y):
         raise ValueError(f"Inicio de la evaluación fuera de rango ({n0} de {len(y)} días).")
     salida: dict[str, list[pd.DataFrame]] = {
-        m: [] for m in ("ingenuo", "deriva", "regresion", "arimax")}
+        m: [] for m in ("ingenuo", "deriva", *MODELOS_ENSAMBLE)}
     for t0 in range(n0, len(y), cada):
         t1 = min(t0 + cada, len(y))
         a0 = 0 if ventana is None else max(0, t0 - ventana)
@@ -111,23 +118,29 @@ def pronostico_fuera_de_muestra(nivel: pd.Series, inicio_eval: float | str = 0.5
             "obs": obs, "pron": pr["mean"].to_numpy(),
             "inf": pr["obs_ci_lower"].to_numpy(), "sup": pr["obs_ci_upper"].to_numpy()},
             index=obs.index))
-        # ARIMAX: parámetros estimados hasta t0, filtrado un paso adelante en [t0, t1).
+        # Espacio de estado y ARIMAX: parámetros estimados hasta t0; en [t0, t1) sólo se
+        # filtra un paso adelante con los datos ya observados (sin reestimar).
+        # Se usan arreglos (no fechas) porque los días hábiles reales tienen feriados.
+        ex_tr = X_tr.drop(columns="const").to_numpy()
+        ex_te = X_te.drop(columns="const").to_numpy()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            # Se usan arreglos (no fechas) porque los días hábiles reales tienen feriados.
-            ex_tr = X_tr.drop(columns="const").to_numpy()
-            ex_te = X_te.drop(columns="const").to_numpy()
-            res = SARIMAX(y_tr.to_numpy(), exog=ex_tr, order=(1, 0, 0), trend="c").fit(disp=False)
-            res_ext = res.append(obs.to_numpy(), exog=ex_te)
-        n_tr = len(y_tr)
-        pa = res_ext.get_prediction(start=n_tr, end=n_tr + (t1 - t0) - 1)
-        ci = np.asarray(pa.conf_int(alpha=ALFA))
-        salida["arimax"].append(pd.DataFrame({
-            "obs": obs, "pron": np.asarray(pa.predicted_mean),
-            "inf": ci[:, 0], "sup": ci[:, 1]}, index=obs.index))
+            modelos = {
+                "espacio_estado": UnobservedComponents(y_tr.to_numpy(), level="llevel",
+                                                       exog=ex_tr),
+                "arimax": SARIMAX(y_tr.to_numpy(), exog=ex_tr, order=(1, 0, 0), trend="c")}
+            for nombre, mod in modelos.items():
+                res = mod.fit(disp=False)
+                res_ext = res.append(obs.to_numpy(), exog=ex_te)
+                n_tr = len(y_tr)
+                pa = res_ext.get_prediction(start=n_tr, end=n_tr + (t1 - t0) - 1)
+                ci = np.asarray(pa.conf_int(alpha=ALFA))
+                salida[nombre].append(pd.DataFrame({
+                    "obs": obs, "pron": np.asarray(pa.predicted_mean),
+                    "inf": ci[:, 0], "sup": ci[:, 1]}, index=obs.index))
     out = {m: pd.concat(v) for m, v in salida.items()}
     # Ensamble: promedio simple de puntos y de límites (simplificación documentada).
-    out["ensamble"] = (out["regresion"] + out["arimax"]) / 2
+    out["ensamble"] = sum(out[m] for m in MODELOS_ENSAMBLE) / len(MODELOS_ENSAMBLE)
     out["ensamble"]["obs"] = out["regresion"]["obs"]
     return out
 
@@ -181,6 +194,78 @@ def informe(ev: dict[str, object], rotulo: str) -> str:
               "Días del mes con mayor |sesgo| del ensamble (pp): "
               + ", ".join(f"día {d}: {ev['sesgo_dia'][d]:+.2f}" for d in sd.index)]
     return "\n".join(lineas)
+
+
+def descomponer_varianza(base: pd.Series, circulacion: pd.Series, desde: str | None = None,
+                         hasta: str | None = None) -> dict[str, float]:
+    """Participación de cada componente en la varianza de la variación diaria de la base.
+
+    Base = circulación monetaria (16) + cuentas corrientes de las entidades en el BCRA
+    (15 - 16). Las variaciones se miden en % de la base del día anterior, así que
+    var(dB) = var(dC) + var(dCC) + 2 cov(dC, dCC) y las tres partes suman 1.
+    ``desde``/``hasta`` recortan las *variaciones* (no los niveles): la del primer día
+    usa el nivel del día hábil previo, como los pronósticos de la rutina A, de modo que
+    ambos cubren los mismos días.
+    """
+    cc = base - circulacion
+    previo = base.shift()
+    d = pd.DataFrame({"dB": base.diff(), "dC": circulacion.diff(), "dCC": cc.diff()})
+    d = d.div(previo, axis=0).mul(100).dropna().loc[desde:hasta]
+    v = d["dB"].var()
+    return {"circulacion": float(d["dC"].var() / v), "cuentas_corrientes": float(d["dCC"].var() / v),
+            "covarianza": float(2 * d["dC"].cov(d["dCC"]) / v), "n": len(d),
+            "desde": d.index[0], "hasta": d.index[-1]}
+
+
+def pronostico_por_componentes(base: pd.Series, circulacion: pd.Series,
+                               inicio_eval: str, cada: int = 60, ventana: int | None = None,
+                               cc_modelo: str = "ingenuo", ventana_error: int = 250,
+                               minimo_error: int = 60) -> pd.DataFrame:
+    """Pronóstico de la variación de la base sumando el de sus componentes (sin *look-ahead*).
+
+    La circulación (16) se pronostica con el ensamble de calendario; las cuentas
+    corrientes en el BCRA (15 - 16) con el ingenuo (``cc_modelo="ingenuo"``) o con
+    el ensamble (``"ensamble"``). Se suman en millones y se pasan a % de la base del
+    día anterior. El intervalo del 90 % sale de los cuantiles de los últimos
+    ``ventana_error`` errores fuera de muestra ya observados (NaN mientras haya menos
+    de ``minimo_error``).
+
+    Returns:
+        DataFrame con ``obs``, ``pron``, ``inf``, ``sup`` (variación % de la base).
+    """
+    base, circulacion = base.align(circulacion, join="inner")
+    cc = base - circulacion
+    p_c = pronostico_fuera_de_muestra(circulacion, inicio_eval, cada, ventana)["ensamble"]
+    idx = p_c.index
+    b_1, c_1, cc_1 = (s.shift().reindex(idx) for s in (base, circulacion, cc))
+    delta = c_1 * (np.exp(p_c["pron"] / 100) - 1)
+    if cc_modelo == "ensamble":
+        p_cc = pronostico_fuera_de_muestra(cc, inicio_eval, cada, ventana)["ensamble"]
+        delta = delta + cc_1 * (np.exp(p_cc["pron"].reindex(idx) / 100) - 1)
+    elif cc_modelo != "ingenuo":
+        raise ValueError("cc_modelo debe ser 'ingenuo' o 'ensamble'")
+    pron = 100 * np.log1p(delta / b_1)
+    obs = (100 * np.log(base).diff()).reindex(idx)
+    err = obs - pron
+    previos = err.shift()                                   # sólo errores ya observados
+    q_inf = previos.rolling(ventana_error, min_periods=minimo_error).quantile(ALFA / 2)
+    q_sup = previos.rolling(ventana_error, min_periods=minimo_error).quantile(1 - ALFA / 2)
+    return pd.DataFrame({"obs": obs, "pron": pron, "inf": pron + q_inf, "sup": pron + q_sup})
+
+
+def evaluar_contra_ingenuo(modelo: pd.DataFrame, ingenuo: pd.DataFrame,
+                           desde: str | None = None, ultimos: int | None = None) -> dict:
+    """MAE relativo al ingenuo, DM-HLN unilateral y cobertura (días con intervalo)."""
+    m, g = modelo.loc[desde:], ingenuo.loc[desde:]
+    if ultimos:
+        m, g = m.iloc[-ultimos:], g.iloc[-ultimos:]
+    e_m, e_g = m["obs"] - m["pron"], g["obs"] - g["pron"]
+    con_int = m.dropna(subset=["inf", "sup"])
+    dm = diebold_mariano(e_m, e_g, h=1, perdida="abs", alternativa="menor")
+    return {"n": len(m), "MAE_rel": float(e_m.abs().mean() / e_g.abs().mean()),
+            "p_DM": dm.p_valor,
+            "cobertura": float(((con_int["obs"] >= con_int["inf"])
+                                & (con_int["obs"] <= con_int["sup"])).mean())}
 
 
 def main(argv: list[str] | None = None) -> str:

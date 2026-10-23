@@ -1,16 +1,17 @@
 [DATOS SINTÉTICOS DE DEMOSTRACIÓN, NO OFICIALES]
 Evaluación fuera de muestra, 1 día, n = 782 (2022-01-03 a 2024-12-31)
-             MAE  MAE_rel  sesgo  cobertura
-ingenuo    0.848    1.000  0.301      0.882
-deriva     0.820    0.968  0.072      0.880
-regresion  0.662    0.780  0.071      0.885
-arimax     0.629    0.742  0.055      0.895
-ensamble   0.640    0.755  0.063      0.896
-DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = -11.31, p = 0.000 -> rechaza igualdad al 10 % (n >= 60: cumple)
-DM-HLN ensamble vs. deriva: est. = -10.39, p = 0.000
+                  MAE  MAE_rel  sesgo  cobertura
+ingenuo         0.848    1.000  0.301      0.882
+deriva          0.820    0.968  0.072      0.880
+regresion       0.662    0.780  0.071      0.885
+espacio_estado  0.661    0.780  0.054      0.884
+arimax          0.629    0.742  0.055      0.895
+ensamble        0.646    0.762  0.060      0.893
+DM-HLN ensamble vs. ingenuo (pérdida abs., H1: ensamble mejor): est. = -10.98, p = 0.000 -> rechaza igualdad al 10 % (n >= 60: cumple)
+DM-HLN ensamble vs. deriva: est. = -10.08, p = 0.000
 Sesgo medio por posición en el mes (pp):
                ensamble  ingenuo
-fin de mes        0.048    1.689
-inicio de mes    -0.030   -0.725
-resto             0.075    0.261
-Días del mes con mayor |sesgo| del ensamble (pp): día 6: +0.33, día 16: +0.29, día 5: +0.28
+fin de mes        0.039    1.689
+inicio de mes    -0.034   -0.725
+resto             0.073    0.261
+Días del mes con mayor |sesgo| del ensamble (pp): día 6: +0.34, día 5: +0.28, día 16: +0.28

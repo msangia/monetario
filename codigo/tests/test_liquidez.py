@@ -36,7 +36,7 @@ def test_sin_look_ahead(nivel, pronos):
     alterado.iloc[-30:] *= 1.5
     p2 = pronostico_fuera_de_muestra(alterado, cada=120)
     corte = p2["ensamble"].index[-121]
-    for m in ("ingenuo", "regresion", "arimax", "ensamble"):
+    for m in ("ingenuo", "regresion", "espacio_estado", "arimax", "ensamble"):
         pd.testing.assert_series_equal(pronos[m]["pron"].loc[:corte], p2[m]["pron"].loc[:corte])
 
 
@@ -70,8 +70,42 @@ def test_calendario_usa_dias_observados_con_feriados():
 def test_inicio_por_fecha_ventana_movil_y_deriva(nivel):
     p = pronostico_fuera_de_muestra(nivel, "2023-01-02", cada=120, ventana=250)
     assert p["ensamble"].index[0] == pd.Timestamp("2023-01-02")
-    assert {"ingenuo", "deriva", "regresion", "arimax", "ensamble"} <= set(p)
+    assert {"ingenuo", "deriva", "regresion", "espacio_estado", "arimax", "ensamble"} <= set(p)
     ev = evaluar(p, desde="2024-01-01")
     assert ev["periodo"][0] >= pd.Timestamp("2024-01-01") and ev["dm_deriva"] is not None
     with pytest.raises(ValueError):
         pronostico_fuera_de_muestra(nivel, "2030-01-01")
+
+
+def test_componentes_y_varianza(nivel):
+    """Base sintética = circulación sintética + cuentas; sólo la circulación tiene calendario."""
+    from monetario_demo.liquidez import (descomponer_varianza, evaluar_contra_ingenuo,
+                                         pronostico_por_componentes)
+    rng = np.random.default_rng(5)
+    cc = pd.Series(500 * np.exp(np.cumsum(rng.normal(0, 0.01, len(nivel)))), index=nivel.index)
+    base = nivel + cc
+    d = descomponer_varianza(base, nivel)
+    assert d["circulacion"] + d["cuentas_corrientes"] + d["covarianza"] == pytest.approx(1)
+    assert d["n"] == len(base) - 1 and d["desde"] == base.index[1] and d["hasta"] == base.index[-1]
+    # recorte sobre variaciones: el primer día del período conserva su variación
+    corte = base.index[100]
+    d2 = descomponer_varianza(base, nivel, desde=corte)
+    assert d2["desde"] == corte and d2["n"] == len(base.loc[corte:])
+    comp = pronostico_por_componentes(base, nivel, "2023-01-02", cada=120)
+    ing = pronostico_fuera_de_muestra(base, "2023-01-02", cada=120)["ingenuo"]
+    r = evaluar_contra_ingenuo(comp, ing)
+    assert r["MAE_rel"] < 1 and 0.75 <= r["cobertura"] <= 1
+    # sin look-ahead: alterar el final no cambia los pronósticos del primer bloque
+    b2 = base.copy()
+    b2.iloc[-20:] *= 1.3
+    comp2 = pronostico_por_componentes(b2, nivel, "2023-01-02", cada=120)
+    pd.testing.assert_series_equal(comp["pron"].iloc[:120], comp2["pron"].iloc[:120])
+
+
+def test_ensamble_promedia_los_tres_modelos(pronos):
+    """El ensamble es el promedio de regresión, espacio de estado y ARIMAX (como el núcleo)."""
+    prom = (pronos["regresion"]["pron"] + pronos["espacio_estado"]["pron"]
+            + pronos["arimax"]["pron"]) / 3
+    pd.testing.assert_series_equal(pronos["ensamble"]["pron"], prom, check_names=False)
+    ee = pronos["espacio_estado"]
+    assert ee["pron"].notna().all() and (ee["inf"] < ee["sup"]).all()

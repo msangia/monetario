@@ -117,3 +117,21 @@ def test_cli_precios_empalmado(tmp_path):
     texto = main(["--dinero", str(m), "--tasa", str(tasa), "--precios", "empalmado",
                   "--actividad", "datos/emae_mensual.csv", "--desde", "2010-01"])
     assert "Panel 2010-01 a 2026-08" in texto and "ADF" in texto
+
+
+def test_forma_tasa_log():
+    idx = pd.date_range("2020-01-01", "2020-12-31", freq="D")
+    uno = pd.Series(np.linspace(100, 200, len(idx)), index=idx)
+    df = armar_panel(uno, uno / 2, uno, pd.Series(40.0, index=idx), forma_tasa="log")
+    assert df["i"].iloc[0] == pytest.approx(np.log(0.40))
+    with pytest.raises(ValueError):
+        armar_panel(uno, uno, uno, uno, forma_tasa="raiz")
+
+
+def test_analizar_completa_muestra_corta():
+    """Submuestra de 36 meses: sólo muestra completa (sin ventanas móviles)."""
+    from monetario_demo.demanda_dinero import analizar_completa
+    df = demo_demanda_dinero(mes_quiebre=None).iloc[:36]
+    r = analizar_completa(df)
+    assert r["n"] == 36 and 0 <= r["p_cusum"] <= 1
+    assert set(r["completa"]) >= {"b_y", "b_i", "p_coint", "g"}

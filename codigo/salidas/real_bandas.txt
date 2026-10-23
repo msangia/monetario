@@ -1,43 +1,119 @@
 # DATOS REALES. Fuente: BCRA, API de Estadísticas Monetarias v4.0 (archivos datos/bcra_<id>_daily.csv); INDEC (EMAE, IPC) cuando se indica.
-#   id 197 (M2 transaccional privado): 2021-01-04 a 2026-10-19 (último dato)
+#   id 109 (M2 (público + cuentas a la vista en pesos, sectores privado y público)): 2003-01-02 a 2026-10-19 (último dato)
 #   id 15 (base monetaria): 2003-01-02 a 2026-10-20 (último dato)
-# Ejecución: 2026-10-22 23:22
+#   id 1189 (plazo fijo en pesos): 2003-01-02 a 2026-10-21 (último dato)
+#   id 197 (M2 transaccional privado): 2021-01-04 a 2026-10-19 (último dato)
+#   EMAE desestacionalizado (INDEC) hasta 2026-08; IPC oficial de INDEC desde 2016-12 (sin empalme previo)
+# Ejecución: 2026-10-23 12:27
 
 
-Promedios mensuales de meses completos (se descarta 2026-10, parcial). Programa ilustrativo: deriva media de los últimos N meses (no es el programa del BCRA).
+Promedios mensuales de meses completos (se descarta 2026-10, parcial). Programas: deriva (36 meses) y deriva estacional (efectos de 72 meses), con toda la historia del agregado; velocidad constante y demanda MCE (ventana de 48 meses desde 2016-12, plazo fijo 1189, dummies mensuales), que necesitan el IPC oficial. Orígenes evaluados desde 2021-01. Velocidad y MCE son condicionales al IPC, EMAE y tasa observados. Ninguno es el programa del BCRA.
 
-## id 197, deriva de 24 meses (la serie empieza en 2021-01)
+## M2 (109)
+[M2 (BCRA id 109), promedio mensual; tasa id 1189; IPC oficial y EMAE (INDEC). Datos reales; cálculo propio, no oficial]
+Panel 2016-12 a 2026-08 (117 meses)
+Error fuera de muestra a h meses (% simple: 100 * (observado / programado - 1)), orígenes desde 2021-01; MCE en ventanas de 48 meses; DM-HLN unilateral contra la deriva y contra la deriva estacional; cobertura y ancho de la banda del 90 % armada sin look-ahead
+         programa  h  n  MAE_%  MAE_rel_deriva  p_DM_vs_deriva  p_DM_vs_estac  n_cob  cobertura_90  ancho_90_pp
+           deriva  1 65  3.729           1.000             NaN            NaN     65         0.800       11.600
+           deriva  2 65  6.247           1.000             NaN            NaN     65         0.723       16.652
+           deriva  3 65  8.569           1.000             NaN            NaN     65         0.646       21.283
+deriva_estacional  1 65  3.069           0.823           0.010            NaN     65         0.723        7.630
+deriva_estacional  2 65  5.435           0.870           0.075            NaN     65         0.646       12.969
+deriva_estacional  3 65  7.962           0.929           0.117            NaN     65         0.585       16.987
+        velocidad  1 65  3.253           0.872           0.116          0.660     65         0.908       14.065
+        velocidad  2 65  4.913           0.787           0.068          0.304     65         0.908       22.815
+        velocidad  3 65  5.816           0.679           0.035          0.113     65         0.938       32.339
+              mce  1 65  3.181           0.853           0.123          0.594     43         0.744       11.843
+              mce  2 65  4.869           0.779           0.062          0.294     42         0.786       18.076
+              mce  3 65  6.474           0.756           0.081          0.193     41         0.805       25.193
+    mce_sin_estac  1 65  3.525           0.945           0.316          0.826     43         0.767       12.923
+    mce_sin_estac  2 65  6.258           1.002           0.505          0.759     42         0.786       22.220
+    mce_sin_estac  3 65  8.262           0.964           0.438          0.555     41         0.829       29.396
+Rango de cobertura de la banda del 90 % entre h = 1 y h = 3 (por programa):
+  deriva: 64.6-80.0 % (h=1/2/3: 80.0 / 72.3 / 64.6)
+  deriva_estacional: 58.5-72.3 % (h=1/2/3: 72.3 / 64.6 / 58.5)
+  velocidad: 90.8-93.8 % (h=1/2/3: 90.8 / 90.8 / 93.8)
+  mce: 74.4-80.5 % (h=1/2/3: 74.4 / 78.6 / 80.5)
+  mce_sin_estac: 76.7-82.9 % (h=1/2/3: 76.7 / 78.6 / 82.9)
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva: 7 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva_estacional: 11 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa velocidad: 1 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa mce: 1 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa mce_sin_estac: 1 de 12 meses fuera
+Chequeo del programa MCE; desvío y límites de la banda en % simple (observado / programado - 1):
+    mes  h  desvio_%  inf_%  sup_%          estado
+2025-07  1       1.2   -7.2    6.2 dentro de banda
+2025-08  2       0.6  -13.9    8.3 dentro de banda
+2025-09  3      -3.4  -20.3   11.4 dentro de banda
+2025-10  1      -3.7   -7.1    6.1 dentro de banda
+2025-11  2      -2.8  -13.8    8.0 dentro de banda
+2025-12  3      -3.6  -19.9   11.2 dentro de banda
+2026-01  1      -7.9   -6.9    6.1  fuera de banda
+2026-02  2      -2.3  -13.7    7.7 dentro de banda
+2026-03  3      -6.7  -19.5   11.0 dentro de banda
+2026-04  1       0.3   -7.8    6.4 dentro de banda
+2026-05  2      -2.0  -13.3    7.6 dentro de banda
+2026-06  3      -2.4  -19.0   10.8 dentro de banda
+
+## Base monetaria (15)
+[base monetaria (BCRA id 15), promedio mensual; tasa id 1189; IPC oficial y EMAE (INDEC). Datos reales; cálculo propio, no oficial]
+Panel 2016-12 a 2026-08 (117 meses)
+Error fuera de muestra a h meses (% simple: 100 * (observado / programado - 1)), orígenes desde 2021-01; MCE en ventanas de 48 meses; DM-HLN unilateral contra la deriva y contra la deriva estacional; cobertura y ancho de la banda del 90 % armada sin look-ahead
+         programa  h  n  MAE_%  MAE_rel_deriva  p_DM_vs_deriva  p_DM_vs_estac  n_cob  cobertura_90  ancho_90_pp
+           deriva  1 65  4.486           1.000             NaN            NaN     65         0.677       11.280
+           deriva  2 65  7.967           1.000             NaN            NaN     65         0.600       16.653
+           deriva  3 65 10.600           1.000             NaN            NaN     65         0.615       20.276
+deriva_estacional  1 65  3.838           0.856           0.011            NaN     65         0.677        9.084
+deriva_estacional  2 65  6.842           0.859           0.024            NaN     65         0.631       14.842
+deriva_estacional  3 65  9.414           0.888           0.056            NaN     65         0.631       17.408
+        velocidad  1 65  4.527           1.009           0.539          0.940     65         0.831       17.394
+        velocidad  2 65  7.645           0.960           0.377          0.758     65         0.800       29.485
+        velocidad  3 65 10.064           0.949           0.350          0.646     65         0.785       30.930
+              mce  1 65  3.905           0.871           0.112          0.559     43         0.814       12.744
+              mce  2 65  7.259           0.911           0.260          0.629     42         0.786       22.011
+              mce  3 65  9.917           0.936           0.331          0.598     41         0.683       30.406
+    mce_sin_estac  1 65  4.272           0.952           0.342          0.784     43         0.767       13.911
+    mce_sin_estac  2 65  7.870           0.988           0.471          0.757     42         0.762       25.205
+    mce_sin_estac  3 65 10.395           0.981           0.451          0.683     41         0.780       32.761
+Rango de cobertura de la banda del 90 % entre h = 1 y h = 3 (por programa):
+  deriva: 60.0-67.7 % (h=1/2/3: 67.7 / 60.0 / 61.5)
+  deriva_estacional: 63.1-67.7 % (h=1/2/3: 67.7 / 63.1 / 63.1)
+  velocidad: 78.5-83.1 % (h=1/2/3: 83.1 / 80.0 / 78.5)
+  mce: 68.3-81.4 % (h=1/2/3: 81.4 / 78.6 / 68.3)
+  mce_sin_estac: 76.2-78.0 % (h=1/2/3: 76.7 / 76.2 / 78.0)
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva: 7 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa deriva_estacional: 9 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa velocidad: 0 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa mce: 2 de 12 meses fuera
+Chequeo de los últimos 4 trimestres (2025-07 a 2026-06), programa mce_sin_estac: 1 de 12 meses fuera
+Chequeo del programa MCE; desvío y límites de la banda en % simple (observado / programado - 1):
+    mes  h  desvio_%  inf_%  sup_%          estado
+2025-07  1      -2.4   -8.4    4.9 dentro de banda
+2025-08  2      15.4  -16.2    9.3  fuera de banda
+2025-09  3      13.8  -27.5    8.9  fuera de banda
+2025-10  1      -3.6   -8.5    5.4 dentro de banda
+2025-11  2      -5.4  -15.4   11.0 dentro de banda
+2025-12  3     -13.4  -26.8   10.5 dentro de banda
+2026-01  1       0.2   -8.5    5.2 dentro de banda
+2026-02  2       0.1  -15.3   10.7 dentro de banda
+2026-03  3      -4.1  -26.1   11.9 dentro de banda
+2026-04  1      -6.1   -8.5    5.1 dentro de banda
+2026-05  2     -12.7  -15.0   10.6 dentro de banda
+2026-06  3     -16.1  -25.3   11.7 dentro de banda
+
+## Referencia: M2 transaccional privado (197), deriva de 24 meses (la serie empieza en 2021-01)
 [Datos: 197]
 Banda central del 90 % por horizonte (cuantiles empíricos)
     mes  h  desvio_%  inf_%  sup_%          estado
-2025-10  1      -4.5   -7.3    9.0 dentro de banda
-2025-11  2     -11.4  -10.9   14.2  fuera de banda
-2025-12  3      -6.3  -14.6   19.7 dentro de banda
-2026-01  1      -4.3   -7.2    8.7 dentro de banda
-2026-02  2     -10.7  -11.6   13.7 dentro de banda
-2026-03  3     -15.5  -17.6   19.4 dentro de banda
-2026-04  1      -4.6   -7.2    8.3 dentro de banda
-2026-05  2      -5.5  -11.5   13.1 dentro de banda
-2026-06  3      -3.3  -17.1   19.1 dentro de banda
-2026-07  1       3.6   -7.1    8.0 dentro de banda
-2026-08  2      -1.6  -11.4   12.6 dentro de banda
-2026-09  3      -5.0  -16.7   18.7 dentro de banda
-
-## id 15, deriva de 36 meses (muestra desde 2003-01)
-[Datos: 15]
-Banda central del 90 % por horizonte (cuantiles empíricos)
-    mes  h  desvio_%  inf_%  sup_%          estado
-2025-10  1      -8.9   -5.5    7.0  fuera de banda
-2025-11  2     -14.4   -7.3   10.2  fuera de banda
-2025-12  3     -20.8   -9.2   12.3  fuera de banda
-2026-01  1      -0.2   -5.6    7.0 dentro de banda
-2026-02  2      -9.4   -8.2   10.1  fuera de banda
-2026-03  3     -17.1   -9.7   12.2  fuera de banda
-2026-04  1      -5.6   -5.7    6.9 dentro de banda
-2026-05  2     -10.9   -8.4    9.9  fuera de banda
-2026-06  3     -12.0  -10.0   12.2  fuera de banda
-2026-07  1      -0.6   -5.7    6.8 dentro de banda
-2026-08  2      -4.4   -8.9    9.8 dentro de banda
-2026-09  3     -10.5  -10.8   12.1 dentro de banda
-
-Meses usados de id 197: 2021-01 a 2026-09.
+2025-10  1      -4.4   -7.0    9.5 dentro de banda
+2025-11  2     -10.7  -10.3   15.3  fuera de banda
+2025-12  3      -6.1  -13.6   21.8 dentro de banda
+2026-01  1      -4.3   -7.0    9.1 dentro de banda
+2026-02  2     -10.1  -11.0   14.7 dentro de banda
+2026-03  3     -14.4  -16.1   21.4 dentro de banda
+2026-04  1      -4.5   -6.9    8.7 dentro de banda
+2026-05  2      -5.3  -10.9   14.0 dentro de banda
+2026-06  3      -3.2  -15.7   21.0 dentro de banda
+2026-07  1       3.7   -6.9    8.3 dentro de banda
+2026-08  2      -1.6  -10.8   13.4 dentro de banda
+2026-09  3      -4.9  -15.4   20.6 dentro de banda

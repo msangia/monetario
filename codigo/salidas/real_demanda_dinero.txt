@@ -1,34 +1,84 @@
 # DATOS REALES. Fuente: BCRA, API de Estadísticas Monetarias v4.0 (archivos datos/bcra_<id>_daily.csv); INDEC (EMAE, IPC) cuando se indica.
+#   id 109 (M2 (público + cuentas a la vista en pesos, sectores privado y público)): 2003-01-02 a 2026-10-19 (último dato)
 #   id 15 (base monetaria): 2003-01-02 a 2026-10-20 (último dato)
-#   id 17 (billetes y monedas en poder del público): 2003-01-02 a 2026-10-20 (último dato)
+#   id 1189 (plazo fijo en pesos): 2003-01-02 a 2026-10-21 (último dato)
 #   id 11 (BAIBAR): 2003-01-02 a 2026-10-21 (último dato)
-#   EMAE desestacionalizado (INDEC): hasta 2026-08
-#   IPC empalmado: ipc_historico.csv hasta 2016-11 (x 1.000000), ipc_mensual.csv (INDEC) desde 2016-12; razón en el tramo común 2016-12 a 2026-09: desvío máx. 0.0e+00
-# Ejecución: 2026-10-22 23:22
+#   EMAE desestacionalizado (INDEC): 2004-01 a 2026-08
+#   IPC oficial (INDEC, ipc_mensual.csv, dic-2016 = 100): 2016-12 a 2026-09. No se usa el IPC empalmado previo (fuente no documentada).
+# Ejecución: 2026-10-23 12:27
 
 
-VERSIÓN PROVISORIA: el 'dinero' es la base (15) o los billetes en poder del público (17), NO el M2 (109). Costo de oportunidad: BAIBAR (11), no plazo fijo (1189). Se re-corre cuando estén los IDs 109 y 1189.
+M2 (109) = M2 total (billetes y monedas en poder del público + cuentas a la vista en pesos de los sectores privado y público); el M2 transaccional privado (197) empieza en 2021. IPC observado (no inflación esperada). Especificaciones fijadas de antemano; se informan todas.
 
-[Datos: 15, empalmado, datos/emae_mensual.csv, 11]
-Panel 2004-01 a 2026-08: 272 meses, 201 ventanas de 72 meses
-Muestra completa: b_y = 0.49, b_i = -1.06, p Engle-Granger = 0.993, ajuste g = -0.041 (t = -4.0)
-CUSUM del MCE: p = 0.009
-ADF (p-valor) niveles / diferencias: m_real: 0.81 / 0.00; y: 0.02 / 0.00; i: 0.27 / 0.00
-Ventanas de 72 meses (fin de ventana):
-  primera 2009-12: b_y = 0.88, b_i = -0.41, p EG = 0.471, g = -0.132
-  última  2026-08: b_y = -1.76, b_i = -0.71, p EG = 0.864, g = -0.115
-  ventanas sin cointegración al 10 %: 89%
-Umbral simulado bajo estabilidad (90 %): b_y +/- 2.39, b_i +/- 2.62
-Alerta de inestabilidad (primer fin de ventana fuera del umbral): b_y: 2026-05; b_i: sin alerta
+## Resumen
+                                            especificación           muestra   n    b_y    b_i  p_EG      g    t_g  p_CUSUM ventana  sin_coint_%  ADF_niv_m/y/i alerta_b_y alerta_b_i
+               M2, plazo fijo, semielasticidad (principal) 2017-01 a 2026-08 116 -0.815 -0.231 0.818 -0.053 -2.130    0.144      60      100.000 0.55/0.22/0.13          -    2025-12
+                       M2, plazo fijo, elasticidad (log i) 2017-01 a 2026-08 116 -0.819 -0.135 0.933 -0.050 -1.958    0.121      60      100.000 0.55/0.22/0.18          -    2026-08
+                               M2, BAIBAR, semielasticidad 2017-01 a 2026-08 116 -0.706 -0.274 0.883 -0.060 -2.493    0.119      60       98.246 0.55/0.22/0.19          -    2025-06
+                           M2, BAIBAR, elasticidad (log i) 2017-01 a 2026-08 116 -0.533 -0.129 0.924 -0.054 -2.282    0.128      60       96.491 0.55/0.22/0.17          -    2026-05
+                    Base (15), plazo fijo, semielasticidad 2017-01 a 2026-08 116 -1.482 -0.862 0.700 -0.057 -3.337    0.060      60       98.246 0.55/0.22/0.13    2026-08          -
+M2, plazo fijo, 2017-01 a 2019-12 (36 meses, sin ventanas) 2017-01 a 2019-12  36  0.585 -0.918 0.856 -0.329 -3.135    0.604       -          NaN 0.86/0.74/0.82          -          -
 
-[Datos: 17, empalmado, datos/emae_mensual.csv, 11]
-Panel 2004-01 a 2026-08: 272 meses, 201 ventanas de 72 meses
-Muestra completa: b_y = 0.62, b_i = -1.19, p Engle-Granger = 0.996, ajuste g = -0.030 (t = -3.8)
-CUSUM del MCE: p = 0.009
-ADF (p-valor) niveles / diferencias: m_real: 0.91 / 0.01; y: 0.02 / 0.00; i: 0.27 / 0.00
-Ventanas de 72 meses (fin de ventana):
-  primera 2009-12: b_y = 1.08, b_i = 0.12, p EG = 0.861, g = -0.101
-  última  2026-08: b_y = -2.40, b_i = -0.52, p EG = 0.892, g = -0.060
-  ventanas sin cointegración al 10 %: 81%
-Umbral simulado bajo estabilidad (90 %): b_y +/- 2.81, b_i +/- 3.18
-Alerta de inestabilidad (primer fin de ventana fuera del umbral): b_y: 2026-04; b_i: sin alerta
+[M2, plazo fijo, semielasticidad (principal); dinero 109, tasa 1189 (nivel)]
+Panel 2017-01 a 2026-08: 116 meses, 57 ventanas de 60 meses
+Muestra completa: b_y = -0.82, b_i = -0.23, p Engle-Granger = 0.818, ajuste g = -0.053 (t = -2.1)
+CUSUM del MCE: p = 0.144
+ADF (p-valor) niveles / diferencias: m_real: 0.55 / 0.01; y: 0.22 / 0.00; i: 0.13 / 0.00
+Ventanas de 60 meses (fin de ventana):
+  primera 2021-12: b_y = 0.03, b_i = -1.00, p EG = 0.231, g = -0.238
+  última  2026-08: b_y = 0.62, b_i = 0.09, p EG = 0.863, g = -0.047
+  ventanas sin cointegración al 10 %: 100%
+Umbral simulado bajo estabilidad (90 %): b_y +/- 2.77, b_i +/- 0.88
+Alerta de inestabilidad (primer fin de ventana fuera del umbral): b_y: sin alerta; b_i: 2025-12
+
+[M2, plazo fijo, elasticidad (log i); dinero 109, tasa 1189 (log)]
+Panel 2017-01 a 2026-08: 116 meses, 57 ventanas de 60 meses
+Muestra completa: b_y = -0.82, b_i = -0.14, p Engle-Granger = 0.933, ajuste g = -0.050 (t = -2.0)
+CUSUM del MCE: p = 0.121
+ADF (p-valor) niveles / diferencias: m_real: 0.55 / 0.01; y: 0.22 / 0.00; i: 0.18 / 0.00
+Ventanas de 60 meses (fin de ventana):
+  primera 2021-12: b_y = -0.06, b_i = -0.30, p EG = 0.800, g = -0.193
+  última  2026-08: b_y = 0.97, b_i = 0.09, p EG = 0.775, g = -0.027
+  ventanas sin cointegración al 10 %: 100%
+Umbral simulado bajo estabilidad (90 %): b_y +/- 2.96, b_i +/- 0.39
+Alerta de inestabilidad (primer fin de ventana fuera del umbral): b_y: sin alerta; b_i: 2026-08
+
+[M2, BAIBAR, semielasticidad; dinero 109, tasa 11 (nivel)]
+Panel 2017-01 a 2026-08: 116 meses, 57 ventanas de 60 meses
+Muestra completa: b_y = -0.71, b_i = -0.27, p Engle-Granger = 0.883, ajuste g = -0.060 (t = -2.5)
+CUSUM del MCE: p = 0.119
+ADF (p-valor) niveles / diferencias: m_real: 0.55 / 0.01; y: 0.22 / 0.00; i: 0.19 / 0.00
+Ventanas de 60 meses (fin de ventana):
+  primera 2021-12: b_y = 0.60, b_i = -0.70, p EG = 0.306, g = -0.245
+  última  2026-08: b_y = 0.21, b_i = 0.02, p EG = 0.913, g = -0.061
+  ventanas sin cointegración al 10 %: 98%
+Umbral simulado bajo estabilidad (90 %): b_y +/- 2.21, b_i +/- 0.45
+Alerta de inestabilidad (primer fin de ventana fuera del umbral): b_y: sin alerta; b_i: 2025-06
+
+[M2, BAIBAR, elasticidad (log i); dinero 109, tasa 11 (log)]
+Panel 2017-01 a 2026-08: 116 meses, 57 ventanas de 60 meses
+Muestra completa: b_y = -0.53, b_i = -0.13, p Engle-Granger = 0.924, ajuste g = -0.054 (t = -2.3)
+CUSUM del MCE: p = 0.128
+ADF (p-valor) niveles / diferencias: m_real: 0.55 / 0.01; y: 0.22 / 0.00; i: 0.17 / 0.00
+Ventanas de 60 meses (fin de ventana):
+  primera 2021-12: b_y = 0.98, b_i = -0.26, p EG = 0.245, g = -0.240
+  última  2026-08: b_y = 0.33, b_i = 0.02, p EG = 0.897, g = -0.055
+  ventanas sin cointegración al 10 %: 96%
+Umbral simulado bajo estabilidad (90 %): b_y +/- 2.19, b_i +/- 0.19
+Alerta de inestabilidad (primer fin de ventana fuera del umbral): b_y: sin alerta; b_i: 2026-05
+
+[Base (15), plazo fijo, semielasticidad; dinero 15, tasa 1189 (nivel)]
+Panel 2017-01 a 2026-08: 116 meses, 57 ventanas de 60 meses
+Muestra completa: b_y = -1.48, b_i = -0.86, p Engle-Granger = 0.700, ajuste g = -0.057 (t = -3.3)
+CUSUM del MCE: p = 0.060
+ADF (p-valor) niveles / diferencias: m_real: 0.55 / 0.01; y: 0.22 / 0.00; i: 0.13 / 0.00
+Ventanas de 60 meses (fin de ventana):
+  primera 2021-12: b_y = 0.30, b_i = -0.72, p EG = 0.934, g = -0.087
+  última  2026-08: b_y = 3.14, b_i = -0.31, p EG = 0.677, g = -0.094
+  ventanas sin cointegración al 10 %: 98%
+Umbral simulado bajo estabilidad (90 %): b_y +/- 2.74, b_i +/- 0.84
+Alerta de inestabilidad (primer fin de ventana fuera del umbral): b_y: 2026-08; b_i: sin alerta
+
+[M2, plazo fijo, 2017-01 a 2019-12 (36 meses, sin ventanas); dinero 109, tasa 1189 (nivel)]
+Panel 2017-01 a 2019-12: 36 meses (sin ventanas móviles; poder bajo)
+Muestra completa: b_y = 0.59, b_i = -0.92, p Engle-Granger = 0.856, ajuste g = -0.329 (t = -3.1); CUSUM p = 0.604
