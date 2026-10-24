@@ -1,4 +1,4 @@
-"""Anexo A (Eje 1, funciones 1 y 5): cuentas corrientes en el BCRA por factores de la base.
+"""Anexo A.2 (§2 del proyecto, funciones 1 y 5): cuentas corrientes en el BCRA por factores de la base.
 
 Variable pronosticada: variación diaria de las cuentas corrientes de las entidades
 en el BCRA, CC = base (15) - circulación (16), en puntos porcentuales de la base del
@@ -630,9 +630,9 @@ def figuras(pr: dict[str, pd.DataFrame], carpeta: Path, inicio_eval: str = "2022
     pv = pd.DataFrame({k: e.loc[list(MODELOS_FIGURA), "p_DM_ing"] for k, e in ev.items()})
     mae.index = pv.index = list(MODELOS_FIGURA.values())
     r1 = graficos.fig_mae_relativo(mae.astype(float), pv.astype(float),
-                                   carpeta / "fig_cc_modelos.pdf", meta=0.95,
-                                   rotulo_meta="meta del núcleo", xlim=(0.5, 1.45),
-                                   leyenda="upper left")
+                                   carpeta / "fig_cc_modelos.pdf", xlim=(0.5, 1.72),
+                                   leyenda="upper left",
+                                   columna=(1.49, 0.15, ["2022–26", "jul-25+"]))
     perf = {}
     for m, rot in (("ingenuo", "Ingenuo"), ("ensamble", "Ensamble (A.1)"),
                    ("O59_NF", "Oráculo 59 (NF)")):

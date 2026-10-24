@@ -91,7 +91,7 @@ python -m monetario_demo.programa --dinero 109 --tasa 1189 --figura salidas/fan_
 | `salidas/fig_varianza.pdf` | `correr_reales.py` | Figura 1 (A.1): 97,8 % de la varianza diaria de la base en cuentas corrientes; factores por período |
 | `salidas/fig_mae_componentes.pdf` | `correr_reales.py` | Figura 2 (A.1): MAE relativo del ensamble por serie y tramo |
 | `salidas/fig_perfil_mes.pdf` | `factores --reales --figuras salidas` | Figura 3 (A.2): sesgo por día hábil del mes |
-| `salidas/fig_cobertura.pdf` | `correr_reales.py` (vía `real_programa_{109,15}.csv`) | Figura 4 (C): cobertura y ancho de la banda |
+| `salidas/fig_cobertura.pdf` | `correr_reales.py` (vía `real_programa_{109,15}.csv`) | Figura 4 (C): cobertura y ancho de la banda (cifras en la tabla 2 de los anexos) |
 | `salidas/chequeo_real.pdf` | `correr_reales.py` (`programa.py`) | Figura 5 (C): chequeo mensual del M2, sin título |
 | `salidas/fig_cc_modelos.pdf`, `salidas/fig_estabilidad.pdf` | ídem | No incluidas en los anexos por espacio (sus cifras sí: Anexo D y tabla 1) |
 

@@ -248,8 +248,8 @@ def figuras_a(resumen: pd.DataFrame, descomp: dict) -> list[Path]:
     return [graficos.fig_varianza(base, fac, SALIDAS / "fig_varianza.pdf"),
             graficos.fig_mae_relativo(tabla_figura_a(resumen, "MAE_rel"),
                                       tabla_figura_a(resumen, "p_DM"),
-                                      SALIDAS / "fig_mae_componentes.pdf", xlim=(0.45, 1.2),
-                                      leyenda="lower left")]
+                                      SALIDAS / "fig_mae_componentes.pdf", xlim=(0.45, 1.7), leyenda="lower left",
+                                      columna=(1.3, 0.16, ["2022–26", "jul-25+", "60 días"]))]
 
 
 ESPECIFICACIONES_B = (

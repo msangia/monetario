@@ -128,7 +128,8 @@ def fig_varianza(base: pd.DataFrame, factores: pd.DataFrame, ruta: str | Path) -
 def fig_mae_relativo(mae: pd.DataFrame, p: pd.DataFrame, ruta: str | Path,
                      meta: float | None = None, alfa: float = 0.10,
                      xlim: tuple[float, float] | None = None,
-                     rotulo_meta: str = "meta", leyenda: str | None = None) -> Path:
+                     rotulo_meta: str = "meta", leyenda: str | None = None,
+                     columna: tuple[float, float, list[str]] | None = None) -> Path:
     """Error relativo al ingenuo por serie (filas) y período (columnas), con significancia.
 
     Puntos llenos: el modelo erra menos que el ingenuo con p (Diebold-Mariano con
@@ -139,9 +140,13 @@ def fig_mae_relativo(mae: pd.DataFrame, p: pd.DataFrame, ruta: str | Path,
         mae: MAE relativo al ingenuo; índice = series o modelos; columnas = períodos.
         p: p-valores con la misma forma que ``mae``.
         ruta: archivo de salida.
-        meta: umbral a marcar (p. ej., 0,95 del indicador (i)).
+        meta: umbral opcional a marcar con una línea discontinua.
         leyenda: ubicación de la leyenda dentro del gráfico (p. ej., ``"lower left"``)
             si hay una zona vacía; por defecto, debajo del eje.
+        columna: ``(x0, dx, encabezados)``: en lugar de rotular cada punto (los rótulos
+            se superponen cuando los valores son parecidos), escribe las cifras en una
+            columna por período, a partir de ``x0`` (unidades del eje) cada ``dx``, con
+            el color del período y un encabezado corto.
     """
     plt = _plt()
     colores = (AZUL, NARANJA, VERDE)
@@ -159,11 +164,19 @@ def fig_mae_relativo(mae: pd.DataFrame, p: pd.DataFrame, ruta: str | Path,
                    label=f"{per}")
         ax.scatter(v[~sig], yy[~sig], s=46, marker=marcas[j], facecolor="white",
                    edgecolor=colores[j], lw=1.5, zorder=3)
-        for xi, yi in zip(v, yy):
-            ax.annotate(coma(xi, 2), (xi, yi), xytext=(6, 0), textcoords="offset points",
-                        va="center", ha="left", fontsize=FUENTE - 0.5, color="#222222")
+        if columna is None:
+            for xi, yi in zip(v, yy):
+                ax.annotate(coma(xi, 2), (xi, yi), xytext=(6, 0), textcoords="offset points",
+                            va="center", ha="left", fontsize=FUENTE - 0.5, color="#222222")
+        else:
+            x0, dx, encab = columna
+            for xi, yi in zip(v, y):
+                ax.text(x0 + j * dx, yi, coma(xi, 2), va="center", ha="center",
+                        fontsize=FUENTE - 0.5, color=colores[j])
+            ax.text(x0 + j * dx, n - 0.35, encab[j], va="bottom", ha="center",
+                    fontsize=FUENTE - 0.5, color=colores[j])
     ax.axvline(1, color=GRIS, lw=1.1)
-    ax.text(1.0, n - 0.35, " igual al ingenuo", ha="left", va="bottom", color=GRIS,
+    ax.text(1.0, n - 0.35, "igual al ingenuo ", ha="right", va="bottom", color=GRIS,
             fontsize=FUENTE - 0.5)
     if meta is not None:
         ax.axvline(meta, color=BERMELLON, lw=1.1, ls="--")
@@ -174,16 +187,24 @@ def fig_mae_relativo(mae: pd.DataFrame, p: pd.DataFrame, ruta: str | Path,
     ax.set_ylim(-0.6, n - 0.1)
     if xlim:
         ax.set_xlim(*xlim)
+    if columna is not None:
+        # Columna de cifras a la derecha: separador y sin marcas del eje en esa zona.
+        x0, dx, _ = columna
+        ax.axvspan(x0 - dx / 2, ax.get_xlim()[1], color="#F5F5F5", lw=0, zorder=0)
+        ax.set_xticks([t for t in ax.get_xticks() if t <= x0 - dx / 2 + 1e-9])
+        ax.set_xlim(xlim if xlim else ax.get_xlim())
     _formato_coma(ax, "x", 1)
     ax.set_xlabel("error absoluto medio relativo al ingenuo (menos de 1: el modelo erra menos)")
     ax.grid(axis="x", color=GRILLA, lw=0.6)
     ax.set_axisbelow(True)
     # Leyenda: períodos (color) y significancia (relleno).
     from matplotlib.lines import Line2D
+    corto = leyenda is not None
     extra = [Line2D([], [], marker="o", ls="none", color=GRIS, ms=7,
-                    label=f"lleno: significativa (p < {coma(alfa, 2)})"),
+                    label=f"lleno: p < {coma(alfa, 2)}" if corto
+                    else f"lleno: significativa (p < {coma(alfa, 2)})"),
              Line2D([], [], marker="o", ls="none", mfc="white", mec=GRIS, mew=1.5, ms=7,
-                    label="hueco: no significativa")]
+                    label="hueco: no signif." if corto else "hueco: no significativa")]
     h, _ = ax.get_legend_handles_labels()
     if leyenda:
         todos = h + extra
@@ -293,7 +314,7 @@ def fig_cobertura(tablas: dict[str, pd.DataFrame], ruta: str | Path,
     """
     plt = _plt()
     colores = {1: CELESTE, 2: AZUL, 3: "#003F6B"}
-    fig, ejes = plt.subplots(2, len(tablas), figsize=(ANCHO, 2.6), sharex=True,
+    fig, ejes = plt.subplots(2, len(tablas), figsize=(ANCHO, 2.35), sharex=True,
                              sharey="row", layout="constrained",
                              gridspec_kw={"height_ratios": [1.7, 1]})
     ejes = np.atleast_2d(ejes).reshape(2, len(tablas))
@@ -307,13 +328,9 @@ def fig_cobertura(tablas: dict[str, pd.DataFrame], ruta: str | Path,
             v = 100 * s["cobertura_90"].to_numpy(float)
             a_cob.bar(x + (h - 2) * w, v, w, color=colores[h],
                       label=f"h = {h} {'mes' if h == 1 else 'meses'}")
-            # Cifra dentro de cada barra (vertical), para leer la cobertura exacta.
-            for xi, vi in zip(x + (h - 2) * w, v):
-                a_cob.text(xi, vi - 1.2, coma(vi), rotation=90, ha="center", va="top",
-                           fontsize=FUENTE - 0.5, color="#222222" if h == 1 else "white")
             a_anc.bar(x + (h - 2) * w, s["ancho_90_pp"], w, color=colores[h])
         a_cob.axhline(100 * nominal, color=BERMELLON, lw=1.2, ls="--", zorder=0.5)
-        a_cob.set_ylim(40, 100)
+        a_cob.set_ylim(50, 100)
         a_cob.text(0.01, 1.0, nombre, transform=a_cob.transAxes, ha="left", va="bottom",
                    fontsize=FUENTE, fontweight="bold", color="#222222")
         for a in (a_cob, a_anc):
@@ -324,7 +341,7 @@ def fig_cobertura(tablas: dict[str, pd.DataFrame], ruta: str | Path,
     ejes[1, 0].set_ylabel("ancho (pp)")
     ejes[0, -1].text(len(claves) - 0.5, 100 * nominal + 0.8, f"nominal {int(100 * nominal)} %",
                      ha="right", va="bottom", color=BERMELLON, fontsize=FUENTE - 0.5)
-    ejes[0, -1].set_ylim(40, 100)
+    ejes[0, -1].set_ylim(50, 100)
     h, l = ejes[0, 0].get_legend_handles_labels()
     fig.legend(h, l, loc="outside lower center", ncol=3)
     return _guardar(fig, ruta)
