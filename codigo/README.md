@@ -16,6 +16,7 @@ proyecto (`proyecto.tex`). **No forma parte del límite de 4 páginas del proyec
 | `monetario_demo/programa.py` | Eje 4 (función 4) | Programas a 1–3 meses: deriva, deriva estacional, velocidad constante y demanda MCE (con y sin dummies mensuales); los dos últimos, condicionales al IPC/EMAE/tasa observados. Compara MAE, DM-HLN y cobertura de la banda |
 | `monetario_demo/no_lineal.py` | Eje 4 (exploratorio, fuera de los anexos) | MCE con transición suave logística (LSTR) en el nivel rezagado de la tasa, tendencia logística de sustitución de pagos y prueba de linealidad LM3 (Teräsvirta); evaluación expansiva a 1–3 meses contra el MCE lineal y la deriva estacional (`--reales --salida salidas/exploratorio_no_lineal.txt`). Resultado con datos reales: no mejora fuera de muestra |
 | `monetario_demo/factores.py` | Eje 1 (funciones 1 y 5) | Variación diaria de las cuentas corrientes en el BCRA (15 − 16) por factores de la base (47–55, 58, 59), sin *look-ahead*: identidades contables (46 = suma de factores, 46 = Δ15, 19 = 15 − 16), descomposición de varianza por factor (por covarianza, suma 1), y tres variantes con MCO expansivo de reestimación diaria: V1 factores rezagados t−1 a t−5 + calendario; V2 calendario ampliado + fechas regulares inferidas del pasado (pagos concentrados en 55 y 51, vencimientos aproximados en 52, 53, 58); V3 previsión perfecta de 51 y 55 del mismo día y oráculos contables, rotulados **NO FACTIBLE**. Contra el ingenuo y el ensamble de A, con DM-HLN, cobertura y sesgo por día del mes; sensibilidades: rezago de publicación, ventana móvil de 500 días, sin el 10-07-2025 |
+| `monetario_demo/graficos.py` | Ejes 1 y 4 | Figuras de los anexos **sin título en la imagen** (el título va en el `\caption`), 6,3" de ancho (rótulos ≥ 9 pt a `\linewidth`), paleta Okabe-Ito y coma decimal: `fig_varianza` (quién mueve la base), `fig_mae_relativo` (error relativo al ingenuo con significancia DM-HLN), `perfil_por_posicion` + `fig_perfil_mes` (sesgo por día hábil del mes), `fig_cobertura` (cobertura y ancho de la banda), `fig_estabilidad` (ventanas móviles de la demanda). `--demo` dibuja con datos sintéticos rotulados |
 | `monetario_demo/evaluacion.py` | Ejes 1 y 4 | Diebold-Mariano (HLN), cobertura, tabla de errores |
 | `monetario_demo/datos.py` | – | Cargadores de CSV `fecha,valor` (BCRA) y de los mensuales de INDEC (`mes,...`: EMAE e IPC), y generadores sintéticos rotulados |
 | `descargar_bcra.py`, `series.txt` | Eje 5 | Descarga de series públicas de la API de Estadísticas Monetarias v4.0 del BCRA a `datos/` (11 IDs verificados contra el catálogo) |
@@ -32,7 +33,7 @@ Desde la carpeta `codigo/`:
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q          # 104 pruebas, ~100 s
+python -m pytest -q          # 113 pruebas, ~80 s
 ```
 
 ## Uso con datos sintéticos (`--demo`)
@@ -77,13 +78,27 @@ python -m monetario_demo.demanda_dinero --dinero 109 --tasa 1189 \
 python -m monetario_demo.bandas --csv 109 --trimestres 4 --figura salidas/fan_chart.pdf
 python -m monetario_demo.bandas --csv 197 --ventana 24     # 197 empieza en 2021: deriva de 24 meses
 # A.2. Cuentas corrientes por factores (19, 46, 47-55, 58, 59 en datos/; ~2,5 min)
-python -m monetario_demo.factores --reales --salida salidas/real_factores.txt
+python -m monetario_demo.factores --reales --salida salidas/real_factores.txt --figuras salidas
 
 # C con programas de demanda: deriva, deriva estacional, velocidad, MCE (condicionales)
 python -m monetario_demo.programa --dinero 109 --tasa 1189 --figura salidas/fan_chart_real.pdf --figura-chequeo salidas/chequeo_real.pdf
 ```
 
-### Formato de los CSV
+#### Figuras de `anexos.tex` (datos reales)
+
+| Archivo | Lo escribe | Anexos |
+|---|---|---|
+| `salidas/fig_varianza.pdf` | `correr_reales.py` | Figura 1 (A.1): 97,8 % de la varianza diaria de la base en cuentas corrientes; factores por período |
+| `salidas/fig_mae_componentes.pdf` | `correr_reales.py` | Figura 2 (A.1): MAE relativo del ensamble por serie y tramo |
+| `salidas/fig_perfil_mes.pdf` | `factores --reales --figuras salidas` | Figura 3 (A.2): sesgo por día hábil del mes |
+| `salidas/fig_cobertura.pdf` | `correr_reales.py` (vía `real_programa_{109,15}.csv`) | Figura 4 (C): cobertura y ancho de la banda (cifras en la tabla 2 de los anexos) |
+| `salidas/chequeo_real.pdf` | `correr_reales.py` (`programa.py`) | Figura 5 (C): chequeo mensual del M2, sin título |
+| `salidas/fig_cc_modelos.pdf`, `salidas/fig_estabilidad.pdf` | ídem | No incluidas en los anexos por espacio (sus cifras sí: Anexo D y tabla 1) |
+
+Las salidas de texto (`real_*.txt`) muestran MAE relativos y p con 4 decimales, para que el redondeo a
+2 decimales de los anexos sea verificable (p. ej., circulación en los últimos 60 días: 0,6247 → 0,62).
+
+## Formato de los CSV
 
 ```
 fecha,valor

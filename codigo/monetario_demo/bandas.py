@@ -240,8 +240,9 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
     (línea discontinua), su banda del ``nivel`` (sólo errores conocidos al armarlo) y el
     observado; los meses fuera de banda se marcan en rojo con su fecha.
 
-    Tamaño pensado para incluirse a unos 12,5 cm de ancho (0,78 del texto A4) casi a
-    tamaño natural: rótulos de unos 9,5 pt efectivos.
+    Tamaño pensado para incluirse a 16 cm de ancho (el texto A4 con márgenes de 2,5 cm)
+    a tamaño natural: rótulos de 9,5 pt efectivos. Con ``rotulo`` vacío no lleva título
+    (en los anexos el título va en el caption); con datos sintéticos el rótulo los marca.
     """
     import matplotlib
     matplotlib.use("Agg")
@@ -254,7 +255,7 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
     mes_x = lambda idx: pd.DatetimeIndex(idx).to_period("M").to_timestamp()
     meses = pd.PeriodIndex(chk["mes"], freq="M")
     primero = serie.index.get_loc(serie.index[serie.index.to_period("M") == meses[0]][0])
-    fig, ax = plt.subplots(figsize=(5.0, 2.5), dpi=150)
+    fig, ax = plt.subplots(figsize=(6.3, 1.85), dpi=150)
     for k in range(0, len(chk), H):
         tramo = chk.iloc[k:k + H]
         t = primero + k - 1                      # origen: cierre del trimestre previo
@@ -262,24 +263,25 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
         prog = np.r_[serie.iloc[t], tramo["programado"].to_numpy()]
         inf = np.r_[serie.iloc[t], tramo["programado"] * (1 + tramo["inf_%"] / 100)]
         sup = np.r_[serie.iloc[t], tramo["programado"] * (1 + tramo["sup_%"] / 100)]
-        ax.fill_between(x, inf, sup, color="#b7d3f6", lw=0,
+        ax.fill_between(x, inf, sup, color="#CFE6F7", lw=0,
                         label=f"banda del {n} %" if k == 0 else None)
-        ax.plot(x, prog, color="#0d366b", lw=1.3, ls="--",
+        ax.plot(x, prog, color="#0072B2", lw=1.4, ls="--",
                 label=etiqueta if k == 0 else None)
     obs = serie.iloc[max(primero - 1 - historia, 0):primero + len(chk)]
-    ax.plot(mes_x(obs.index), obs, color="#52514e", lw=1.5, marker="o", ms=3,
+    ax.plot(mes_x(obs.index), obs, color="#222222", lw=1.5, marker="o", ms=3,
             label="observado")
     fuera = chk[chk["estado"] == "fuera de banda"]
     for j, (_, r) in enumerate(fuera.iterrows()):
         f = pd.Period(r["mes"], freq="M").to_timestamp()
-        ax.plot(f, r["observado"], marker="o", ms=8, mfc="none", mec="#d03b3b", mew=1.8,
+        ax.plot(f, r["observado"], marker="o", ms=8, mfc="none", mec="#D55E00", mew=1.8,
                 ls="none", zorder=5, label="fuera de banda" if j == 0 else None)
         ax.annotate(f"{_mes_es(f)}: desvío {r['desvio_%']:.1f} %\n(banda {r['inf_%']:.1f} a "
                     f"{r['sup_%']:.1f} %)".replace(".", ","), (f, r["observado"]),
                     xytext=(8, -26), textcoords="offset points", fontsize=9.5,
-                    color="#d03b3b", bbox=dict(fc="white", ec="none", alpha=0.85, pad=1))
+                    color="#D55E00", bbox=dict(fc="white", ec="none", alpha=0.85, pad=1))
     ax.set_ylabel(unidad, fontsize=9.5, color="#52514e")
-    ax.set_xlabel("mes (promedio mensual)", fontsize=9.5, color="#52514e")
+    # Sin rótulo del eje x: los meses se leen en los ticks y el caption aclara que son
+    # promedios mensuales; así la leyenda queda más cerca del eje.
     if rotulo:
         ax.set_title(rotulo, fontsize=9.5, color="#52514e", loc="left")
     ax.xaxis.set_major_locator(matplotlib.dates.MonthLocator(bymonth=(1, 7)))
@@ -289,7 +291,7 @@ def grafico_chequeo(serie: pd.Series, pron_log: pd.DataFrame, ruta: str | Path,
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     ax.grid(axis="y", color="#e6e5e1", lw=0.6)
-    ax.legend(fontsize=9.5, frameon=False, loc="upper center", bbox_to_anchor=(0.45, -0.36),
+    ax.legend(fontsize=9.5, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.22),
               ncol=4, columnspacing=0.8, handlelength=1.4, handletextpad=0.4, borderaxespad=0)
     fig.tight_layout()
     ruta = Path(ruta)

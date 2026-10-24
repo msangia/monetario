@@ -226,6 +226,8 @@ def main(argv: list[str] | None = None) -> str:
     ap.add_argument("--figura", default=None, help="fan chart del programa MCE (PDF o PNG)")
     ap.add_argument("--figura-chequeo", default=None,
                     help="gráfico del chequeo de los últimos trimestres, programa MCE (PDF o PNG)")
+    ap.add_argument("--tabla-csv", default=None,
+                    help="guarda la tabla de comparación (MAE, DM, cobertura y ancho) en CSV")
     a = ap.parse_args(argv)
     if a.demo:
         panel, rotulo = demo_panel(), ROTULO_SINTETICO
@@ -251,7 +253,7 @@ def main(argv: list[str] | None = None) -> str:
               f"{ventana_mce} meses; DM-HLN "
               "unilateral contra la deriva y contra la deriva estacional; cobertura y ancho "
               "de la banda del 90 % armada sin look-ahead",
-              tabla.round(3).to_string(index=False),
+              tabla.round(4).to_string(index=False),
               resumen_cobertura(tabla)]
     for k, c in chequeos.items():
         partes.append(f"Chequeo de los últimos {a.trimestres} trimestres "
@@ -263,6 +265,8 @@ def main(argv: list[str] | None = None) -> str:
                   .round(1).to_string(index=False))
     texto = "\n".join(partes)
     print(texto)
+    if a.tabla_csv:
+        tabla.to_csv(a.tabla_csv, index=False)
     if a.figura:
         unidad = "nivel (unidades sintéticas)" if a.demo else "billones de ARS"
         serie = nivel / (1e6 if not a.demo else 1)
@@ -270,12 +274,13 @@ def main(argv: list[str] | None = None) -> str:
                          pron_log=pron["mce"] - (np.log(1e6) if not a.demo else 0),
                          etiqueta="programa (demanda MCE, condicional)")
     if a.figura_chequeo:
-        unidad = "nivel (unidades sintéticas)" if a.demo else "billones de ARS"
+        unidad = ("nivel (unidades sintéticas)" if a.demo
+                  else "billones de pesos")
         bandas.grafico_chequeo(nivel / (1e6 if not a.demo else 1),
                                pron["mce"] - (np.log(1e6) if not a.demo else 0),
                                a.figura_chequeo, a.trimestres,
-                               rotulo=rotulo if a.demo else
-                               f"{nombre} (BCRA id {a.dinero}); datos reales; cálculo propio, no oficial",
+                               # Datos reales: sin título (va en el caption de LaTeX).
+                               rotulo=rotulo if a.demo else "",
                                unidad=unidad, etiqueta="programa (d) MCE")
     return texto
 
