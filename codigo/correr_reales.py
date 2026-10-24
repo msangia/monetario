@@ -14,7 +14,11 @@ Escribe en ``codigo/salidas/``:
   demanda MCE para M2 (109) y base (15), banda del 90 % y chequeo de desvíos) y
   ``fan_chart_real.pdf`` (M2, programa MCE armado en el último trimestre) y
   ``chequeo_real.pdf`` (M2, programa MCE: los cuatro trimestres chequeados, con la
-  banda del 90 % y los meses fuera de banda).
+  banda del 90 % y los meses fuera de banda);
+* figuras de los anexos (sin título; :mod:`monetario_demo.graficos`):
+  ``fig_varianza.pdf`` y ``fig_mae_componentes.pdf`` (A.1), ``fig_estabilidad.pdf`` (B) y
+  ``fig_cobertura.pdf`` (C). Las de A.2 (``fig_cc_modelos.pdf``, ``fig_perfil_mes.pdf``)
+  las escribe ``python -m monetario_demo.factores --reales --figuras salidas``.
 
 Cada archivo lleva un encabezado con la fuente, el último dato de cada serie usada
 y la fecha de ejecución. Las especificaciones (muestras, ventanas, variantes) están
@@ -34,7 +38,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from monetario_demo import bandas, calidad, demanda_dinero, liquidez, programa
+from monetario_demo import (bandas, calidad, demanda_dinero, factores, graficos,
+                            liquidez, programa)
 from monetario_demo.datos import (CARPETA_DATOS, cargar_csv, cargar_emae,
                                   cargar_ipc, cargar_ipc_historico)
 import verificar_series
@@ -178,7 +183,7 @@ def rutina_a() -> str:
     partes.insert(3, "## Resumen (ensamble vs. ingenuo; DM-HLN unilateral; cobertura del 90 %; "
                   "sesgo = observado - pronóstico, pp; ahorro_pp_base = MAE ingenuo - MAE ensamble, "
                   "en pp de la base, errores ponderados por el peso de la serie en la base)\n"
-                  + pd.DataFrame(resumen).round(3).to_string(index=False)
+                  + pd.DataFrame(resumen).round(4).to_string(index=False)
                   + "\n\n## Varianza de la variación diaria de la base (en % de la base previa)\n"
                   + "Definición: dB_t = dC_t + dCC_t, con B = base (15), C = circulación (16) y "
                     "CC = cuentas corrientes de las entidades en el BCRA (15 - 16); cada variación "
@@ -191,8 +196,60 @@ def rutina_a() -> str:
                                for d in descomp.values())
                   + f"\n\n## Sensibilidad: 2022-01 a 2026-10 sin el {DIA_LEFI} (salto de la base "
                     "por las LEFI; mismos pronósticos, se excluye ese día de la evaluación)\n"
-                  + pd.DataFrame(sensib).round(3).to_string(index=False))
+                  + pd.DataFrame(sensib).round(4).to_string(index=False))
+    figuras_a(pd.DataFrame(resumen), descomp)
     return "\n\n".join(partes) + "\n"
+
+
+PERIODOS_FIG = {"2022-01 a 2026-10": "2022–2026", "desde 2025-07-11": "desde 11-07-2025",
+                "últimos 60 días": "últimos 60 días"}
+SERIES_FIG = {"circulación (16)": "Circulación (16)", "billetes (17)": "Billetes en público (17)",
+              "cuentas corrientes en el BCRA (15 - 16)": "Ctas. ctes. en el BCRA (15−16)",
+              "base (15)": "Base (15)",
+              "base por componentes (circ. ensamble + ctas. ingenuo)": "Base por componentes"}
+GRUPOS_FACTORES = {"Pases (52)": [52], "LEFI (58)": [58], "LELIQ y NOTALIQ (53)": [53],
+                   "Otras del BCRA (59)": [59], "Tesoro, resto (51)": [51],
+                   "Resto (47–50, 54, 55, circ.)": [47, 48, 49, 50, 54, 55, "circulacion",
+                                                    "resto"]}
+
+
+def tabla_figura_a(resumen: pd.DataFrame, columna: str) -> pd.DataFrame:
+    """Pivota el resumen de la rutina A: filas = series de la figura, columnas = períodos."""
+    t = resumen[resumen["serie"].isin(SERIES_FIG)].pivot(index="serie", columns="periodo",
+                                                          values=columna)
+    t = t.loc[list(SERIES_FIG), list(PERIODOS_FIG)]
+    t.index = list(SERIES_FIG.values())
+    t.columns = list(PERIODOS_FIG.values())
+    return t
+
+
+def participacion_por_grupo(y: pd.Series, F: pd.DataFrame, desde: str) -> pd.Series:
+    """Participación de cada grupo de factores en la varianza de dCC (suma 1).
+
+    Los grupos sin movimiento en el período (varianza nula) quedan como NaN.
+    """
+    t = factores.descomponer_por_factor(y, F, desde)
+    out = {}
+    for g, cols in GRUPOS_FACTORES.items():
+        cols = [c for c in cols if c in t.index]
+        out[g] = (float(t.loc[cols, "participacion"].sum())
+                  if t.loc[cols, "varianza_propia"].sum() > 1e-6 else float("nan"))
+    return pd.Series(out)
+
+
+def figuras_a(resumen: pd.DataFrame, descomp: dict) -> list[Path]:
+    """Figuras del Anexo A.1: quién mueve la base y error relativo por serie y período."""
+    base = pd.DataFrame([{k: d[k] for k in ("cuentas_corrientes", "circulacion", "covarianza")}
+                         for d in descomp.values()],
+                        index=["2010–2021", "2022–2026", "desde 11-7-25"])
+    y, F = factores.a_pp_base(factores.cargar_factores())
+    fac = pd.DataFrame({"2022–2026": participacion_por_grupo(y, F, "2022-01-03"),
+                        "desde 11-07-2025": participacion_por_grupo(y, F, "2025-07-11")})
+    return [graficos.fig_varianza(base, fac, SALIDAS / "fig_varianza.pdf"),
+            graficos.fig_mae_relativo(tabla_figura_a(resumen, "MAE_rel"),
+                                      tabla_figura_a(resumen, "p_DM"),
+                                      SALIDAS / "fig_mae_componentes.pdf", xlim=(0.45, 1.2),
+                                      leyenda="lower left")]
 
 
 ESPECIFICACIONES_B = (
@@ -220,7 +277,7 @@ def rutina_b() -> str:
         "pesos de los sectores privado y público); el M2 transaccional privado (197) empieza "
         "en 2021. IPC observado (no inflación esperada). Especificaciones fijadas de antemano; "
         "se informan todas."]
-    filas = []
+    filas, ventanas_fig, completa_fig = [], {}, {}
     for etiqueta, d, tasa, forma, desde, hasta, ventana in ESPECIFICACIONES_B:
         df = demanda_dinero.armar_panel(cargar_csv(d), ipc, emae, cargar_csv(tasa), forma)
         df = df.loc[desde:hasta]
@@ -229,6 +286,10 @@ def rutina_b() -> str:
         else:
             res = demanda_dinero.analizar(df, ventana=ventana)
         c, rol, al = res["completa"], res.get("rolling"), res.get("alertas", {})
+        if etiqueta.endswith("(principal)"):
+            ventanas_fig["M2 (109)"], completa_fig = rol, c
+        elif etiqueta.startswith("Base (15)"):
+            ventanas_fig["Base (15)"] = rol
         fmt = lambda f: f.strftime("%Y-%m") if f is not None else "-"
         filas.append({
             "especificación": etiqueta, "muestra": f"{df.index[0]:%Y-%m} a {df.index[-1]:%Y-%m}",
@@ -250,7 +311,21 @@ def rutina_b() -> str:
                                                  f"({forma})", demanda_dinero.verificar_muestra(
                                                      df, ventana)))
     partes.insert(2, "## Resumen\n" + pd.DataFrame(filas).round(3).to_string(index=False))
+    rango = ["## Ventanas móviles de 60 meses (figura fig_estabilidad.pdf): rango de los "
+             "coeficientes y ventanas con p EG < 0,10"]
+    for nombre, r in ventanas_fig.items():
+        r = r.astype(float)
+        rango.append(f"{nombre}: {len(r)} ventanas ({r.index[0]:%Y-%m} a {r.index[-1]:%Y-%m}); "
+                     f"b_y {r['b_y'].min():.2f} a {r['b_y'].max():.2f}; b_i {r['b_i'].min():.2f} "
+                     f"a {r['b_i'].max():.2f}; ventanas con p EG < 0,10: "
+                     f"{int((r['p_coint'] < 0.10).sum())} (mínimo p = {r['p_coint'].min():.3f})")
+    partes.insert(3, "\n".join(rango))
+    graficos.fig_estabilidad(ventanas_fig, completa_fig, SALIDAS / "fig_estabilidad.pdf")
     return "\n\n".join(partes) + "\n"
+
+
+PROGRAMAS_FIG = {"deriva": "(a)\nderiva", "deriva_estacional": "(b)\nestac.",
+                 "velocidad": "(c)\nveloc.", "mce": "(d)\nMCE", "mce_sin_estac": "(e)\nMCE s/m"}
 
 
 def rutina_c() -> str:
@@ -266,9 +341,13 @@ def rutina_c() -> str:
         "observados. Ninguno es el programa del BCRA."]
     partes.append("## M2 (109)\n" + _capturar(programa.main, [
         "--dinero", "109", "--tasa", "1189", "--figura", str(SALIDAS / "fan_chart_real.pdf"),
-        "--figura-chequeo", str(SALIDAS / "chequeo_real.pdf")]))
+        "--figura-chequeo", str(SALIDAS / "chequeo_real.pdf"),
+        "--tabla-csv", str(SALIDAS / "real_programa_109.csv")]))
     partes.append("## Base monetaria (15)\n" + _capturar(programa.main, [
-        "--dinero", "15", "--tasa", "1189"]))
+        "--dinero", "15", "--tasa", "1189", "--tabla-csv", str(SALIDAS / "real_programa_15.csv")]))
+    graficos.fig_cobertura({"M2 (109)": pd.read_csv(SALIDAS / "real_programa_109.csv"),
+                            "Base (15)": pd.read_csv(SALIDAS / "real_programa_15.csv")},
+                           SALIDAS / "fig_cobertura.pdf", PROGRAMAS_FIG)
     partes.append("## Referencia: M2 transaccional privado (197), deriva de 24 meses "
                   "(la serie empieza en 2021-01)\n" + _capturar(
                       bandas.main, ["--csv", "197", "--trimestres", "4", "--ventana", "24"]))

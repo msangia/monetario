@@ -503,13 +503,17 @@ def demo_factores(n_dias: int = 900, semilla: int = 426) -> pd.DataFrame:
 def _tabla(ev: pd.DataFrame) -> str:
     t = ev.copy()
     t["n"] = t["n"].astype(int)
-    return t.to_string(float_format=lambda v: f"{v:.3f}")
+    return t.to_string(float_format=lambda v: f"{v:.4f}")
 
 
 def informe(df: pd.DataFrame, rotulo: str, inicio_eval: str = "2022-01-03",
             desde: str = "2010-01-04", con_ensamble: bool = True,
-            tramos: bool = True) -> str:
-    """Informe completo: identidades, descomposición, resultados y sesgos."""
+            tramos: bool = True, pronos: dict | None = None) -> str:
+    """Informe completo: identidades, descomposición, resultados y sesgos.
+
+    Si se pasa ``pronos`` (un dict), se le agregan los pronósticos fuera de muestra
+    de :func:`correr_variantes`, para dibujar las figuras sin recalcularlos.
+    """
     y, F = a_pp_base(df)
     ult = F.dropna().index.max()
     L = [f"[{rotulo}]", f"Ejecución: {datetime.now():%Y-%m-%d %H:%M}. Último dato de factores: "
@@ -551,6 +555,8 @@ def informe(df: pd.DataFrame, rotulo: str, inicio_eval: str = "2022-01-03",
           "   p_DM_*: DM-HLN unilateral (H1: el modelo tiene menor error absoluto) contra el "
           "ingenuo / el ensamble del Anexo A; cobertura del intervalo del 90 %."]
     pr = correr_variantes(df, inicio_eval, desde, con_ensamble=con_ensamble)
+    if pronos is not None:
+        pronos.update(pr)
     tramos_ev = [("desde " + inicio_eval, inicio_eval, ())]
     if tramos:
         tramos_ev += [("desde 2025-07-11", "2025-07-11", ())]
@@ -581,7 +587,10 @@ def main(argv: list[str] | None = None) -> str:
     g.add_argument("--reales", action="store_true", help="CSV de datos/ (API BCRA v4.0)")
     ap.add_argument("--salida", type=Path, default=None, help="archivo de texto de salida")
     ap.add_argument("--inicio-eval", default=None)
+    ap.add_argument("--figuras", type=Path, default=None,
+                    help="carpeta para fig_cc_modelos.pdf y fig_perfil_mes.pdf (sólo --reales)")
     a = ap.parse_args(argv)
+    pr: dict[str, pd.DataFrame] = {}
     if a.demo:
         df = demo_factores()
         texto = informe(df, ROTULO_SINTETICO, a.inicio_eval or "2021-10-01", desde="2019-01-02",
@@ -589,11 +598,53 @@ def main(argv: list[str] | None = None) -> str:
     else:
         df = cargar_factores()
         texto = informe(df, ROTULO_REAL.format(descarga=fechas_descarga()),
-                        a.inicio_eval or "2022-01-03")
+                        a.inicio_eval or "2022-01-03", pronos=pr)
+    if a.figuras and not a.demo:
+        rutas, texto_fig = figuras(pr, a.figuras, a.inicio_eval or "2022-01-03")
+        texto += "\n" + texto_fig
+        print("\n".join(map(str, rutas)))
     print(texto)
     if a.salida:
         a.salida.write_text(texto + "\n", encoding="utf-8")
     return texto
+
+
+MODELOS_FIGURA = {"ensamble": "Ensamble (A.1)", "V1": "V1 rezagados", "V2": "V2 fechas",
+                  "V3b_NF": "V3 Tesoro (NF)", "OTes_NF": "Oráculo Tesoro (NF)",
+                  "O59_NF": "Oráculo 59 (NF)"}
+TRAMO_RECIENTE = "2025-07-11"
+
+
+def figuras(pr: dict[str, pd.DataFrame], carpeta: Path, inicio_eval: str = "2022-01-03"
+            ) -> tuple[list[Path], str]:
+    """Figuras del Anexo A.2: error relativo de cada variante y perfil del sesgo en el mes.
+
+    Usa los mismos pronósticos y la misma evaluación (:func:`evaluar`) que el informe:
+    los MAE relativos de la figura son los de ``salidas/real_factores.txt``. Devuelve las
+    rutas y el texto con el perfil por día hábil (que se agrega a esa salida).
+    """
+    from . import graficos
+    tramos = {"2022–2026": inicio_eval, "desde 11-07-2025": TRAMO_RECIENTE}
+    ev = {k: evaluar(pr, d) for k, d in tramos.items()}
+    mae = pd.DataFrame({k: e.loc[list(MODELOS_FIGURA), "MAE_rel"] for k, e in ev.items()})
+    pv = pd.DataFrame({k: e.loc[list(MODELOS_FIGURA), "p_DM_ing"] for k, e in ev.items()})
+    mae.index = pv.index = list(MODELOS_FIGURA.values())
+    r1 = graficos.fig_mae_relativo(mae.astype(float), pv.astype(float),
+                                   carpeta / "fig_cc_modelos.pdf", meta=0.95,
+                                   rotulo_meta="meta del núcleo", xlim=(0.5, 1.45),
+                                   leyenda="upper left")
+    perf = {}
+    for m, rot in (("ingenuo", "Ingenuo"), ("ensamble", "Ensamble (A.1)"),
+                   ("O59_NF", "Oráculo 59 (NF)")):
+        e = (pr[m]["obs"] - pr[m]["pron"]).loc[inicio_eval:].dropna()
+        perf[rot] = graficos.perfil_por_posicion(e, _posiciones(e.index))
+    r2 = graficos.fig_perfil_mes(perf, carpeta / "fig_perfil_mes.pdf", banda="Ingenuo")
+    texto = ["4. Perfil del error medio por día hábil del mes (obs - pron, pp de la base; desde "
+             f"{inicio_eval}; 1..5 = desde el inicio, -5..-1 = hasta el fin; inf/sup: intervalo "
+             "del 90 % de la media; figura fig_perfil_mes.pdf)"]
+    for rot, t in perf.items():
+        texto += [f"   {rot}", t.round(2).T.to_string()]
+    return [r1, r2], "\n".join(texto)
 
 
 if __name__ == "__main__":

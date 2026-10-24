@@ -3,7 +3,7 @@
 #   id 16 (circulación monetaria): 2003-01-02 a 2026-10-20 (último dato)
 #   id 17 (billetes y monedas en poder del público): 2003-01-02 a 2026-10-20 (último dato)
 #   id 46 (factores de explicación de la base (flujo)): 2003-01-02 a 2026-10-19 (último dato)
-# Ejecución: 2026-10-23 18:42
+# Ejecución: 2026-10-23 23:07
 
 
 Muestra: desde 2010-01-04; evaluación fuera de muestra desde 2022-01-03; reestimación cada 60 días hábiles. Feriados: días sin dato de la serie.
@@ -11,28 +11,28 @@ Muestra: desde 2010-01-04; evaluación fuera de muestra desde 2022-01-03; reesti
 Factores (46): el total es igual, día por día, a la variación de la base (15); usarlo el mismo día es look-ahead (es la variable a pronosticar) y rezagado repite la variación de ayer, que el AR(1) del ARIMAX ya incluye. Sólo los componentes (compras de divisas, Tesoro, pases...) conocidos o programados de antemano agregarían información; no están entre las series descargadas.
 
 ## Resumen (ensamble vs. ingenuo; DM-HLN unilateral; cobertura del 90 %; sesgo = observado - pronóstico, pp; ahorro_pp_base = MAE ingenuo - MAE ensamble, en pp de la base, errores ponderados por el peso de la serie en la base)
-                                                 serie           periodo    n  MAE_rel  p_DM  cob90  ahorro_pp_base  sesgo_fin_ens  sesgo_fin_ing  sesgo_ini_ens  sesgo_ini_ing
-                                             base (15) 2022-01 a 2026-10 1166    0.998 0.415  0.898           0.003          1.321          1.584         -0.796          0.738
-                                             base (15)  desde 2025-07-11  310    1.029 0.909  0.932          -0.041          0.675          1.136         -1.982         -0.412
-                                             base (15)   últimos 60 días   60    1.048 0.836  0.983          -0.058          1.340          1.759         -2.309         -0.900
-                                  base (15), móvil 500 2022-01 a 2026-10 1166    1.009 0.769  0.934          -0.015          0.398          1.584         -0.527          0.738
-                                  base (15), móvil 500  desde 2025-07-11  310    1.064 0.982  0.965          -0.088         -1.058          1.136         -1.788         -0.412
-                                  base (15), móvil 500   últimos 60 días   60    1.024 0.634  1.000          -0.029          0.183          1.759         -2.287         -0.900
-                                         billetes (17) 2022-01 a 2026-10 1166    0.692 0.000  0.964           0.069          0.057          0.320         -0.087          0.371
-                                         billetes (17)  desde 2025-07-11  310    0.843 0.002  0.990           0.020         -0.003          0.251         -0.294          0.068
-                                         billetes (17)   últimos 60 días   60    0.983 0.453  1.000           0.001         -0.044          0.164         -0.217          0.019
-                                      circulación (16) 2022-01 a 2026-10 1166    0.502 0.000  0.931           0.105          0.012          0.350         -0.011          0.338
-                                      circulación (16)  desde 2025-07-11  310    0.557 0.000  0.981           0.054         -0.057          0.193         -0.102          0.155
-                                      circulación (16)   últimos 60 días   60    0.625 0.000  1.000           0.030         -0.070          0.172         -0.102          0.119
-               cuentas corrientes en el BCRA (15 - 16) 2022-01 a 2026-10 1166    1.008 0.823  0.895          -0.014          4.424          4.584         -3.241          1.493
-               cuentas corrientes en el BCRA (15 - 16)  desde 2025-07-11  310    1.071 0.997  0.961          -0.100          1.848          2.622         -5.963         -1.216
-               cuentas corrientes en el BCRA (15 - 16)   últimos 60 días   60    1.101 0.959  1.000          -0.122          3.594          4.402         -6.943         -2.539
- base por componentes (circ. ensamble + ctas. ingenuo) 2022-01 a 2026-10 1166    0.988 0.001  0.910           0.019            NaN            NaN            NaN            NaN
- base por componentes (circ. ensamble + ctas. ingenuo)  desde 2025-07-11  310    0.993 0.135  0.932           0.009            NaN            NaN            NaN            NaN
- base por componentes (circ. ensamble + ctas. ingenuo)   últimos 60 días   60    0.995 0.280  0.917           0.006            NaN            NaN            NaN            NaN
-base por componentes (circ. ensamble + ctas. ensamble) 2022-01 a 2026-10 1166    0.998 0.411  0.909           0.004            NaN            NaN            NaN            NaN
-base por componentes (circ. ensamble + ctas. ensamble)  desde 2025-07-11  310    1.066 0.990  0.923          -0.092            NaN            NaN            NaN            NaN
-base por componentes (circ. ensamble + ctas. ensamble)   últimos 60 días   60    1.100 0.941  0.917          -0.121            NaN            NaN            NaN            NaN
+                                                 serie           periodo    n  MAE_rel   p_DM  cob90  ahorro_pp_base  sesgo_fin_ens  sesgo_fin_ing  sesgo_ini_ens  sesgo_ini_ing
+                                             base (15) 2022-01 a 2026-10 1166   0.9981 0.4150 0.8979          0.0032         1.3207         1.5841        -0.7962         0.7381
+                                             base (15)  desde 2025-07-11  310   1.0295 0.9095 0.9323         -0.0408         0.6754         1.1360        -1.9819        -0.4117
+                                             base (15)   últimos 60 días   60   1.0483 0.8361 0.9833         -0.0581         1.3402         1.7594        -2.3090        -0.8995
+                                  base (15), móvil 500 2022-01 a 2026-10 1166   1.0092 0.7689 0.9340         -0.0151         0.3976         1.5841        -0.5268         0.7381
+                                  base (15), móvil 500  desde 2025-07-11  310   1.0635 0.9823 0.9645         -0.0879        -1.0583         1.1360        -1.7878        -0.4117
+                                  base (15), móvil 500   últimos 60 días   60   1.0241 0.6340 1.0000         -0.0290         0.1828         1.7594        -2.2873        -0.8995
+                                         billetes (17) 2022-01 a 2026-10 1166   0.6923 0.0000 0.9640          0.0689         0.0566         0.3200        -0.0872         0.3709
+                                         billetes (17)  desde 2025-07-11  310   0.8434 0.0022 0.9903          0.0205        -0.0027         0.2509        -0.2944         0.0685
+                                         billetes (17)   últimos 60 días   60   0.9826 0.4528 1.0000          0.0014        -0.0436         0.1644        -0.2166         0.0193
+                                      circulación (16) 2022-01 a 2026-10 1166   0.5025 0.0000 0.9314          0.1045         0.0119         0.3496        -0.0109         0.3380
+                                      circulación (16)  desde 2025-07-11  310   0.5571 0.0000 0.9806          0.0543        -0.0571         0.1932        -0.1021         0.1549
+                                      circulación (16)   últimos 60 días   60   0.6247 0.0000 1.0000          0.0303        -0.0699         0.1724        -0.1020         0.1189
+               cuentas corrientes en el BCRA (15 - 16) 2022-01 a 2026-10 1166   1.0078 0.8234 0.8954         -0.0135         4.4244         4.5845        -3.2408         1.4929
+               cuentas corrientes en el BCRA (15 - 16)  desde 2025-07-11  310   1.0711 0.9970 0.9613         -0.0997         1.8479         2.6221        -5.9635        -1.2162
+               cuentas corrientes en el BCRA (15 - 16)   últimos 60 días   60   1.1008 0.9587 1.0000         -0.1225         3.5937         4.4024        -6.9435        -2.5395
+ base por componentes (circ. ensamble + ctas. ingenuo) 2022-01 a 2026-10 1166   0.9882 0.0015 0.9096          0.0194            NaN            NaN            NaN            NaN
+ base por componentes (circ. ensamble + ctas. ingenuo)  desde 2025-07-11  310   0.9932 0.1345 0.9323          0.0094            NaN            NaN            NaN            NaN
+ base por componentes (circ. ensamble + ctas. ingenuo)   últimos 60 días   60   0.9948 0.2797 0.9167          0.0062            NaN            NaN            NaN            NaN
+base por componentes (circ. ensamble + ctas. ensamble) 2022-01 a 2026-10 1166   0.9976 0.4115 0.9087          0.0039            NaN            NaN            NaN            NaN
+base por componentes (circ. ensamble + ctas. ensamble)  desde 2025-07-11  310   1.0664 0.9898 0.9226         -0.0919            NaN            NaN            NaN            NaN
+base por componentes (circ. ensamble + ctas. ensamble)   últimos 60 días   60   1.1004 0.9406 0.9167         -0.1208            NaN            NaN            NaN            NaN
 
 ## Varianza de la variación diaria de la base (en % de la base previa)
 Definición: dB_t = dC_t + dCC_t, con B = base (15), C = circulación (16) y CC = cuentas corrientes de las entidades en el BCRA (15 - 16); cada variación diaria en % de la base del día hábil anterior, de modo que var(dB) = var(dC) + var(dCC) + 2 cov(dC, dCC). Participación = término / var(dB) (liquidez.descomponer_varianza).
@@ -41,10 +41,10 @@ Definición: dB_t = dC_t + dCC_t, con B = base (15), C = circulación (16) y CC 
 2025-07-11 a 2026-10-20 (n = 310 variaciones diarias): cuentas corrientes 98.4%, circulación 0.7%, 2 cov 0.9%
 
 ## Sensibilidad: 2022-01 a 2026-10 sin el 2025-07-10 (salto de la base por las LEFI; mismos pronósticos, se excluye ese día de la evaluación)
-                                  serie    n  MAE_rel  p_DM  cob90  MAE_ingenuo
-                              base (15) 1165    0.998 0.417  0.899        1.627
-                       circulación (16) 1165    0.503 0.000  0.931        0.301
-cuentas corrientes en el BCRA (15 - 16) 1165    1.008 0.824  0.896        5.326
+                                  serie    n  MAE_rel   p_DM  cob90  MAE_ingenuo
+                              base (15) 1165   0.9981 0.4165 0.8987       1.6272
+                       circulación (16) 1165   0.5028 0.0000 0.9313       0.3011
+cuentas corrientes en el BCRA (15 - 16) 1165   1.0079 0.8244 0.8961       5.3256
 
 [base (15); 2022-01 a 2026-10]
 Evaluación fuera de muestra, 1 día, n = 1166 (2022-01-03 a 2026-10-20)

@@ -8,19 +8,30 @@
 \usepackage{booktabs,array}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{flafter}% ninguna figura o tabla antes de su descripción
 \usepackage[font=small,labelfont=bf,skip=3pt]{caption}
 \usepackage[colorlinks=false,hidelinks]{hyperref}
 \setlist{itemsep=1pt,topsep=2pt,parsep=0pt,leftmargin=1.2em}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{3pt}
 \setlength{\emergencystretch}{3em}
+\renewcommand{\topfraction}{0.9}\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}\renewcommand{\floatpagefraction}{0.8}
+\setcounter{totalnumber}{4}\setcounter{topnumber}{3}
+% Con \raggedbottom, las penalidades negativas de encabezados y listas hacen cortar la
+% página antes de cada sección o ítem aunque quede espacio; se neutralizan.
+\makeatletter\@secpenalty=0 \@itempenalty=0 \@beginparpenalty=0 \@endparpenalty=0 \makeatother
+\captionsetup[figure]{position=top}
+\captionsetup[table]{position=top}
 
 \newcommand{\autor}{Máximo Sangiácomo}
-\newcommand{\fuente}[1]{\par\vspace{1pt}{\small\raggedright #1\par}}
+\newcommand{\fuente}[1]{\par\vspace{1pt}{\footnotesize\raggedright #1\par}}
 \newcommand{\nooficial}{Cálculo propio, no oficial.}
 % Referencia al indicador del núcleo sobre banda y nota de desvíos (ajustar si cambia la numeración).
 \newcommand{\indbanda}{indicador~(v) del núcleo, banda y nota de desvíos}
-
+% Pasos de cada análisis.
+\newcommand{\paso}[1]{\textbf{#1}\enspace}
+\newcommand{\figura}[1]{\includegraphics[width=\linewidth]{codigo/salidas/#1}}
 
 \begin{document}
 \begin{center}
@@ -30,125 +41,75 @@
 
 \begin{center}\fbox{\parbox{0.96\linewidth}{\small
 \textbf{Qué aprendí con datos públicos (cuatro mensajes).}
-(1) \emph{Circulación y billetes (Eje~1, A.1)}: el ensamble reduce 37--50\,\% el error de la circulación, aun en los últimos 60 días; en los billetes, la mejora se diluye en ese tramo. \emph{Qué decisión cambia}: la circulación entra en paralelo desde el inicio; en los billetes, la mejora se confirma con datos internos antes de producción.
-(2) \emph{Cuentas corrientes en el BCRA (Eje~1, A.2)}: explican el 97,8\,\% de la varianza diaria de la base. Ni el calendario ni los factores públicos rezagados mejoran al ingenuo; conocer los montos del Tesoro casi no reduce el error; más informarían las operaciones propias del BCRA (serie 59) y la posición de efectivo mínimo. \emph{Qué decisión cambia}: el modelo por factores se arma con esos datos internos, no sólo con el Tesoro; su meta (5\,\% menos error que el ingenuo) los exige.
-(3) \emph{Demanda de dinero (Eje~4, Anexo~B)}: con el IPC oficial (2017--2026) no cointegra de forma estable, ni en el M2 ni en la base. \emph{Qué decisión cambia}: el programa se apoya en la consistencia de fuentes, no en una demanda estimada, hasta probar la especificación del núcleo.
-(4) \emph{Banda de tolerancia (Eje~4, Anexo~C)}: con errores pasados, ninguna candidata es calibrada y útil a la vez: cubre menos del 90\,\% o es muy ancha. \emph{Qué decisión cambia}: la banda se calibra con los errores del programa vigente y se valida \emph{antes} de activar la nota de desvíos (\indbanda); si al mes 12 no se valida, se informan rangos históricos descriptivos, rotulados como no validados.\\[2pt]
-\textbf{Alcance.} Fuera del límite de cuatro páginas; el proyecto se entiende sin ellos. \textbf{Cifras: cálculos propios con datos públicos, no estimaciones oficiales del BCRA}. El código y sus pruebas (\texttt{pytest}) reproducen tablas y figura con \texttt{python correr\_reales.py} y \texttt{python -m monetario\_demo.factores -{}-reales}; se entregan a pedido del comité. En el BCRA se usarían datos internos en el entorno resguardado. \textbf{Qué no se probó}: la especificación del núcleo para la demanda (inflación esperada, M2 privado), los datos en tiempo real (EMAE e IPC van en su versión actual) ni la información interna de Operaciones.}}\end{center}
+(1) \emph{Circulación y billetes (Eje~1, A.1)}: el ensamble reduce 38--50\,\% el error de la circulación, aun en los últimos 60 días; en los billetes, la mejora se diluye en ese tramo (figura~\ref{f:mae}). \emph{Qué decisión cambia}: la circulación entra en paralelo desde el inicio; en los billetes, la mejora se confirma con datos internos antes de producción.
+(2) \emph{Cuentas corrientes en el BCRA (Eje~1, A.2)}: explican el 97,8\,\% de la varianza diaria de la base (figura~\ref{f:var}). Ni el calendario ni los factores públicos rezagados mejoran al ingenuo; conocer los montos del Tesoro casi no reduce el error; más informarían las operaciones propias del BCRA (serie 59) y la posición de efectivo mínimo (figura~\ref{f:perfil}). \emph{Qué decisión cambia}: el modelo por factores se arma con esos datos internos, no sólo con el Tesoro; su meta (5\,\% menos error que el ingenuo) los exige.
+(3) \emph{Demanda de dinero (Eje~4, Anexo~B)}: con el IPC oficial (2017--2026) no cointegra de forma estable, ni en el M2 ni en la base (tabla~\ref{t:B}). \emph{Qué decisión cambia}: el programa se apoya en la consistencia de fuentes, no en una demanda estimada, hasta probar la especificación del núcleo.
+(4) \emph{Banda de tolerancia (Eje~4, Anexo~C)}: con errores pasados, ninguna candidata es calibrada y útil a la vez: cubre menos del 90\,\% o es muy ancha (figura~\ref{f:cob}). \emph{Qué decisión cambia}: la banda se calibra con los errores del programa vigente y se valida \emph{antes} de activar la nota de desvíos (\indbanda); si al mes 12 no se valida, se informan rangos históricos descriptivos, rotulados como no validados.\\[2pt]
+\textbf{Alcance.} Fuera del límite de cuatro páginas; el proyecto se entiende sin ellos. \textbf{Cifras: cálculos propios con datos públicos, no estimaciones oficiales del BCRA}. El código y sus pruebas (\texttt{pytest}) reproducen tablas y figuras (\texttt{python correr\_reales.py}) y se entregan a pedido del comité; en el BCRA se usarían datos internos en el entorno resguardado. \textbf{Qué no se probó}: la especificación del núcleo para la demanda (inflación esperada, M2 privado), los datos en tiempo real (EMAE e IPC van en su versión actual) ni la información interna de Operaciones.}}\end{center}
 
-{\small\textbf{Glosario.}
-\emph{Ingenuo}: variación nula (en el Anexo~C, la deriva).
-\emph{MAE relativo}: error absoluto medio del modelo sobre el del ingenuo; menos de 1 es mejora.
-\emph{DM-HLN}: prueba de Diebold-Mariano de igual precisión de dos pronósticos, con corrección de Harvey, Leybourne y Newbold para muestras chicas; unilateral: $p<0{,}10$, el modelo erra menos.
-\emph{Cobertura}: \% de observaciones dentro del intervalo o banda del 90\,\% (percentiles empíricos de errores pasados).
-\emph{EG}: prueba de cointegración de Engle-Granger (¿hay relación de largo plazo?); \emph{MCE}: modelo de corrección de errores (cada mes corrige una fracción del desvío de esa relación); \emph{CUSUM}: residuos recursivos acumulados (detecta coeficientes que cambian).
-\emph{NF} (no factible): usa datos del mismo día; mide cuánto valdría esa información.\par}
-
-\textbf{Datos.} BCRA, API de Estadísticas Monetarias v4.0 (descarga del 22 y 23-10-2026), e INDEC (EMAE desestacionalizado; IPC nacional desde dic-2016). Base (serie 15) = circulación monetaria (16) + cuentas corrientes de las entidades en el BCRA (15 $-$ 16, igual a la serie 19); billetes en poder del público (17); total de factores de explicación de la base (46) y sus componentes (47--59, Anexo~A.2); M2 total (109); plazo fijo (1189) y BAIBAR (11). El 10-07-2025 la base sube 30\,\% en un día: según el Informe Monetario Mensual de julio de 2025, el BCRA dejó de ofrecer las LEFI; se informa aparte el tramo posterior. \emph{No} se usan el calendario de licitaciones del Tesoro (ajeno a la API) ni sus montos programados (internos).
+\textbf{Cómo leer las cifras.} Todo modelo se compara con el pronóstico más simple, el \emph{ingenuo}: ``mañana, igual que hoy'' (en el Anexo~C, la \emph{deriva}, el crecimiento medio reciente). \emph{MAE relativo}: error absoluto medio del modelo sobre el del ingenuo (0,80 = 20\,\% menos error). \emph{DM-HLN}: prueba de Diebold-Mariano (con la corrección de Harvey, Leybourne y Newbold para muestras chicas) de si esa diferencia puede ser azar; $p<0{,}10$: el modelo erra menos. \emph{Cobertura}: proporción de casos dentro del intervalo o banda del 90\,\%; bien calibrada, ronda el 90\,\%. Toda evaluación es \emph{fuera de muestra} (cada pronóstico usa sólo datos previos). Datos: BCRA (API v4.0, descarga del 22 y 23-10-2026) e INDEC.
 
 \section*{Anexo A. Anticipo del indicador (i): liquidez diaria (Eje 1)}
 \subsection*{A.1. Circulación, billetes y base con calendario}
-\textbf{Pregunta.} ¿Cuánto mejora el ensamble el pronóstico a un día de la base y sus componentes frente al ingenuo? Anticipa, con datos públicos, el indicador (i), que se verifica con datos internos.
-\textbf{Método.} Tres modelos de $\Delta\ln X_t$ con el mismo calendario $c_t$ (inicio y fin de mes, quincena, aguinaldo, diciembre e indicadora de lunes: del día de la semana sólo se usa esa indicadora): regresión $\Delta\ln X_t = \beta' c_t + \varepsilon_t$; espacio de estado, que agrega un nivel local (filtro de Kalman); y ARIMAX, que agrega el rezago. El \emph{ensamble} los promedia. Reestimación cada 60 días hábiles sólo con el pasado; evaluación fuera de muestra desde ene-2022.
+\paso{Pregunta.} ¿Cuánto mejora un modelo con calendario el pronóstico a un día de la base y de sus componentes frente al ingenuo? Anticipa, con datos públicos, el indicador~(i).
+\paso{En palabras simples.} Los billetes siguen un calendario conocido (salen antes de fin de mes y del aguinaldo, vuelven a principio de mes); las cuentas corrientes de los bancos en el BCRA se mueven con operaciones (pases, letras, Tesoro) que el calendario no ve. ¿Qué parte pesa más? \paso{Datos.} Base (15) = circulación (16) + cuentas corrientes (15 $-$ 16); billetes en público (17); diarios desde 2010.
 
-\begin{table}[!ht]\centering\small
-\caption{Ensamble contra el ingenuo: MAE relativo ($p$ DM-HLN) y significancia económica.}\label{t:ens}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-Serie (ID) & 2022--2026$^{a}$ & desde 11-07-25 & últimos 60 días & Ahorro (pp & Cobertura\\
- & ($n=1166$) & ($n=310$) & ($n=60$) & de la base) & 90\,\%, $n=1166$\\
-\midrule
-Circulación (16) & 0,50 ($<$0,001) & 0,56 ($<$0,001) & 0,63 ($<$0,001) & 0,10 & 0,93\\
-Billetes en público (17) & 0,69 ($<$0,001) & 0,84 (0,002) & 0,98 (0,45) & 0,07 & 0,96\\
-Ctas.\ ctes.\ BCRA (15$-$16) & 1,01 (0,82) & 1,07 (0,997) & 1,10 (0,96) & $-$0,01 & 0,90\\
-Base (15) & 1,00 (0,42) & 1,03 (0,91) & 1,05 (0,84) & 0,00 & 0,90\\
-Base por componentes$^{b}$ & 0,99 (0,001) & 0,99 (0,14) & 0,99 (0,28) & 0,02 & 0,91\\
-\bottomrule
-\end{tabular}
-\fuente{Notas: Ahorro: reducción del MAE diario en 2022--2026, en pp de la base (errores ponderados por el peso de la serie); MAE ingenuo de la base: 1,65~pp (1,648; errores en $100\,\Delta\ln$, como en toda la tabla; en variación \% simple sería 1,658: la diferencia es de definición, no de datos). $^{a}$ 03-01-2022 a 20-10-2026; incluye el 10-07-2025 (salto por las LEFI, error casi igual en ambos modelos); sin ese día, MAE relativos y $p$ no cambian a dos decimales. $^{b}$ Circulación con el ensamble y cuentas corrientes con variación nula; domina el error de las cuentas corrientes. Fuente: BCRA (último dato: 20-10-2026). \nooficial}
-\end{table}
+\paso{Qué muestra la figura~\ref{f:var}.} A la izquierda, la parte de la variabilidad diaria de la base que corresponde a las cuentas corrientes: 97,8\,\% en 2022--2026, y casi lo mismo antes y después del fin de las LEFI.\footnote{$\Delta B_t=\Delta C_t+\Delta CC_t$, en \% de la base del día previo: $\mathrm{var}(\Delta B)=\mathrm{var}(\Delta C)+\mathrm{var}(\Delta CC)+2\,\mathrm{cov}$. En 2022--2026, circulación 1,0\,\% y covarianza 1,1\,\%; 97,9\,\% en 2010--2021 y 98,4\,\% desde el 11-07-2025. El 10-07-2025 la base sube 30\,\%: según el Informe Monetario Mensual de julio de 2025, el BCRA dejó de ofrecer las LEFI; se informa aparte el tramo posterior.} A la derecha, qué factores mueven a su vez las cuentas corrientes: hasta julio de 2025, operaciones del BCRA con los bancos (pases, LEFI, LELIQ); después, otras operaciones del BCRA (59) y la cuenta del Tesoro (51).
 
-\textbf{Lectura.} En la circulación (16) el ensamble reduce el error entre 37\,\% (últimos 60 días, 0,63) y 50\,\% (2022--2026, 0,50), siempre con $p<0{,}001$: esa parte del indicador (i) es alcanzable con datos públicos. En los billetes (17) la reducción es de 31\,\% en 2022--2026 y de 16\,\% desde el 11-07-2025, pero en los últimos 60 días empatan (0,98; $p=0{,}45$). En las cuentas corrientes, que explican el 97,8\,\% de la varianza diaria de la base\footnote{\small $\Delta B_t=\Delta C_t+\Delta CC_t$, en \% de la base del día previo, 1166 días: $\mathrm{var}(\Delta CC)/\mathrm{var}(\Delta B)$ = 97,8\,\%, circulación 1,0\,\% y covarianza 1,1\,\%; 97,9\,\% en 2010--2021 y 98,4\,\% desde el 11-07-2025.}, no mejora. La significancia no basta: la base por componentes mejora con $p=0{,}001$, pero ahorra 1\,\% del error. Las cuentas corrientes requieren el modelo por factores (A.2).
+\begin{figure}[!htbp]\centering
+\caption{\textbf{Las cuentas corrientes de los bancos mueven la base.} Participación (\%) en la varianza diaria: de las cuentas corrientes en la de la base (izq.) y de cada factor en la de las cuentas corrientes (der.).}\label{f:var}
+\figura{fig_varianza.pdf}
+\fuente{Nota: participación = $\mathrm{cov}(F_k,\Delta CC)/\mathrm{var}(\Delta CC)$; suma 100; negativa si se compensa el mismo día; sin barra naranja: no opera desde el 11-07-2025. Fuente: BCRA (API v4.0), datos al 20-10-2026. \nooficial}
+\end{figure}
+
+\paso{Modelos.} Con el mismo calendario (inicio y fin de mes, quincena, aguinaldo, diciembre, lunes): una regresión, un modelo de espacio de estado (agrega un nivel que cambia lentamente) y un ARIMAX (agrega la variación del día anterior). El \emph{ensamble} es su promedio simple; se reestima cada 60 días hábiles y se evalúa desde el 03-01-2022 (1166 días).
+
+\paso{Qué muestra la figura~\ref{f:mae}.} El error del ensamble sobre el del ingenuo: a la izquierda de la línea vertical, erra menos. Circulación y billetes quedan a la izquierda; cuentas corrientes y base, sobre la línea o a su derecha.
+
+\begin{figure}[!htbp]\centering
+\caption{\textbf{El calendario anticipa los billetes, no las cuentas corrientes.} Error absoluto medio del ensamble relativo al ingenuo, a un día, por serie y tramo; punto lleno: mejora significativa ($p<0{,}10$).}\label{f:mae}
+\figura{fig_mae_componentes.pdf}
+\fuente{Nota: base por componentes = circulación con el ensamble y cuentas corrientes con variación nula. $n$ = 1166, 310 y 60. Fuente: BCRA (API v4.0), datos al 20-10-2026. \nooficial}
+\end{figure}
+
+\paso{Lectura.} En la circulación el ensamble reduce el error entre 38\,\% (últimos 60 días, 0,62) y 50\,\% (2022--2026, 0,50), siempre con $p<0{,}001$: esa parte del indicador~(i) es alcanzable con datos públicos. En los billetes, 31\,\% en 2022--2026 y 16\,\% desde el 11-07-2025, pero en los últimos 60 días empatan (0,98; $p=0{,}45$). En las cuentas corrientes, no mejora. La significancia no basta: en puntos porcentuales (pp) de la base, el ahorro es de 0,10~pp en la circulación y 0,07 en los billetes, frente a un error del ingenuo de 1,65~pp; la base por componentes mejora con $p=0{,}002$, pero ahorra 0,02~pp (1\,\%). \emph{Qué decisión cambia}: la circulación entra en paralelo desde el inicio; las cuentas corrientes requieren el modelo por factores (A.2).
 
 \subsection*{A.2. Cuentas corrientes por factores de la base}
-\textbf{Pregunta.} ¿Se anticipa con información pública la variación diaria de las cuentas corrientes? Si no, ¿qué información interna haría la diferencia: la del Tesoro o la de las operaciones del BCRA?
+\paso{Pregunta.} ¿Se anticipa con información pública la variación diaria de las cuentas corrientes? Si no, ¿qué información interna haría la diferencia: la del Tesoro o la de las operaciones del BCRA?
+\paso{En palabras simples.} Por contabilidad, lo que entra o sale de las cuentas de los bancos es la suma de los factores de la base menos lo que se retira en billetes: $\Delta CC_t = \sum_k F_{k,t} - \Delta C_t$. Pero se publican el mismo día: explican, no pronostican. Lo útil es saber qué parte podría conocerse \emph{de antemano}.
+\paso{Datos.} Once factores diarios (millones de pesos; positivo, expansivo) y el saldo de cuentas corrientes (19); no se usan el calendario de licitaciones del Tesoro ni sus montos programados.\footnote{Desde 2019, $\Delta 15$ = suma de los factores (serie 46) y 19 = 15 $-$ 16 todos los días, salvo redondeo (máximo: 1,5 millones de pesos).} \paso{Variantes.} Regresiones de $\Delta CC$ de mañana (pp de la base), reestimadas cada día con la historia desde 2010; evaluación desde el 03-01-2022. \textbf{V1}: factores de los cinco días previos y calendario de A.1. \textbf{V2}: calendario ampliado y fechas regulares inferidas \emph{sólo del pasado} (pagos de intereses y del Tesoro; vencimientos a 7, 14 y 28 días de pases, LELIQ o LEFI), sin montos. \textbf{V3} y los \textbf{oráculos} son \emph{no factibles} (NF): usan los montos \emph{efectivos} del día del Tesoro (48--51) e intereses (55), o de la serie 59; dicen cuánto bajaría el error si se conocieran con exactitud.
 
-\textbf{Datos.} Doce series diarias de la misma API: once factores de explicación de la base (flujos en millones de pesos; positivo, expansivo), descriptos en la tabla~\ref{t:factores}, y el saldo de cuentas corrientes (19). \emph{Identidad contable}: la variación de la base es la suma de los factores (serie 46), y la de las cuentas corrientes, esa suma menos la variación de la circulación: $\Delta CC_t = \sum_k F_{k,t} - \Delta C_t$. \emph{Controles}: desde 2019, ambas identidades y 19 = 15 $-$ 16 se cumplen todos los días, salvo redondeo (desvío máximo: 1,5 millones de pesos).
+\paso{Qué muestra la figura~\ref{f:perfil}.} El error medio según el día hábil del mes. Sin sesgo, quedaría cerca de cero, como a mitad de mes; pero el último día hábil las cuentas corrientes suben 1,9 a 2,3~pp de la base más que lo pronosticado, y los dos primeros días los errores son grandes, de signo distinto según el modelo.
 
-\begin{table}[!ht]\centering\small
-\caption{Factores de la base: qué mide cada serie y su participación en la varianza de $\Delta CC$.}\label{t:factores}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}r>{\raggedright\arraybackslash}p{0.67\linewidth}rr@{}}
-\toprule
-ID & Qué mide (efecto monetario de \ldots) & 2022--26 & desde 11-7-25\\
-\midrule
-47 & compras netas de divisas del BCRA, salvo al Tesoro & $-$0,7 & 1,0\\
-48 & compras netas de divisas del BCRA al Tesoro & $-$0,3 & $-$1,0\\
-49 & adelantos transitorios al Tesoro & 0,2 & --\\
-50 & transferencia de utilidades del BCRA al Tesoro & 1,0 & 1,3\\
-51 & resto con el Tesoro (sobre todo, su cuenta en pesos en el BCRA) & $-$10,7 & 44,1\\
-52 & pases del BCRA (hasta el 14-07-2025) & 49,5 & --\\
-53 & LELIQ y NOTALIQ & 14,1 & --\\
-54 & redescuentos y adelantos a entidades & 0,0 & --\\
-55 & intereses de pases, LELIQ y redescuentos; remuneración de ctas.\ ctes. & 1,0 & --\\
-58 & operaciones con letras fiscales de liquidez (LEFI) & 32,0 & --\\
-59 & otras: títulos, BOPREAL, futuros y, desde 15-07-25, simultáneas y otras de corto plazo & 14,4 & 55,2\\
-16 & circulación monetaria (con signo menos) & $-$0,6 & $-$0,5\\
-\bottomrule
-\end{tabular}
-\fuente{Notas: participación (\%) = $\mathrm{cov}(F_k,\Delta CC)/\mathrm{var}(\Delta CC)$, en pp de la base del día previo; suma 100; negativa si el factor se compensa con otros el mismo día. --: sin movimiento. 2022--2026: 1165 días; sin el 10-07-2025, pases 55,0, LEFI 17,8 y 51 $-$5,5. Fuente: BCRA (metodología y datos de la API). \nooficial}
-\end{table}
+\begin{figure}[!htbp]\centering
+\caption{\textbf{Todos los modelos subestiman el fin de mes.} Error medio (observado menos pronóstico) de la variación diaria de las cuentas corrientes por día hábil del mes, 2022--2026.}\label{f:perfil}
+\figura{fig_perfil_mes.pdf}
+\fuente{Nota: IC: intervalo de confianza. Dos últimos días hábiles de cada mes completo: ingenuo $+$1,38~pp, ensamble $+$1,30, oráculo 59 $+$0,97. Fuente: BCRA (API v4.0), datos al 19-10-2026. \nooficial}
+\end{figure}
 
-\textbf{Método, en lenguaje llano.} Se pronostica $\Delta CC$ de mañana (en pp de la base) con lo que se sabe hoy; por la identidad, los factores \emph{del mismo día} son la respuesta, no un dato previo. Cada variante es una regresión (MCO) reestimada cada día con la historia desde 2010; evaluación fuera de muestra desde ene-2022.
-\begin{itemize}
-\item \textbf{V1, factores rezagados}: factores por bloque de los cinco días previos y calendario de A.1.
-\item \textbf{V2, calendario y fechas}: calendario ampliado (tres primeros y últimos días hábiles, día de la semana completo) y fechas regulares inferidas \emph{sólo del pasado}: pagos de intereses (55) y del Tesoro (51) y vencimientos a 7, 14 y 28 días de saltos en pases, LELIQ o LEFI. Sin montos.
-\item \textbf{V3, cota de previsión perfecta (NO FACTIBLE)}: V2 más los montos \emph{efectivos} del día del Tesoro (48--51) y de intereses (55), con coeficientes estimados. Los \emph{oráculos contables} usan directamente la suma del día de esos factores (Tesoro e intereses) o de la serie 59. Responden: si se conocieran esos montos con exactitud, ¿cuánto bajaría el error?
-\end{itemize}
-
-\begin{table}[!ht]\centering\small
-\caption{Cuentas corrientes a un día: MAE relativo al ingenuo ($p$ DM-HLN), $p$ contra el ensamble, cobertura y sesgo de fin de mes.}\label{t:cc}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lcccccc@{}}
-\toprule
- & \multicolumn{2}{c}{MAE rel.\ ($p$ vs.\ ingenuo)} & \multicolumn{2}{c}{$p$ vs.\ ensamble} & Cobertura & Sesgo fin\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}
-Modelo & 2022--26 & desde 11-7-25 & 2022--26 & desde 11-7-25 & 90\,\% & mes (pp)\\
-\midrule
-Ingenuo & 1 & 1 & -- & -- & 0,90 & $+$1,38\\
-Ensamble (A.1) & 1,01 (0,83) & 1,07 (0,997) & -- & -- & 0,90 & $+$1,30\\
-V1 rezagados & 1,05 (1,00) & 1,05 (0,94) & 1,00 & 0,21 & 0,89 & $+$1,38\\
-V2 fechas & 1,03 (0,99) & 1,05 (0,95) & 0,95 & 0,14 & 0,90 & $+$1,43\\
-V3 Tesoro (NF) & 1,08 (1,00) & 1,05 (0,95) & 1,00 & 0,14 & 0,88 & $+$1,57\\
-Oráculo Tesoro (NF) & 1,32 (1,00) & 0,96 (0,24) & 1,00 & 0,03 & 0,91 & $+$1,49\\
-Oráculo 59 (NF) & 0,97 (0,11) & 0,57 ($<$0,001) & 0,07 & $<$0,001 & 0,90 & $+$0,97\\
-\bottomrule
-\end{tabular}
-\fuente{Notas: $n$ = 1165 y 309 (factores hasta el 19-10-2026); MAE del ingenuo: 1,63 y 1,37 pp de la base. Oráculo Tesoro: 48--51 y 55. Cobertura y sesgo (observado menos pronóstico, dos últimos días hábiles de cada mes completo): 2022--2026. Sin el 10-07-2025, con rezago de publicación o con ventana de 500 días, V1 y V2 siguen sin mejorar (1,03 a 1,11). Fuente: BCRA. \nooficial}
-\end{table}
-
-\textbf{Lectura.}
+\paso{Lectura.}
 \begin{itemize}
 \item \emph{Con información pública, nada mejora al ingenuo}: V1 y V2 erran más (1,05 y 1,03) y no superan al ensamble ($p\geq0{,}14$); la meta del núcleo (0,95) queda lejos.
-\item \emph{El Tesoro pesa, pero conocer sus montos casi no reduce el error}: V3 no mejora, y su oráculo empeora en 2022--2026 (1,32): sus flujos se compensan el mismo día (correlación entre 50 y 51: $-$0,56). Desde el 11-07-2025 pesa más (44,1\,\%), pero su oráculo apenas mejora (0,96; $p=0{,}24$).
-\item \emph{Más informarían las operaciones propias del BCRA y la posición de efectivo mínimo}: en 2022--2026, pases, LEFI, LELIQ y otras concentran la varianza (tabla~\ref{t:factores}); desde el 11-07-2025, sin pases ni LEFI, está en la serie 59: su oráculo reduce el error 43\,\% (0,57; $p<0{,}001$). En 2022--2026, sólo 3\,\% (0,97; $p=0{,}11$): antes, la liquidez se movía con pases y LEFI.
-\item \emph{Sesgo de fin de mes}: todos subestiman la suba de los dos últimos días hábiles ($+$1,0 a $+$1,6 pp), aun el oráculo de 59: compatible con el efectivo mínimo, a verificar.
+\item \emph{El Tesoro pesa, pero conocer sus montos casi no reduce el error}: V3 no mejora (1,08) y su oráculo empeora en 2022--2026 (1,32): sus flujos se compensan el mismo día (correlación entre 50 y 51: $-$0,56). Desde el 11-07-2025 pesa más (44,1\,\% de la varianza), pero su oráculo apenas mejora (0,96; $p=0{,}24$).
+\item \emph{Más informarían las operaciones propias del BCRA y el efectivo mínimo}: desde el 11-07-2025, sin pases ni LEFI, la varianza está en la serie 59 y su oráculo reduce el error 43\,\% (0,57; $p<0{,}001$); en 2022--2026, sólo 3\,\% (0,97; $p=0{,}11$). Todos subestiman los dos últimos días hábiles ($+$1,0 a $+$1,6~pp), aun el oráculo de 59: compatible con el efectivo mínimo, a verificar.
 \end{itemize}
-\textbf{Límites}: lineal, a un día; NF y oráculos son cotas. \textbf{Qué se necesita de Operaciones (en el entorno resguardado).} (1) Montos programados del día de las operaciones del BCRA con las entidades y con títulos (hoy, en la serie 59). (2) Movimientos previstos de la cuenta del Tesoro en el BCRA, \emph{netos} de sus contrapartidas (licitaciones, vencimientos, utilidades y su depósito). (3) Posición agregada de efectivo mínimo por período de cómputo, para el sesgo de fin de mes. Meta provisoria del modelo por factores: 0,95 del ingenuo.
+\emph{Qué decisión cambia}: el modelo por factores se arma con datos internos de Operaciones, no sólo del Tesoro. \textbf{Límites}: lineal, a un día; NF y oráculos son cotas. \textbf{Qué se necesita de Operaciones (en el entorno resguardado).} (1) Montos programados del día de las operaciones del BCRA con las entidades y con títulos (hoy, en la serie 59). (2) Movimientos previstos de la cuenta del Tesoro en el BCRA, \emph{netos} de sus contrapartidas (licitaciones, vencimientos, utilidades y su depósito). (3) Posición agregada de efectivo mínimo por período de cómputo, para el sesgo de fin de mes. Meta provisoria del modelo por factores: 0,95 del ingenuo.
 
 \subsection*{A.3. Cómo se valida el indicador (i)}
 Cada modelo se compara fuera de muestra con el ingenuo mediante la prueba de Diebold y Mariano (1995) con la corrección de Harvey, Leybourne y Newbold (1997), unilateral al 10\,\%, sobre el error absoluto. \emph{Mínimo}: 60 observaciones diarias en paralelo con datos internos; si no se reúnen, se extiende el paralelo hasta reunirlas y el modelo no pasa a producción. Que el intervalo de confianza de la reducción del error excluya el cero es un requisito \emph{adicional}, no un sustituto. El intervalo del 90\,\% (percentiles empíricos de los errores pasados) debe cubrir cerca del 90\,\% de las observaciones, sin sesgo por día del mes.
 \emph{Efectivo mínimo}: como un paralelo de pocos meses da sólo dos o tres períodos de cómputo, el pronóstico de la posición se valida con un \emph{backtest} sobre datos internos históricos (p.~ej., 24 períodos de cómputo, sólo con información previa a cada uno) \emph{más} la prueba en paralelo; el umbral de acierto se fija con la línea de base, no antes.
-\emph{Ajuste de fin de mes}: corrige el sesgo medio de los últimos días hábiles (sólo meses completos) si persiste en el paralelo; en el ingenuo, $+$1,38~pp (tabla~\ref{t:cc}).
-\fuente{Diebold, F.~X. y R.~S. Mariano (1995), ``Comparing predictive accuracy'', \emph{J.\ of Business \& Economic Statistics} 13(3), 253--263. Harvey, D., S. Leybourne y P. Newbold (1997), ``Testing the equality of prediction mean squared errors'', \emph{Int.\ J.\ of Forecasting} 13(2), 281--291.}
+\emph{Ajuste de fin de mes}: corrige el sesgo medio de los últimos días hábiles (sólo meses completos) si persiste en el paralelo; en el ingenuo, $+$1,38~pp (figura~\ref{f:perfil}).
+\fuente{Diebold, F.~X. y R.~S. Mariano (1995), \emph{J.\ of Business \& Economic Statistics} 13(3), 253--263. Harvey, D., S. Leybourne y P. Newbold (1997), \emph{Int.\ J.\ of Forecasting} 13(2), 281--291.}
 
 \section*{Anexo B. Demanda de dinero con el IPC oficial (Eje 4)}
-\textbf{Pregunta.} ¿Hay una relación estable de largo plazo entre dinero real, actividad y costo de oportunidad que ancle el programa? \textbf{Alcance}: \emph{no} prueba la especificación del núcleo (inflación esperada, M2 privado): usa M2 total y base, IPC observado y tasas nominales.
-\textbf{Método.} Engle-Granger mensual: $\ln(M/P)_t = c + b_y \ln Y_t + b_i\, i_t + u_t$ ($Y$: EMAE) y modelo de corrección de errores (MCE), donde $g<0$ es la fracción del desvío corregida cada mes. Estabilidad: ventanas de 60 meses y CUSUM. Especificaciones fijadas de antemano; se informan todas.
+\paso{Pregunta.} ¿Hay una relación estable de largo plazo entre dinero real, actividad y costo de oportunidad que ancle el programa?
+\paso{En palabras simples.} Si el público quisiera una cantidad estable de dinero real dadas la actividad y la tasa, el programa podría anclarse en esa demanda. Eso prueba la \emph{cointegración}: que las variables, aunque cada una deambule, no se alejan entre sí de forma permanente. \paso{Datos.} Mensuales, 2017--2026 (116 meses): M2 total (109) y base (15) deflactados por el IPC oficial, EMAE desestacionalizado y tasa de plazo fijo (1189). \emph{No} prueba la especificación del núcleo (inflación esperada, M2 privado).
+\paso{Método.} Prueba de Engle-Granger (EG) sobre $\ln(M/P)_t = c + b_y \ln Y_t + b_i\, i_t + u_t$ ($p<0{,}10$: cointegra). Modelo de corrección de errores (MCE): cada mes el dinero corrige una fracción $g<0$ del desvío. Estabilidad: ventanas móviles de 60 meses y CUSUM (residuos acumulados, que se desvían si los coeficientes cambian). Especificaciones fijadas de antemano; se informan todas.
 
-\begin{table}[!ht]\centering\small
-\caption{Demanda de dinero real con IPC oficial: coeficientes de largo plazo y diagnósticos.}
+\paso{Qué muestra la tabla~\ref{t:B}.} Si la relación fuera estable, el $p$ de EG sería bajo y casi ninguna ventana quedaría sin cointegración (última columna).
+
+\begin{table}[!htbp]\centering\small
+\caption{Demanda de dinero real con IPC oficial: coeficientes de largo plazo y diagnósticos.}\label{t:B}
 \setlength{\tabcolsep}{4.5pt}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
@@ -159,50 +120,65 @@ Base (2017--2026) & $-$1,48 & $-$0,86 & 0,70 & $-$0,06 ($-$3,3) & 0,06 & 98\,\%\
 M2, antes de 2020 (2017--2019) & 0,59 & $-$0,92 & 0,86 & $-$0,33 ($-$3,1) & 0,60 & --\\
 \bottomrule
 \end{tabular}
-\fuente{Notas: 116 meses (36 antes de 2020). $b_i$: semielasticidad, tasa anual en tanto por uno (en el M2, 10 pp más: $-$2,3\,\% de dinero real). $p$ EG menor que 0,10 indica cointegración; $p$ CUSUM menor que 0,10 rechaza la estabilidad. “Sin coint.”: ventanas de 60 meses sin cointegración al 10\,\%. Con BAIBAR o tasa en logaritmos, $p$ EG de 0,88 a 0,93. Fuente: BCRA e INDEC; datos hasta ago-2026. \nooficial}
+\fuente{Notas: 116 meses (36 antes de 2020). $b_i$: semielasticidad, tasa anual en tanto por uno (en el M2, 10~pp más: $-$2,3\,\% de dinero real). $p$ CUSUM $<0{,}10$ rechaza la estabilidad. ``Sin coint.'': \% de las 57 ventanas de 60 meses (dic-2021 a ago-2026) sin cointegración al 10\,\%. Con BAIBAR o tasa en logaritmos, $p$ EG de 0,88 a 0,93. Fuente: BCRA e INDEC; datos hasta ago-2026. \nooficial}
 \end{table}
 
-\textbf{Lectura.} \emph{No hay cointegración} en ninguna especificación ($p$ EG de 0,70 a 0,93) ni en casi ninguna ventana. En la base, $t=-3{,}3$ en $g$ no vale como prueba: sin cointegración ese $t$ no es normal, y EG, CUSUM ($p=0{,}06$) y las ventanas apuntan en contra. La elasticidad ingreso negativa no se interpreta; antes de 2020 los signos son los esperados, con poco poder (36 meses).
+\paso{Lectura.} \emph{No hay cointegración} en ninguna especificación ($p$ EG de 0,70 a 0,93) ni en casi ninguna ventana, y en las del M2 la elasticidad ingreso va de $-$1,3 a $+$0,6. En la base, $t=-3{,}3$ en $g$ no vale como prueba: sin cointegración ese $t$ no es normal, y EG, CUSUM ($p=0{,}06$) y las ventanas apuntan en contra. La elasticidad ingreso negativa no se interpreta; antes de 2020 los signos son los esperados, con poco poder (36 meses). \emph{Qué decisión cambia}: la demanda queda como contraste, no como ancla.
 
 \section*{Anexo C. Banda de tolerancia y desvíos del programa (Eje 4)}
-\textbf{Pregunta.} Si el M2 o la base se desvían del programa, ¿es normal o requiere la nota de desvíos (indicador~(v) del núcleo)? \textbf{Alcance}: M2 total (109) y base (15); el M2 privado transaccional (197) empieza en 2021 y no alcanza.
-\textbf{Método.} Cada mes desde ene-2021 se arma, con la información disponible, un programa a 1--3 meses y se guarda su error (observado/programado $-$ 1). El \emph{Informe de Política Monetaria} de junio de 2026 (BCRA) muestra el M2 privado transaccional con el escenario base de un modelo VECM y bandas de $\pm1$ y $\pm2$ desvíos estándar (gráficos III.2.9 y III.3.1). Aquí la banda candidata es otra: los percentiles 5 y 95 de los errores fuera de muestra previos, actualizados cada mes; se calibra por su cobertura empírica y se valida antes de usarla. Programas: (a) \emph{deriva} de 36 meses; (b) \emph{deriva estacional}; (c) \emph{velocidad} constante; (d) \emph{demanda MCE} del Anexo~B con efectos mensuales (ventanas de 48 meses); (e) MCE sin ellos. \textbf{Advertencia}: (c)--(e) usan IPC, EMAE y tasa \emph{observados} en el horizonte; su error es un piso.
+\paso{Pregunta.} Si el M2 o la base se desvían del programa, ¿es normal o requiere la nota de desvíos (indicador~(v) del núcleo)?
+\paso{En palabras simples.} Una banda del 90\,\% debería dejar afuera uno de cada diez meses: si deja muchos más, da falsas alarmas; si es tan ancha que nunca deja nada afuera, no sirve para decidir.
+\paso{Datos y método.} M2 total (109) y base (15), promedios mensuales (el M2 privado transaccional, 197, empieza en 2021). Cada mes desde ene-2021 se arma con la información disponible un programa a 1--3 meses y se guarda su error (observado/programado $-$ 1). El \emph{Informe de Política Monetaria} de junio de 2026 (BCRA) muestra el M2 privado transaccional con el escenario base de un modelo VECM y bandas de $\pm1$ y $\pm2$ desvíos estándar (gráficos III.2.9 y III.3.1). Aquí la banda candidata es otra: los percentiles 5 y 95 de los errores fuera de muestra previos, actualizados cada mes. Programas: (a) \emph{deriva} de 36 meses; (b) \emph{deriva estacional}; (c) \emph{velocidad} constante; (d) \emph{demanda MCE} del Anexo~B con efectos mensuales (ventanas de 48 meses); (e) MCE sin ellos. \textbf{Advertencia}: (c)--(e) usan IPC, EMAE y tasa \emph{observados} en el horizonte; su error es un piso.
 
-\begin{table}[!ht]\centering\small
-\caption{Programas a $h$ = 1--3 meses: error y pruebas en el M2 (109); cobertura de la banda del 90\,\% en el M2 y la base (15), y meses fuera de banda en el último año.}\label{t:dm}
+\paso{Qué muestra la tabla~\ref{t:dm}.} Qué programa erra menos que la deriva, y si la diferencia es significativa.
+\begin{table}[!htbp]\centering\small
+\caption{Programas para el M2 a $h$ = 1--3 meses: MAE relativo a la deriva y $p$ DM-HLN.}\label{t:dm}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}l*{9}{c}@{}}
 \toprule
-\emph{A. M2} & \multicolumn{3}{c}{MAE rel.\ a deriva} & \multicolumn{3}{c}{$p$ DM vs.\ (a)} & \multicolumn{3}{c}{$p$ DM vs.\ (b)}\\
+ & \multicolumn{3}{c}{MAE rel.\ a deriva} & \multicolumn{3}{c}{$p$ DM vs.\ (a)} & \multicolumn{3}{c}{$p$ DM vs.\ (b)}\\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(l){8-10}
 Programa \hfill $h=$ & 1 & 2 & 3 & 1 & 2 & 3 & 1 & 2 & 3\\
 \midrule
 (a) Deriva & 1,00 & 1,00 & 1,00 & -- & -- & -- & -- & -- & --\\
-(b) Deriva estacional & 0,82 & 0,87 & 0,93 & 0,01 & 0,08 & 0,12 & -- & -- & --\\
+(b) Deriva estacional & 0,82 & 0,87 & 0,93 & 0,01 & 0,07 & 0,12 & -- & -- & --\\
 (c) Velocidad & 0,87 & 0,79 & 0,68 & 0,12 & 0,07 & 0,04 & 0,66 & 0,30 & 0,11\\
 (d) Demanda MCE & 0,85 & 0,78 & 0,76 & 0,12 & 0,06 & 0,08 & 0,59 & 0,29 & 0,19\\
-(e) MCE sin ef.\ mensuales & 0,95 & 1,00 & 0,96 & 0,32 & 0,51 & 0,44 & 0,83 & 0,76 & 0,56\\
-\midrule
-\emph{B. Banda} & \multicolumn{3}{c}{Cobertura M2 (\%)} & \multicolumn{3}{c}{Cobertura base (\%)} & \multicolumn{3}{c}{Fuera, último año}\\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(l){8-10}
-Programa \hfill $h=$ & 1 & 2 & 3 & 1 & 2 & 3 & M2 & Base & \\
-\midrule
-(a) Deriva & 80,0 & 72,3 & 64,6 & 67,7 & 60,0 & 61,5 & 7 & 7 & \\
-(b) Deriva estacional & 72,3 & 64,6 & 58,5 & 67,7 & 63,1 & 63,1 & 11 & 9 & \\
-(c) Velocidad & 90,8 & 90,8 & 93,8 & 83,1 & 80,0 & 78,5 & 1 & 0 & \\
-(d) Demanda MCE & 74,4 & 78,6 & 80,5 & 81,4 & 78,6 & 68,3 & 1 & 2 & \\
-(e) MCE sin ef.\ mensuales & 76,7 & 78,6 & 82,9 & 76,7 & 76,2 & 78,0 & 1 & 1 & \\
+(e) MCE sin ef.\ mensuales & 0,95 & 1,00 & 0,96 & 0,32 & 0,50 & 0,44 & 0,83 & 0,76 & 0,56\\
 \bottomrule
 \end{tabular}
-\fuente{Notas: A: 65 orígenes (ene-2021 a may-2026); MAE de la deriva: 3,7 / 6,2 / 8,6\,\% a $h$ = 1 / 2 / 3; DM-HLN unilateral. B: porcentaje de orígenes dentro de la banda (errores anteriores); 65 orígenes en (a)--(c), 41--43 en (d) y (e) (24 errores previos del MCE); ancho a $h=3$ en el M2: 21~pp (a), 25 (d), 32 (c). Último año: jul-2025 a jun-2026, programa al cierre del trimestre previo. Fuente: BCRA e INDEC; datos hasta ago-2026. \nooficial}
+\fuente{Notas: 65 orígenes (ene-2021 a may-2026); MAE de la deriva: 3,7 / 6,2 / 8,6\,\% a $h$ = 1 / 2 / 3; DM-HLN unilateral. Fuente: BCRA e INDEC; datos hasta ago-2026. \nooficial}
 \end{table}
 
+(d) y (c) superan a la deriva a 2 y 3 meses ($p\leq0{,}08$), pero no a la deriva estacional ($p\geq0{,}11$). Errar menos, sin embargo, no garantiza una banda útil.
+\paso{Qué muestra la figura~\ref{f:cob}.} Arriba, la cobertura de cada banda (discontinua: 90\,\% nominal); abajo, su ancho: una banda cubre más si es más ancha. Sólo (c) llega al 90\,\% en el M2, con la banda más ancha.
 
-\textbf{Lectura.} (d) y (c) superan a la deriva a 2 y 3 meses ($p\leq0{,}08$), no a la estacional ($p\geq0{,}11$). En el M2 sólo (c) cubre el 90\,\%, con hasta 32~pp de ancho; en la base, ninguna. En el último año, (d) deja fuera sólo ene-2026 ($-7{,}9$\,\%; límite $-6{,}9$\,\%; figura~1).
-
-\begin{figure}[!b]\centering
-\includegraphics[width=0.7\linewidth]{codigo/salidas/chequeo_real.pdf}% rótulos de unos 8 pt efectivos
-\caption{M2 total (109): programa (d), demanda MCE con efectos mensuales, armado al cierre de cada trimestre, banda del 90\,\% y observado (promedios mensuales); desvío y banda en \% del programa. Fuente: BCRA e INDEC. \nooficial}
+\begin{figure}[!htbp]\centering
+\caption{\textbf{Ninguna banda es calibrada y angosta a la vez.} Cobertura empírica de la banda del 90\,\% (arriba) y ancho medio (abajo), por programa y horizonte, en el M2 y en la base.}\label{f:cob}
+\figura{fig_cobertura.pdf}
+\fuente{Nota: banda armada sólo con errores anteriores; 65 orígenes en (a)--(c) y 41--43 en (d) y (e). Fuente: BCRA e INDEC; datos hasta ago-2026. \nooficial}
 \end{figure}
 
+\paso{Qué muestra la figura~\ref{f:chk}.} El uso práctico: el programa (d), su banda y el M2 observado en el último año; un solo mes queda fuera.
+
+\begin{figure}[!htbp]\centering
+\caption{\textbf{Así funcionaría el chequeo mensual de desvíos.} M2 total (109): programa (d) armado al cierre de cada trimestre, banda del 90\,\% y observado (promedios mensuales).}\label{f:chk}
+\figura{chequeo_real.pdf}
+\fuente{Nota: desvío y límites en \% del programa; jul-2025 a jun-2026. Fuente: BCRA e INDEC; datos hasta ago-2026. \nooficial}
+\end{figure}
+
+\paso{Lectura.} En el M2 sólo (c) cubre el 90\,\%, con hasta 32~pp de ancho; en la base, ninguna (máximo 83,1\,\%). La banda de (d) cubre 74--81\,\% en el M2: la nota de desvíos se activaría de más. En el último año, (d) deja fuera sólo ene-2026 ($-7{,}9$\,\%; límite $-6{,}9$\,\%); la deriva y la deriva estacional, 7 y 11 meses de 12. \emph{Qué decisión cambia}: la banda se calibra con el programa vigente y se valida antes de activar la nota (mensaje 4).
+
+\section*{Anexo D. Detalle de cifras}
+{\footnotesize
+\textbf{Figura~\ref{f:mae}.} $p$ DM-HLN (2022--2026 / desde el 11-07-2025 / últimos 60 días): circulación $<$0,001 en los tres; billetes $<$0,001 / 0,002 / 0,45; cuentas corrientes 0,82 / 0,997 / 0,96; base 0,41 / 0,91 / 0,84; base por componentes 0,002 / 0,13 / 0,28. Cobertura (2022--2026): 0,93; 0,96; 0,90; 0,90; 0,91, en ese orden. Errores en $100\,\Delta\ln$ (MAE ingenuo de la base: 1,648; 1,658 en variación \% simple); el ahorro pondera por el peso de la serie en la base. Sin el 10-07-2025 (salto por las LEFI), los MAE relativos no cambian a dos decimales y los $p$, en menos de 0,01.
+
+\textbf{Figura~\ref{f:var}.} ``Resto'' (\%, 2022--2026 / desde el 11-07-2025; --: sin movimiento): 47 divisas, salvo al Tesoro, $-$0,7 / 1,0; 48 divisas al Tesoro, $-$0,3 / $-$1,0; 49 adelantos transitorios, 0,2 / --; 50 utilidades, 1,0 / 1,3; 54 redescuentos, 0,0 / --; 55 intereses y remuneración de cuentas corrientes, 1,0 / --; 16 circulación, $-$0,6 / $-$0,5. 51: sobre todo, la cuenta en pesos del Tesoro; 59: títulos, BOPREAL, futuros y, desde el 15-07-2025, simultáneas y otras de corto plazo. 1165 días; sin el 10-07-2025: pases 55,0, LEFI 17,8, 51 $-$5,5.
+
+\textbf{Figura~\ref{f:cob}.} Ancho a $h=3$ en el M2: 21~pp (a), 25 (d), 32 (c). Fuera de banda en jul-2025 a jun-2026, M2 / base: (a) 7 / 7; (b) 11 / 9; (c) 1 / 0; (d) 1 / 2; (e) 1 / 1.
+
+\textbf{A.2} (2022--2026 / desde el 11-07-2025; $n$ = 1165 y 309; factores hasta el 19-10-2026). MAE relativo desde el 11-07-2025: V1, V2 y V3, 1,05. $p$ contra el ingenuo: ensamble 0,83 / 0,997; V1 1,00 / 0,94; V2 0,99 / 0,95; V3 1,00 / 0,95; oráculo Tesoro 1,00 / 0,24; oráculo 59 0,11 / $<$0,001. Contra el ensamble: V1 1,00 / 0,21; V2 0,95 / 0,14; V3 1,00 / 0,14; oráculo Tesoro 1,00 / 0,03; oráculo 59 0,07 / $<$0,001. MAE del ingenuo: 1,63 y 1,37~pp. En 2022--2026, cobertura: 0,88 (V3) a 0,91 (oráculo Tesoro); sesgo de fin de mes: ingenuo y V1 $+$1,38, ensamble $+$1,30, V2 $+$1,43, V3 $+$1,57, oráculo Tesoro $+$1,49, oráculo 59 $+$0,97~pp. Sin el 10-07-2025, con rezago de publicación o con ventana de 500 días, V1 y V2 siguen sin mejorar (1,03 a 1,11).
+
+
+\par}
 \end{document}
