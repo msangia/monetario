@@ -2,9 +2,13 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[spanish,es-noquoting]{babel}
+\usepackage[spanish,es-noquoting,es-tabla]{babel}
 \usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{enumitem}
+\usepackage{booktabs,array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[font=small,labelfont=bf,skip=3pt]{caption}
 \usepackage[colorlinks=false,hidelinks]{hyperref}
 \setlist{itemsep=1pt,topsep=2pt,parsep=0pt,leftmargin=1.2em}
 \setlength{\parindent}{0pt}
@@ -13,6 +17,12 @@
 % --- Datos del postulante (editar aquí) ---
 \newcommand{\autor}{Máximo Sangiácomo}
 \newcommand{\trayectoria}{Ingresé al BCRA en febrero de 2006: fui analista sénior y jefe de Investigaciones Económicas (crédito y finanzas corporativas) y jefe de Monitoreo Macroprudencial (2017--2020: regulación bancaria, crédito y estabilidad financiera), con personal a cargo en ambas jefaturas; desde mayo de 2020 soy Subgerente de Modelos Macroeconómicos: modelos DSGE y semiestructurales, \emph{pipelines} de pronóstico (series de tiempo y aprendizaje automático) y flujos de datos. Soy licenciado en Economía (UNLP) y magíster en Finanzas (UTDT), con especialización en Ciencia de Datos (ITBA), doctorado en Economía en curso (UNLP) e inglés avanzado.}
+
+% --- Macros de los anexos ---
+\newcommand{\fuente}[1]{\par\vspace{1pt}{\footnotesize\raggedright #1\par}}
+\newcommand{\nooficial}{Cálculo propio, no oficial.}
+\newcommand{\paso}[1]{\textbf{#1}\enspace}
+\newcommand{\figura}[1]{\includegraphics[width=\linewidth]{codigo/salidas/#1}}
 
 \title{\textbf{Proyecto de trabajo}\\[2pt]\large Gerente de Análisis Monetario (426 05)}
 \author{\autor}
@@ -72,7 +82,7 @@ Un pronóstico que no se reproduce no puede auditarse ni mejorarse. Propongo un 
 Nada de lo anterior funciona si el equipo no lo hace propio. Mi enfoque es simple: objetivos claros, autoridad delegada en los subgerentes y tiempo protegido para aprender.
 \begin{itemize}
 \item \textbf{Planificar y delegar}: plan anual con objetivos medibles por subgerencia y persona; los recursos van primero a la operación diaria y a los compromisos con Operaciones y el IPOM, luego al núcleo y después a la segunda etapa. Cada subgerente tiene autoridad sobre sus frentes, reunión mensual, evaluación y plan de desarrollo. Los pedidos urgentes pueden postergar la segunda etapa, nunca la tarea diaria. Ante bajo desempeño, conversación, plan de mejora y acompañamiento.
-\item \textbf{Desarrollar al equipo}: una \emph{matriz de habilidades} por proceso crítico (quién ejecuta, quién respalda, quién aprende), alimentada por la rotación de un analista por semestre en la otra subgerencia, evita depender de una sola persona. Para aprender, un seminario quincenal de los analistas, donde se devuelve la capacitación externa (BoE, FMI, CEMLA), y un laboratorio de datos con hasta el 10\,\% de las horas. Para reconocer, notas firmadas por sus autores y una trayectoria de especialista valorada en la evaluación.
+\item \textbf{Desarrollar al equipo}: una \emph{matriz de habilidades} por proceso crítico (quién ejecuta, quién respalda, quién aprende), alimentada por la rotación de un analista por semestre en la otra subgerencia, evita depender de una sola persona. Para aprender, un seminario quincenal de los analistas, donde se devuelve la capacitación externa (BoE, FMI, CEMLA), y un laboratorio de datos con hasta el 10\,\% de las horas. Para reconocer, notas firmadas por sus autores.
 \item \textbf{Articular y resguardar}: \emph{briefing} semanal a las autoridades vía la Gerencia Principal y presentación trimestral del programa y sus desvíos; acceso registrado; declaración de conflictos.
 \item \textbf{Procedimientos y Auditoría}: cada proceso crítico tendrá un manual (pasos, fuentes, controles, responsables) actualizado con cada cambio y revisado cada año. Las observaciones de la Auditoría General se priorizan por riesgo, con responsable y seguimiento; como objetivo interno, el plan de regularización se presenta en 30 días, salvo que la Auditoría fije otro plazo.
 \end{itemize}
@@ -95,5 +105,15 @@ Medir el error, cambiar en paralelo y apoyarse en el equipo permite ganar precis
 
 \small
 \textbf{Referencias}: BCRA (15-12-2025), \emph{Profundización del esquema de agregados monetarios: fase de re-monetización 2026}. BCRA (junio de 2026), \emph{Informe de Política Monetaria}. BCRA (agosto de 2026), \emph{Informe Monetario Mensual}. Barnett (1980), \emph{J.\ Econometrics} 14(1). Chakraborty y Joseph (2017), \emph{Machine learning at central banks}, BoE SWP 674. Hamilton (1996), \emph{JPE} 104(1).
+
+\clearpage
+\setlength{\emergencystretch}{3em}
+\renewcommand{\topfraction}{0.9}\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}\renewcommand{\floatpagefraction}{0.8}
+\setcounter{totalnumber}{4}\setcounter{topnumber}{3}
+\makeatletter\@secpenalty=0 \@itempenalty=0 \@beginparpenalty=0 \@endparpenalty=0 \makeatother
+\captionsetup[figure]{position=top}
+\captionsetup[table]{position=top}
+\input{anexos_cuerpo}
 
 \end{document}

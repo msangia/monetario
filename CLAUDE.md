@@ -18,14 +18,14 @@ Lectura de PDF: `pdftotext -layout "<archivo>.pdf" -`. Lectura del `.docx`: `pyt
 ## Agentes (`.claude/agents/`, los tres `claude-opus-5-5`)
 
 - **`autor-proyecto`**: especialista en análisis monetario con experiencia en BoE, Fed St. Louis, NY Fed, BCE y Banco de Canadá, adaptada al caso argentino. Hace el benchmark, el esquema y la redacción.
-- **`analista-python-monetario`**: experto en análisis monetario con Python. Escribe y prueba las rutinas de `codigo/` y redacta `anexos.tex`. No toca el núcleo (`proyecto.tex`).
+- **`analista-python-monetario`**: experto en análisis monetario con Python. Escribe y prueba las rutinas de `codigo/` y redacta `anexos_cuerpo.tex`. No toca el núcleo (`proyecto.tex`).
 - **`jurado-seleccion`**: experto en RR.HH. y selección de personal. Evalúa de forma **independiente**, sin herramientas de escritura, y emite el dictamen.
 
 Si el entorno no carga los agentes por nombre (se cargan al iniciar la sesión), invocar un subagente genérico con el contenido del archivo del agente como instrucciones y `model: opus`.
 
 ## Reglas inamovibles
 
-1. **Núcleo: máximo 4 páginas** en PDF (`proyecto.tex`); los **anexos** (`anexos.tex`, PDF aparte, idealmente ≤ 3 páginas) no integran ese límite, pero el núcleo debe entenderse sin ellos. Antes de presentar, el usuario confirma que la convocatoria admite anexos. Formato estándar: A4, márgenes 2,5 cm, cuerpo 11 pt, interlineado simple (1,0–1,15). Prohibido achicar márgenes, fuente o interlineado, o forzar el espaciado para entrar: se recorta contenido.
+1. **Núcleo: máximo 4 páginas** en PDF (`proyecto.tex`); los **anexos** (`anexos_cuerpo.tex`, incluido por `proyecto.tex` desde la página 5 en un único PDF; `anexos.tex` es sólo un envoltorio para compilarlos aparte) no integran ese límite, pero el núcleo debe entenderse sin ellos. Antes de presentar, el usuario confirma que la convocatoria admite anexos. Formato estándar: A4, márgenes 2,5 cm, cuerpo 11 pt, interlineado simple (1,0–1,15). Prohibido achicar márgenes, fuente o interlineado, o forzar el espaciado para entrar: se recorta contenido.
 2. **Nada inventado.** No se escriben cifras, publicaciones, cargos, cursos, normas ni prácticas de otros bancos centrales que no estén verificados. Los datos biográficos del postulante salen **únicamente** de `MSangia_CVeng.pdf` (o de lo que confirme el usuario) y deben coincidir con él (cargos, fechas, cursos, publicaciones). Nunca se incluyen datos personales de contacto o de nacimiento. No se atribuye experiencia que el CV no muestre (p. ej., operaciones de liquidez): se aprovecha la real y se ofrece un plan para cubrir el resto.
 3. **Confidencialidad.** No incluir datos internos ni información sensible del BCRA; usar sólo información pública. La propuesta de IA debe resguardar la información sensible (entornos internos).
 4. **Independencia del jurado.** Al invocarlo se le pasa **sólo** la ruta de `proyecto.tex`/`proyecto.pdf` y la consigna de evaluar (el jurado ya sabe que puede consultar el CV para contrastar afirmaciones biográficas). No se le pasa la justificación del autor, ni el contenido de `trabajo/`, ni versiones anteriores de su dictamen.
@@ -65,7 +65,7 @@ CLAUDE.md                     Este protocolo
 .claude/agents/               autor-proyecto.md, jurado-seleccion.md
 proyecto.tex / proyecto.pdf   Entregable (≤ 4 páginas)
 trabajo/                      Matriz, benchmark, revisiones (material de trabajo; no se entrega)
-anexos.tex / anexos.pdf       Anexos breves con ejemplos de rutinas Python (fuera del límite de 4 páginas)
+anexos_cuerpo.tex / anexos.tex  Anexos breves (incluidos en proyecto.pdf) con ejemplos de rutinas Python (fuera del límite de 4 páginas)
 codigo/                       Rutinas Python, tests y requirements
 datos/                        CSV públicos (los deja el usuario) o sintéticos rotulados
 MSangia_CVeng.pdf, manual_organico.docx, *.pdf   Insumos
